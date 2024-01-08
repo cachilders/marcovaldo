@@ -8,17 +8,17 @@ function init()
 end
 
 function enc(e, d)
-  if e == 1 then
+  if e == 1 and not shift then
     -- do stuff
-  elseif e == 2 then
+  elseif e == 2 and not shift then
     -- do stuff
-  elseif e == 3 then
+  elseif e == 3 and not shift then
     -- do stuff
-  elseif shift and e == 1 then
+  elseif e == 1 and shift then
     -- do stuff
-  elseif shift and e == 2 then
+  elseif e == 2 and shift then
     -- do stuff
-  elseif shift and e == 3 then
+  elseif e == 3 and shift then
     -- do stuff
   end
 end
