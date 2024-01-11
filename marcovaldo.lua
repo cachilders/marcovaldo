@@ -3,8 +3,21 @@
 
 shift_depressed = false
 
+local Ring = require('lib/ring')
+local Rings = require('lib/rings')
+
+include('lib/utils')
+
 function init()
-  -- do stuff
+  init_rings()
+end
+
+function init_rings()
+  rings = Rings:new()
+  rings:add(Ring:new({id = 1, range = 16, x = 5}))
+  rings:add(Ring:new({id = 2, range = 8, x = 5}))
+  rings:add(Ring:new({id = 3, range = 32, x = 5}))
+  rings:add(Ring:new({id = 4, range = 1, x = 5}))
 end
 
 function enc(e, d)
@@ -44,6 +57,8 @@ end
 function redraw()
   screen.clear()
 
+  rings:paint()
+  
   screen.update()
 end
 
