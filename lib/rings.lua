@@ -1,15 +1,7 @@
-local LEDS = 64
-
 local Rings = {
   host = nil,
   rings = {}
 }
-
-local function _extents(i, range)
-  local segment_width = math.floor(LEDS/range)
-  local start = i * segment_width
-  return start, start + segment_width
-end
 
 function Rings:new(options)
   local instance = options or {}
@@ -28,24 +20,21 @@ end
 
 function Rings:paint()
   if self:_dirty() then
-    for i, ring in pairs(self.rings) do
-      if ring:get('range') == LEDS then
-        self.host:led(ring:get('id'), ring:get('x'), ring:get('lumen'))
-      else
-        local a, b = _extents(ring:get('x'), ring:get('range'))
-        self.host:segment(self:get('id'), a, b, ring:get('lumen'))
-      end
+    self.host:all(0)
+    for _, ring in pairs(self.rings) do
+      ring:paint(self.host)
       ring:set('dirty', false)
     end
-    self.host:redraw()
+    self.host:refresh()
   end
 end
 
 function Rings:_dirty()
   local dirty = false
-  for i, ring in pairs(self.rings) do
+  for _, ring in pairs(self.rings) do
       dirty = ring:get('dirty') or dirty
   end
+  return dirty
 end
 
 return Rings

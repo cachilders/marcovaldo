@@ -3,21 +3,28 @@
 
 shift_depressed = false
 
-local Ring = require('lib/ring')
-local Rings = require('lib/rings')
+local Ring = include('lib/ring')
+local Rings = include('lib/rings')
 
 include('lib/utils')
+include('lib/test/ring')
 
 function init()
+  run_tests()
   init_rings()
+end
+
+function run_tests()
+  test_extents_in_radians()
 end
 
 function init_rings()
   rings = Rings:new()
-  rings:add(Ring:new({id = 1, range = 16, x = 5}))
-  rings:add(Ring:new({id = 2, range = 8, x = 5}))
-  rings:add(Ring:new({id = 3, range = 32, x = 5}))
-  rings:add(Ring:new({id = 4, range = 1, x = 5}))
+  rings:init()
+  rings:add(Ring:new({id = 1, range = 16, x = 1}))
+  rings:add(Ring:new({id = 2, range = 8, x = 2}))
+  rings:add(Ring:new({id = 3, range = 4, x = 3}))
+  rings:add(Ring:new({id = 4, range = 64, x = 32}))
 end
 
 function enc(e, d)
