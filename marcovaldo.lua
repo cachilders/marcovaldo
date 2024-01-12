@@ -3,6 +3,7 @@
 
 shift_depressed = false
 
+local Map = include('lib/map')
 local Ring = include('lib/ring')
 local Rings = include('lib/rings')
 
@@ -12,6 +13,7 @@ include('lib/test/ring')
 function init()
   run_tests()
   init_rings()
+  init_map()
 end
 
 function run_tests()
@@ -25,6 +27,11 @@ function init_rings()
   rings:add(Ring:new({id = 2, range = 8, x = 2}))
   rings:add(Ring:new({id = 3, range = 4, x = 3}))
   rings:add(Ring:new({id = 4, range = 64, x = 32}))
+end
+
+function init_map()
+  map = Map:new()
+  map:init()
 end
 
 function enc(e, d)
@@ -61,10 +68,19 @@ function key(k, z)
   end
 end
 
+function arc.delta(n, delta)
+  print(n, delta)
+end
+
+function grid.key(x, y, z)
+  print(x, y, z)
+end
+
 function redraw()
   screen.clear()
 
   rings:paint()
+  map:paint()
   
   screen.update()
 end

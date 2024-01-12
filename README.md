@@ -2,6 +2,9 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(1/11/2024)**
+It was more of a struggle to nail the radians to rings ratio than I'd prefer to admit.
+
 **(1/8/2024)**
 Back in November of 2020 I feverishly captured this idea on the whiteboard on my bedroom door (generally used for chores and family notes). 
 
