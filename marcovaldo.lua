@@ -3,8 +3,28 @@
 
 shift_depressed = false
 
+local Ring = include('lib/ring')
+local Rings = include('lib/rings')
+
+include('lib/utils')
+include('lib/test/ring')
+
 function init()
-  -- do stuff
+  run_tests()
+  init_rings()
+end
+
+function run_tests()
+  test_extents_in_radians()
+end
+
+function init_rings()
+  rings = Rings:new()
+  rings:init()
+  rings:add(Ring:new({id = 1, range = 16, x = 1}))
+  rings:add(Ring:new({id = 2, range = 8, x = 2}))
+  rings:add(Ring:new({id = 3, range = 4, x = 3}))
+  rings:add(Ring:new({id = 4, range = 64, x = 32}))
 end
 
 function enc(e, d)
@@ -44,6 +64,8 @@ end
 function redraw()
   screen.clear()
 
+  rings:paint()
+  
   screen.update()
 end
 
