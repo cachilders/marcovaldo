@@ -2,6 +2,11 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(1/12/2024)**
+Structure materialized in the shower for a method of laying out the app as a series of disconected 64 pixel layers, each with a purpose and representing an overlapping reality. Built out a few of the low level prototypes and got the arc and grid into an interactive state with most of the abstraction I wanted. Still need Panes.
+
+Created the cat plan and cat symbol so I wouldn't forget, but didn't get far.
+
 **(1/11/2024)**
 It was more of a struggle to nail the radians to rings ratio than I'd prefer to admit.
 
