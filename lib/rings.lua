@@ -18,7 +18,7 @@ function Rings:add(ring)
   table.insert(self.rings, ring)
 end
 
-function Rings:paint()
+function Rings:update()
   if self:_dirty() then
     self.host:all(0)
     for _, ring in pairs(self.rings) do
@@ -27,6 +27,10 @@ function Rings:paint()
     end
     self.host:refresh()
   end
+end
+
+function Rings:turn(n, delta)
+  self.rings[n]:change(delta)
 end
 
 function Rings:_dirty()

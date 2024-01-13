@@ -10,10 +10,14 @@ local Rings = include('lib/rings')
 include('lib/utils')
 include('lib/test/ring')
 
+util = require('util')
+
 function init()
   run_tests()
   init_rings()
   init_map()
+  
+  math.randomseed(os.time())
 end
 
 function run_tests()
@@ -36,17 +40,11 @@ end
 
 function enc(e, d)
   if e == 1 and not shift then
-    -- do stuff
   elseif e == 2 and not shift then
-    -- do stuff
   elseif e == 3 and not shift then
-    -- do stuff
   elseif e == 1 and shift then
-    -- do stuff
   elseif e == 2 and shift then
-    -- do stuff
   elseif e == 3 and shift then
-    -- do stuff
   end
 end
 
@@ -58,30 +56,28 @@ function key(k, z)
   end
 
   if k == 2 and z == 0 and not shift_depressed then
-    -- do stuff
   elseif k == 2 and z == 0 and shift_depressed then
-    -- do stuff
   elseif k == 3 and z == 0 and not shift_depressed then
-    -- do stuff
   elseif k == 3 and z == 0 and shift_depressed  then
-    -- do stuff
   end
 end
 
 function arc.delta(n, delta)
-  print(n, delta)
+  rings:turn(n, delta)
 end
 
 function grid.key(x, y, z)
-  print(x, y, z)
+  map:press(x, y, z)
+end
+
+function update_peripherals()
+  map:update()
+  rings:update()
 end
 
 function redraw()
+  update_peripherals()
   screen.clear()
-
-  rings:paint()
-  map:paint()
-  
   screen.update()
 end
 

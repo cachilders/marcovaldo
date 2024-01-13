@@ -21,6 +21,11 @@ function Ring:new(options)
   return instance
 end
 
+function Ring:change(delta)
+  self:set('x', util.clamp(self.x + delta, 1, self.range))
+  self.dirty = true
+end
+
 function Ring:set(k, v)
   self[k] = v
 end
