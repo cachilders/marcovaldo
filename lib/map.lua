@@ -1,8 +1,14 @@
+local PANE_EDGE_LENGTH = 8
+local Plan = include('lib/plan')
+
 local Map = {
   host = nil,
   lumen = 5,
-  the_city_all_to_himself = nil,
-  the_city_of_stubborn_cats = nil
+  -- Panes might have an API for swapping contents and
+  -- should probably only know their quadrant to pass
+  -- offsets to loaded plans
+  panes = {},
+  panes_per_page = 2 -- TODO
 }
 
 function Map:new(options)
@@ -14,33 +20,37 @@ end
 
 function Map:init(n)
   self.host = grid.connect(n)
-  self.the_city_all_to_himself = self._gesso(8, 8)
-  self.the_city_of_stubborn_cats = self._gesso(8, 8)
+  -- Just keeping these names to placehold the ideas before 
+  -- moving them to the panel templates
+  local the_city_all_to_himself = Plan:new({led = function(x, y, l) self.host:led(x, y, l) end})
+  local the_city_of_stubborn_cats = Plan:new({
+    led = function(x, y, l) self.host:led(x, y, l) end,
+    x_offset = 8
+  })
+  self.panes = {
+    the_city_all_to_himself,
+    the_city_of_stubborn_cats
+  }
 end
 
-function Map:paint()
-  self:_paint_plan(self.the_city_all_to_himself, true)
-  self:_paint_plan(self.the_city_of_stubborn_cats)
+function Map:press(x, y, z)
+  if x <= PANE_EDGE_LENGTH and y <= PANE_EDGE_LENGTH then
+    self.panes[1]:mark(x, y, z)
+  elseif x > PANE_EDGE_LENGTH and y <= PANE_EDGE_LENGTH then
+    self.panes[2]:mark(x - PANE_EDGE_LENGTH, y, z)
+  elseif x <= PANE_EDGE_LENGTH and y > PANE_EDGE_LENGTH then
+    self.panes[3]:mark(x, y - PANE_EDGE_LENGTH, z)
+  elseif x > PANE_EDGE_LENGTH and y > PANE_EDGE_LENGTH then
+    self.panes[4]:mark(x - PANE_EDGE_LENGTH, y - PANE_EDGE_LENGTH, z)
+  end
+end
+
+function Map:update()
+  self.host:all(0)
+  for i = 1, #self.panes do
+    self.panes[i]:update()
+  end
   self.host:refresh()
-end
-
-function Map:_paint_plan(plan, plan_left)
-  for r = 1, #plan do
-    for c = 1, #plan[r] do
-      self.host:led(plan_left and c or c + #plan[r], r, plan[r][c] == 0 and 0 or self.lumen)
-    end
-  end
-end
-
-function Map._gesso(x, y)
-  local plan = {}
-  for r = 1, y do
-    plan[r] = {}
-    for c = 1, x do
-      plan[r][c] = c % r == c and 1 or 0 -- temp
-    end
-  end
-  return plan
 end
 
 return Map
