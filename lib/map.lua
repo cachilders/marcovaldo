@@ -1,6 +1,6 @@
 local PANE_EDGE_LENGTH = 8
-local Plan = include('lib/cat_plan')
-local CatPlan = include('lib/plan')
+local Plan = include('lib/plan')
+local CatPlan = include('lib/cat_plan')
 
 local Map = {
   host = nil,
@@ -39,7 +39,6 @@ function Map:init(n)
 end
 
 function Map:press(x, y, z)
-  print(x, y)
   if x <= PANE_EDGE_LENGTH and y <= PANE_EDGE_LENGTH then
     self.panes[1]:mark(x, y, z)
   elseif x > PANE_EDGE_LENGTH and y <= PANE_EDGE_LENGTH then

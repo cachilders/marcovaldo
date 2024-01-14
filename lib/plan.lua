@@ -17,7 +17,6 @@ function Plan:new(options)
 end
 
 function Plan:init()
-  print('sup')
   self.features = self:_gesso()
 end
 

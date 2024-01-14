@@ -12,7 +12,6 @@ function CatPlan:new(options)
 end
 
 function CatPlan:_add(x, y)
-  print(self.x_offset)
   local symbol = {
     led = self.led,
     lumen = 5,
