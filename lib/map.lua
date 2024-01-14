@@ -1,5 +1,6 @@
 local PANE_EDGE_LENGTH = 8
-local Plan = include('lib/plan')
+local Plan = include('lib/cat_plan')
+local CatPlan = include('lib/plan')
 
 local Map = {
   host = nil,
@@ -23,7 +24,7 @@ function Map:init(n)
   -- Just keeping these names to placehold the ideas before 
   -- moving them to the panel templates
   local the_city_all_to_himself = Plan:new({led = function(x, y, l) self.host:led(x, y, l) end})
-  local the_city_of_stubborn_cats = Plan:new({
+  local the_city_of_stubborn_cats = CatPlan:new({
     led = function(x, y, l) self.host:led(x, y, l) end,
     x_offset = 8
   })
@@ -31,9 +32,14 @@ function Map:init(n)
     the_city_all_to_himself,
     the_city_of_stubborn_cats
   }
+
+  for i = 1, #self.panes do
+    self.panes[i]:init()
+  end
 end
 
 function Map:press(x, y, z)
+  print(x, y)
   if x <= PANE_EDGE_LENGTH and y <= PANE_EDGE_LENGTH then
     self.panes[1]:mark(x, y, z)
   elseif x > PANE_EDGE_LENGTH and y <= PANE_EDGE_LENGTH then

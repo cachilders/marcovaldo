@@ -14,6 +14,14 @@ function Symbol:new(options)
   return instance
 end
 
+function Symbol:get(k)
+  return self[k]
+end
+
+function Symbol:set(k, v)
+  self[k] = v
+end
+
 function Symbol:update()
   -- move, flicker, fade out, whatever...then
   self.led(self.x + self.x_offset, self.y + self.y_offset, self.lumen)
