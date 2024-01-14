@@ -5,6 +5,7 @@ local Ring = {
   id = 1,
   lumen = 10,
   range = LEDS,
+  throttled = false,
   x = 1
 }
 
@@ -22,8 +23,15 @@ function Ring:new(options)
 end
 
 function Ring:change(delta)
-  self:set('x', util.clamp(self.x + delta, 1, self.range))
-  self.dirty = true
+  if not self.throttled then
+    self:set('x', util.wrap(self.x + delta, 1, self.range))
+    self.dirty = true
+    self.throttled = true
+    clock.run(function()
+      clock.sleep((LEDS/self.range) * .01)
+      self.throttled = false
+    end)
+  end
 end
 
 function Ring:set(k, v)

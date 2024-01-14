@@ -2,13 +2,12 @@ local Plan = include('lib/plan')
 local CatSymbol = include('lib/cat_symbol')
 
 local CatPlan = {}
-
-setmetatable(CatPlan, { __index = Plan })
+CatPlan.__index = CatPlan
 
 function CatPlan:new(options)
-  local instance = options or {}
-  setmetatable(instance, self)
-  self.__index = self
+  local instance = Plan:new(options)
+  setmetatable(CatPlan, {__index = Plan})
+  setmetatable(instance, CatPlan)
   return instance
 end
 
@@ -18,9 +17,11 @@ function CatPlan:_add(x, y)
     lumen = 5,
     x = x,
     x_offset = self.x_offset,
-    shift = function(x, y, to_x, to_y) print('Shift symbol at '..x, y..' to '..to_x, to_y) end, -- callback to move within the plan features
+    y = y,
+    y_offset = self.y_offset,
+    shift = function(x, y, to_x, to_y) self:_shift_symbol(x, y, to_x, to_y) end
   }
-  self.features[y][x] = Symbol:new(symbol)
+  self.features[y][x] = CatSymbol:new(symbol)
 end
 
 return CatPlan

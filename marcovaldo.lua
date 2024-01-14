@@ -28,9 +28,9 @@ function init_rings()
   rings = Rings:new()
   rings:init()
   rings:add(Ring:new({id = 1, range = 16, x = 1}))
-  rings:add(Ring:new({id = 2, range = 8, x = 2}))
-  rings:add(Ring:new({id = 3, range = 4, x = 3}))
-  rings:add(Ring:new({id = 4, range = 64, x = 32}))
+  rings:add(Ring:new({id = 2, range = 8, x = 1}))
+  rings:add(Ring:new({id = 3, range = 32, x = 1}))
+  rings:add(Ring:new({id = 4, range = 64, x = 1}))
 end
 
 function init_map()

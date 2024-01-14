@@ -13,8 +13,11 @@ function Plan:new(options)
   local instance = options or {}
   setmetatable(instance, self)
   self.__index = self
-  instance.features = self:_gesso()
   return instance
+end
+
+function Plan:init()
+  self.features = self:_gesso()
 end
 
 function Plan:update()
@@ -44,10 +47,6 @@ function Plan:_add(x, y)
     x_offset = self.x_offset,
     y = y,
     y_offset = self.y_offset,
-    head = nil, -- Trim the props for the base class
-    tail = false, -- this is only a note for future to suggest behavior
-    prime = true,
-    die = function(x, y) self.features[y][x] = nil end,
     shift = function(x, y, to_x, to_y) print('Shift symbol at '..x, y..' to '..to_x, to_y) end, -- callback to move within the plan features
   }
   self.features[y][x] = Symbol:new(symbol)
@@ -66,6 +65,21 @@ function Plan:_gesso()
     end
   end
   return features
+end
+
+
+function Plan:_shift_symbol(last_x, last_y, symbol)
+  if symbol.x > 0 and symbol.x <= self.width and symbol.y > 0 and symbol.y <= self.height then
+    if self.features[symbol.y][symbol.x] == nil then
+      self.features[symbol.y][symbol.x] = symbol
+      self.features[last_y][last_x] = nil
+    else
+      symbol:set('x', last_x)
+      symbol:set('y', last_y)
+    end
+  else
+    self.features[last_y][last_x] = nil
+  end
 end
 
 return Plan
