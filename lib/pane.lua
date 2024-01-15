@@ -1,0 +1,4 @@
+-- Not sure we need panes to be entities
+-- so I'm going to hold off on over-
+-- complicating things till I get to
+-- pagination for the grid

@@ -6,7 +6,7 @@ local CatSymbol = {
 CatSymbol.__index = CatSymbol
 
 function CatSymbol:new(options)
-  local instance = Symbol:new(options)
+  local instance = Symbol:new(options or {})
   setmetatable(CatSymbol, {__index = Symbol})
   setmetatable(instance, CatSymbol)
   instance.laziness = math.random(4, 16)

@@ -5,7 +5,7 @@ local CatPlan = {}
 CatPlan.__index = CatPlan
 
 function CatPlan:new(options)
-  local instance = Plan:new(options)
+  local instance = Plan:new(options or {})
   setmetatable(CatPlan, {__index = Plan})
   setmetatable(instance, CatPlan)
   return instance
