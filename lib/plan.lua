@@ -20,6 +20,14 @@ function Plan:init()
   self.features = self:_gesso()
 end
 
+function Plan:get(k)
+  return self[k]
+end
+
+function Plan:set(k, v)
+  self[k] = v
+end
+
 function Plan:update()
   for r = 1, self.height do
     for c = 1, self.width do

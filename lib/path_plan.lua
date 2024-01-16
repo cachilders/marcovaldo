@@ -1,8 +1,13 @@
 local Plan = include('lib/plan')
 local PathSymbol = include('lib/path_symbol')
 
-local PathPlan = {}
+local PathPlan = {
+  head = nil,
+  tail = nil
+}
 PathPlan.__index = PathPlan
+
+local keys_held = {}
 
 function PathPlan:new(options)
   local instance = Plan:new(options or {})
@@ -12,23 +17,41 @@ function PathPlan:new(options)
 end
 
 function PathPlan:mark(x, y, z)
-  -- We have to know if there is a head yet
-  -- and if this is an insert or deletion
-  -- within the path (a key is held) or just
-  -- an addition. Another case is when the
-  -- key pressed is the head. That could
-  -- express an intent to connect the tail
-  -- and head or just to remove the head.
-  -- Have to decide. I don't think the tail
-  -- and head should connect since the result
-  -- is the same. But maybe to delete the
-  -- head you should hold the next node.
-  -- Maybe also we can add a gesture for 
-  -- holding the three bottom left corner
-  -- keys to clear the path. If it's easy
-  -- we can add more gestures.
+  local held_key_label = ''..x..y
   if z == 1 then
+    keys_held[held_key_label] = {x, y}
+    for _, coordinate in pairs(keys_held) do
+      if coordinate then
+        print('Holding', coordinate[1], coordinate[2])
+      end
+    end
+
+    if keys_held['17'] and keys_held ['18'] and keys_held ['28'] then
+      print('Resetting path')
+    end
+  end
+
+  if z == 0 then
+    keys_held[held_key_label] = nil
+
+    for _, coordinate in pairs(keys_held) do
+      if coordinate then
+        print('holding', coordinate[1], coordinate[2])
+      end
+    end
     print('Marking '..x, y, z)
+    -- if head is nil new node is head and tail
+    -- if no other key is held standard add and remove
+    -- if single key is held and contains a node with a next node
+    --     insert between
+    -- if single held key is node and is tail
+    --     regular new tail node
+    -- if single held key is tail and key pressed is head do nothing
+    -- if multiple keys held do nothing on simultaneous release
+    -- this will need some kind of debounce and optimization
+    -- like maybe we only care about long press or the reset gesture
+    -- like long press enables insert mode and is exited with a short
+    -- press on the same node
   end
 end
 
