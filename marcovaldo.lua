@@ -11,6 +11,7 @@ include('lib/utils')
 include('lib/test/ring')
 
 util = require('util')
+tab = require('tabutil')
 
 function init()
   run_tests()

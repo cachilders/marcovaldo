@@ -1,9 +1,12 @@
 local Symbol = include('lib/symbol')
+KEY_SLEEP = .4
 
 local Plan = {
   led = nil,
   features = nil,
   height = 8,
+  keys_held = nil,
+  keys_halt = false,
   width = 8,
   x_offset = 0,
   y_offset = 0
@@ -18,6 +21,7 @@ end
 
 function Plan:init()
   self.features = self:_gesso()
+  self.keys_held = {}
 end
 
 function Plan:get(k)
@@ -40,10 +44,20 @@ function Plan:update()
 end
 
 function Plan:mark(x, y, z)
-  if z == 0 and self.features[y][x] then
-    self:_remove(x, y)
-  elseif z == 0 then
-    self:_add(x, y)
+  if z == 1 then
+    self:_update_held_keys(x, y, z)
+    self:_check_for_held_key_gestures()
+  end
+
+  if z == 0 then
+    self:_update_held_keys(x, y, z)
+    if not self.keys_halt then 
+      if self.features[y][x] then
+        self:_remove(x, y)
+      elseif z == 0 then
+        self:_add(x, y)
+      end
+    end
   end
 end
 
@@ -75,7 +89,6 @@ function Plan:_gesso()
   return features
 end
 
-
 function Plan:_shift_symbol(last_x, last_y, symbol)
   if symbol.x > 0 and symbol.x <= self.width and symbol.y > 0 and symbol.y <= self.height then
     if self.features[symbol.y][symbol.x] == nil then
@@ -88,6 +101,42 @@ function Plan:_shift_symbol(last_x, last_y, symbol)
   else
     self.features[last_y][last_x] = nil
   end
+end
+
+function Plan:_update_held_keys(x, y, z)
+  -- This will need to change if we deviate from 64 key plans
+  -- So, you know, if a bug pops up...
+  if z == 1 then
+    table.insert(self.keys_held, x..y)
+  else
+    local next_keys = {}
+    for i = 1, #self.keys_held do
+      if self.keys_held[i] ~= x..y then
+        table.insert(next_keys, self.keys_held[i])
+      end
+    end
+    self.keys_held = next_keys
+  end
+end
+
+function Plan:_check_for_held_key_gestures()
+  if tab.contains(self.keys_held, '17') and tab.contains(self.keys_held, '18') and tab.contains(self.keys_held, '28') then
+    -- Bottom left corner of panel is reset gesture
+    self:_gesture_reset_plan()
+  end
+end
+
+function Plan:_gesture_reset_plan()
+  self:init()
+  self:_halt_grid_keys()
+end
+
+function Plan:_halt_grid_keys()
+  self.keys_halt = true
+  clock.run(function() 
+    clock.sleep(KEY_SLEEP)
+    self.keys_halt = false 
+  end)
 end
 
 return Plan

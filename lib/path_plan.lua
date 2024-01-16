@@ -7,8 +7,6 @@ local PathPlan = {
 }
 PathPlan.__index = PathPlan
 
-local keys_held = {}
-
 function PathPlan:new(options)
   local instance = Plan:new(options or {})
   setmetatable(PathPlan, {__index = Plan})
@@ -16,46 +14,53 @@ function PathPlan:new(options)
   return instance
 end
 
-function PathPlan:mark(x, y, z)
-  local held_key_label = ''..x..y
-  if z == 1 then
-    keys_held[held_key_label] = {x, y}
-    for _, coordinate in pairs(keys_held) do
-      if coordinate then
-        print('Holding', coordinate[1], coordinate[2])
-      end
-    end
+function Plan:init()
+  self.features = self:_gesso()
+  self.keys_held = {}
+  self.head = nil
+  self.tail = nil
+end
 
-    if keys_held['17'] and keys_held ['18'] and keys_held ['28'] then
-      print('Resetting path')
-    end
+function PathPlan:mark(x, y, z)
+  if z == 1 then
+    self:_update_held_keys(x, y, z)
+    self:_check_for_held_key_gestures()
   end
 
   if z == 0 then
-    keys_held[held_key_label] = nil
-
-    for _, coordinate in pairs(keys_held) do
-      if coordinate then
-        print('holding', coordinate[1], coordinate[2])
+    self:_update_held_keys(x, y, z)
+    if not self.keys_halt then 
+      if #self.keys_held == 0 and self.features[y][x] then
+        self:_remove(x, y)
+      elseif #self.keys_held == 0 then
+        self:_add(x, y)
+      elseif #self.keys_held == 1 and not self.features[y][x] then
+        self:_add(x, y, self:_symbol_from_held_key(self.keys_held[1]))
       end
+        -- if multiple keys held do nothing on simultaneous release
     end
-    print('Marking '..x, y, z)
-    -- if head is nil new node is head and tail
-    -- if no other key is held standard add and remove
-    -- if single key is held and contains a node with a next node
-    --     insert between
-    -- if single held key is node and is tail
-    --     regular new tail node
-    -- if single held key is tail and key pressed is head do nothing
-    -- if multiple keys held do nothing on simultaneous release
-    -- this will need some kind of debounce and optimization
-    -- like maybe we only care about long press or the reset gesture
-    -- like long press enables insert mode and is exited with a short
-    -- press on the same node
   end
 end
 
-function PathPlan:_add(x, y)
+function PathPlan:update()
+  -- This plan needs to understand what the
+  -- active node is and pass appropriate data
+  -- for the update. Draw a weakly lit line
+  -- between the points (5?) with inactive
+  -- points at mid (10?) and active point
+  -- brightest (15? These may need to slide
+  -- down a lot). Path follows to tail then
+  -- back to head
+end
+
+function PathPlan:_add(x, y, insert_from_symbol)
+  print('Adding at', x, y)
+  -- if single key is held and contains a node with a next node
+  --     insert between
+  -- if single held key is node and is tail
+  --     regular new tail node
+  -- if single held key is tail and key pressed is head do nothing
+  -- if head is nil new node is head and tail
   -- This can be inserted between points by
   -- selecting the preceding point. Insertion
   -- is always between held and next point.
@@ -68,15 +73,10 @@ function PathPlan:_remove(x, y)
   -- if not (or head)
 end
 
-function PathPlan:update()
-  -- This plan needs to understand what the
-  -- active node is and pass appropriate data
-  -- for the update. Draw a weakly lit line
-  -- between the points (5?) with inactive
-  -- points at mid (10?) and active point
-  -- brightest (15? These may need to slide
-  -- down a lot). Path follows to tail then
-  -- back to head
+function PathPlan:_symbol_from_held_key(label)
+  local x = label:sub(1,1)
+  local y = label:sub(2,2)
+  return self.features[y][x]
 end
 
 return PathPlan
