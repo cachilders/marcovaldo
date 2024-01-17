@@ -1,5 +1,4 @@
 local Symbol = include('lib/symbol')
-KEY_SLEEP = .4
 
 local Plan = {
   led = nil,
@@ -69,7 +68,6 @@ function Plan:_add(x, y)
     x_offset = self.x_offset,
     y = y,
     y_offset = self.y_offset,
-    shift = function(x, y, to_x, to_y) print('Shift symbol at '..x, y..' to '..to_x, to_y) end, -- callback to move within the plan features
   }
   self.features[y][x] = Symbol:new(symbol)
 end
@@ -128,13 +126,13 @@ end
 
 function Plan:_gesture_reset_plan()
   self:init()
-  self:_halt_grid_keys()
+  self:_sleep_grid_input()
 end
 
-function Plan:_halt_grid_keys()
+function Plan:_sleep_grid_input(s)
   self.keys_halt = true
   clock.run(function() 
-    clock.sleep(KEY_SLEEP)
+    clock.sleep(s or .4)
     self.keys_halt = false 
   end)
 end

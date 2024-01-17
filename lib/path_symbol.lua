@@ -1,6 +1,9 @@
 local Symbol = include('lib/symbol')
 
-local PathSymbol = {}
+local PathSymbol = {
+  next = nil,
+  prev = nil
+}
 PathSymbol.__index = PathSymbol
 
 function PathSymbol:new(options)
@@ -11,10 +14,7 @@ function PathSymbol:new(options)
 end
 
 function PathSymbol:update()
-  -- We'll see. Setting next or head (if tail) as
-  -- active might belong in here and leave the
-  -- drawing to the path and let symbols do
-  -- symbols.
+  self.led(self.x + self.x_offset, self.y + self.y_offset, self.lumen)
 end
 
 return PathSymbol
