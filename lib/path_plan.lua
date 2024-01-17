@@ -91,9 +91,20 @@ function PathPlan:_add(x, y, insert_from_symbol)
 end
 
 function PathPlan:_remove(x, y)
-  -- join the nodes before and after the
-  -- removed node if mid path, move the tail
-  -- if not (or head)
+  local symbol_to_remove = self.features[y][x]
+  if not symbol_to_remove.prev and not symbol_to_remove.next then
+    -- tada!
+  elseif symbol_to_remove.prev and not symbol_to_remove.next then
+    symbol_to_remove.prev:set('next', nil)
+    self.tail = symbol_to_remove.prev
+  elseif not symbol_to_remove.prev and symbol_to_remove.next then
+    symbol_to_remove.next:set('prev', nil)
+    self.head = symbol_to_remove.next
+  else
+    symbol_to_remove.next:set('prev', symbol_to_remove.prev)
+    symbol_to_remove.prev:set('next', symbol_to_remove.next)
+  end
+  self.features[y][x] = nil
 end
 
 function PathPlan:_symbol_from_held_key(label)
