@@ -77,7 +77,7 @@ end
 
 function PathPlan:_draw_steps_to_active()
   for i = 1, #self.steps_to_active do
-    self.led(self.steps_to_active[i][1] + self.x_offset, self.steps_to_active[i][2] + self.y_offset, 1)
+    self.led(self.steps_to_active[i][1] + self.x_offset, self.steps_to_active[i][2] + self.y_offset, 3)
   end
 end
 
@@ -93,6 +93,7 @@ function PathPlan:_add(x, y, insert_from_symbol)
 
   if not insert_from_symbol then
     if not self.head then
+      symbol:set('active', true)
       self.head = symbol
       self.tail = symbol
     else

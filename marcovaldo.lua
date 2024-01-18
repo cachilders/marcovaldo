@@ -14,11 +14,13 @@ util = require('util')
 tab = require('tabutil')
 
 function init()
+  math.randomseed(os.time())
+
   run_tests()
   init_rings()
   init_map()
+  init_clocks()
   
-  math.randomseed(os.time())
 end
 
 function run_tests()
@@ -32,6 +34,12 @@ function init_rings()
   rings:add(Ring:new({id = 2, range = 8, x = 1}))
   rings:add(Ring:new({id = 3, range = 32, x = 1}))
   rings:add(Ring:new({id = 4, range = 64, x = 1}))
+end
+
+function init_clocks()
+  local bpm = 60 / params:get('clock_tempo')
+  dev_plan_timer = metro.init(refresh_peripherals, bpm)
+  dev_plan_timer:start()
 end
 
 function init_map()
@@ -77,7 +85,7 @@ function refresh_peripherals()
 end
 
 function redraw()
-  refresh_peripherals()
+  -- refresh_peripherals() -- Moved to clock for dev
   screen.clear()
   screen.update()
 end
