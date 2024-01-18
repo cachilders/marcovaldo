@@ -18,7 +18,7 @@ function Rings:add(ring)
   table.insert(self.rings, ring)
 end
 
-function Rings:update()
+function Rings:refresh()
   if self:_dirty() then
     self.host:all(0)
     for _, ring in pairs(self.rings) do

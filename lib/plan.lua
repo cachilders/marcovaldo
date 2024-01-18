@@ -31,15 +31,8 @@ function Plan:set(k, v)
   self[k] = v
 end
 
-function Plan:update()
-  for r = 1, self.height do
-    for c = 1, self.width do
-      local symbol = self.features[r][c]
-      if symbol then
-        symbol:update()
-      end
-    end
-  end
+function Plan:refresh()
+  self:_refresh_all_symbols()
 end
 
 function Plan:mark(x, y, z)
@@ -135,6 +128,17 @@ function Plan:_sleep_grid_input(s)
     clock.sleep(s or .4)
     self.keys_halt = false 
   end)
+end
+
+function Plan:_refresh_all_symbols()
+  for r = 1, self.height do
+    for c = 1, self.width do
+      local symbol = self.features[r][c]
+      if symbol then
+        symbol:refresh()
+      end
+    end
+  end
 end
 
 return Plan

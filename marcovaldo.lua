@@ -71,13 +71,13 @@ function grid.key(x, y, z)
   map:press(x, y, z)
 end
 
-function update_peripherals()
-  map:update()
-  rings:update()
+function refresh_peripherals()
+  map:refresh()
+  rings:refresh()
 end
 
 function redraw()
-  update_peripherals()
+  refresh_peripherals()
   screen.clear()
   screen.update()
 end

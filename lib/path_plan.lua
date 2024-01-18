@@ -3,6 +3,7 @@ local PathSymbol = include('lib/path_symbol')
 
 local PathPlan = {
   head = nil,
+  steps_to_active = {},
   tail = nil
 }
 PathPlan.__index = PathPlan
@@ -14,7 +15,7 @@ function PathPlan:new(options)
   return instance
 end
 
-function Plan:init()
+function PathPlan:init()
   self.features = self:_gesso()
   self.keys_held = {}
   self.head = nil
@@ -41,16 +42,44 @@ function PathPlan:mark(x, y, z)
   end
 end
 
--- function PathPlan:update()
---   -- This plan needs to understand what the
---   -- active node is and pass appropriate data
---   -- for the update. Draw a weakly lit line
---   -- between the points (5?) with inactive
---   -- points at mid (10?) and active point
---   -- brightest (15? These may need to slide
---   -- down a lot). Path follows to tail then
---   -- back to head
--- end
+function PathPlan:refresh()
+  self:_refresh_all_symbols()
+  self:_draw_steps_to_active()
+  self:_set_next_active_symbol()
+end
+
+function PathPlan:_set_next_active_symbol()
+  local active_symbol = nil
+  local current_symbol = self.head
+  local next_active_symbol = nil
+
+  while self.head and not active_symbol do
+    if current_symbol:get('active') then
+      active_symbol = current_symbol
+    elseif current_symbol:get('next') then
+      current_symbol = current_symbol:get('next') 
+    else
+      current_symbol = self.head
+    end
+  end
+
+  if active_symbol then
+    if active_symbol:get('next') then
+      next_active_symbol = active_symbol:get('next')
+    else
+      next_active_symbol = self.head
+    end
+    current_symbol:set('active', false)
+    next_active_symbol:set('active', true)
+    self.steps_to_active = exclusive_bresenhams_line(active_symbol:get('x'), active_symbol:get('y'), next_active_symbol:get('x'), next_active_symbol:get('y'))
+  end
+end
+
+function PathPlan:_draw_steps_to_active()
+  for i = 1, #self.steps_to_active do
+    self.led(self.steps_to_active[i][1] + self.x_offset, self.steps_to_active[i][2] + self.y_offset, 1)
+  end
+end
 
 function PathPlan:_add(x, y, insert_from_symbol)
   local symbol = PathSymbol:new({

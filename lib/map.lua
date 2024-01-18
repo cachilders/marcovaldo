@@ -50,10 +50,10 @@ function Map:press(x, y, z)
   end
 end
 
-function Map:update()
+function Map:refresh()
   self.host:all(0)
   for i = 1, #self.panes do
-    self.panes[i]:update()
+    self.panes[i]:refresh()
   end
   self.host:refresh()
 end

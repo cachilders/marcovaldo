@@ -28,7 +28,7 @@ function CatSymbol:_inclination()
   return DIRECTIONS[math.random(1, 4)]
 end
 
-function CatSymbol:update()
+function CatSymbol:refresh()
   local lumen = self.lumen
   if self:_bored() then
     local last = {self.x, self.y}

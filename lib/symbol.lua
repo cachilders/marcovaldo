@@ -22,7 +22,7 @@ function Symbol:set(k, v)
   self[k] = v
 end
 
-function Symbol:update()
+function Symbol:refresh()
   -- move, flicker, fade out, whatever...then
   self.led(self.x + self.x_offset, self.y + self.y_offset, self.lumen)
 end
