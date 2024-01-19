@@ -23,9 +23,10 @@ function Map:init(n)
   self.host = grid.connect(n)
   -- Just keeping these names to placehold the ideas before 
   -- moving them to the panel templates
-  local the_city_all_to_himself = PathPlan:new({led = function(x, y, l) self.host:led(x, y, l) end})
+  local function led(x, y, l) self.host:led(x, y, l) end
+  local the_city_all_to_himself = PathPlan:new({led = led})
   local the_garden_of_stubborn_cats = CatPlan:new({
-    led = function(x, y, l) self.host:led(x, y, l) end,
+    led = led,
     x_offset = 8
   })
   self.panes = {

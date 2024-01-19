@@ -7,12 +7,12 @@ local PathSymbol = {
   next = nil,
   prev = nil
 }
-PathSymbol.__index = PathSymbol
 
 function PathSymbol:new(options)
   local instance = Symbol:new(options or {})
-  setmetatable(PathSymbol, {__index = Symbol})
-  setmetatable(instance, PathSymbol)
+  setmetatable(self, {__index = Symbol})
+  setmetatable(instance, self)
+  self.__index = self
   return instance
 end
 

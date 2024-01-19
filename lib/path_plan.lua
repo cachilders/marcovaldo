@@ -6,12 +6,12 @@ local PathPlan = {
   steps_to_active = {},
   tail = nil
 }
-PathPlan.__index = PathPlan
 
 function PathPlan:new(options)
   local instance = Plan:new(options or {})
-  setmetatable(PathPlan, {__index = Plan})
-  setmetatable(instance, PathPlan)
+  setmetatable(self, {__index = Plan})
+  setmetatable(instance, self)
+  self.__index = self
   return instance
 end
 
@@ -71,7 +71,7 @@ function PathPlan:_set_next_active_symbol()
     end
     current_symbol:set('active', false)
     next_active_symbol:set('active', true)
-    self.steps_to_active = exclusive_bresenhams_line(active_symbol:get('x'), active_symbol:get('y'), next_active_symbol:get('x'), next_active_symbol:get('y'))
+    self.steps_to_active = b_line(active_symbol:get('x'), active_symbol:get('y'), next_active_symbol:get('x'), next_active_symbol:get('y'))
   end
 end
 

@@ -3,12 +3,12 @@ local Symbol = include('lib/symbol')
 local CatSymbol = {
   laziness = 4
 }
-CatSymbol.__index = CatSymbol
 
 function CatSymbol:new(options)
   local instance = Symbol:new(options or {})
-  setmetatable(CatSymbol, {__index = Symbol})
-  setmetatable(instance, CatSymbol)
+  setmetatable(self, {__index = Symbol})
+  setmetatable(instance, self)
+  self.__index = self
   instance.laziness = math.random(4, 16)
   return instance
 end
