@@ -72,16 +72,19 @@ function PathPlan:_set_next_active_symbol()
     end
   end
 
-  if active_symbol then
+  if active_symbol and self.head then
     if active_symbol:get('next') then
       next_active_symbol = active_symbol:get('next')
     else
-      print('setting head')
       next_active_symbol = self.head
     end
+
     current_symbol:set('active', false)
     next_active_symbol:set('active', true)
-    self.steps_to_active = b_line(active_symbol:get('x'), active_symbol:get('y'), next_active_symbol:get('x'), next_active_symbol:get('y'))
+
+    if self.head ~= self.tail then
+      self.steps_to_active = b_line(active_symbol:get('x'), active_symbol:get('y'), next_active_symbol:get('x'), next_active_symbol:get('y'))
+    end
   end
 end
 
@@ -118,16 +121,16 @@ function PathPlan:_add(x, y, insert_from_symbol)
       self.tail = symbol
     end
   else
-    if not insert_from_symbol.next then
+    if not insert_from_symbol:get('next') then
       insert_from_symbol:set('next', symbol)
       symbol:set('prev', self.tail)
       self.tail = symbol
-    elseif insert_from_symbol and symbol.x == self.head.x and symbol.y == self.head.y then
+    elseif insert_from_symbol and symbol:get('x') == self.head.x and symbol:get('y') == self.head.y then
       symbol = self.head
     else
       symbol:set('prev', insert_from_symbol)
-      symbol:set('next', insert_from_symbol.next)
-      insert_from_symbol.next:set('prev', symbol)
+      symbol:set('next', insert_from_symbol:get('next'))
+      insert_from_symbol:get('next'):set('prev', symbol)
       insert_from_symbol:set('next', symbol)
     end
     self.keys_held = {}
@@ -138,18 +141,33 @@ end
 
 function PathPlan:_remove(x, y)
   local symbol_to_remove = self.features[y][x]
-  if not symbol_to_remove.prev and not symbol_to_remove.next then
-    -- tada!
-  elseif symbol_to_remove.prev and not symbol_to_remove.next then
-    symbol_to_remove.prev:set('next', nil)
-    self.tail = symbol_to_remove.prev
-  elseif not symbol_to_remove.prev and symbol_to_remove.next then
-    symbol_to_remove.next:set('prev', nil)
-    self.head = symbol_to_remove.next
+
+  if not symbol_to_remove:get('prev') and not symbol_to_remove:get('next') then
+    self.head = nil
+    self.tail = nil
+  elseif symbol_to_remove:get('prev') and not symbol_to_remove:get('next') then
+    symbol_to_remove:get('prev'):set('next', nil)
+    self.tail = symbol_to_remove:get('prev')
+
+    if symbol_to_remove:get('active') then
+      self.head:set('active', true)
+    end
+  elseif not symbol_to_remove:get('prev') and symbol_to_remove:get('next') then
+    symbol_to_remove:get('next'):set('prev', nil)
+    self.head = symbol_to_remove:get('next')
+    
+    if symbol_to_remove:get('active') then
+      self.head:set('active', true)
+    end
   else
-    symbol_to_remove.next:set('prev', symbol_to_remove.prev)
-    symbol_to_remove.prev:set('next', symbol_to_remove.next)
+    symbol_to_remove:get('next'):set('prev', symbol_to_remove:get('prev'))
+    symbol_to_remove:get('prev'):set('next', symbol_to_remove:get('next'))
+    
+    if symbol_to_remove:get('active') then
+      symbol_to_remove:get('next'):set('active', true)
+    end
   end
+
   self.features[y][x] = nil
 end
 

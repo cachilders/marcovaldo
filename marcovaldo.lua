@@ -15,12 +15,10 @@ tab = require('tabutil')
 
 function init()
   math.randomseed(os.time())
-
   run_tests()
   init_rings()
   init_map()
   init_clocks()
-  
 end
 
 function run_tests()
