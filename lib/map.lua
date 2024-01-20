@@ -59,4 +59,10 @@ function Map:refresh()
   self.host:refresh()
 end
 
+function Map:step()
+  for i = 1, #self.panes do
+    self.panes[i]:step()
+  end
+end
+
 return Map

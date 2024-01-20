@@ -44,6 +44,9 @@ end
 
 function PathPlan:refresh()
   self:_refresh_all_symbols()
+end
+
+function PathPlan:step()
   self:_draw_steps_to_active()
   self:_set_next_active_symbol()
 end

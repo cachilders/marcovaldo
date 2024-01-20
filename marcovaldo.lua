@@ -38,7 +38,7 @@ end
 
 function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
-  dev_plan_timer = metro.init(refresh_peripherals, bpm)
+  dev_plan_timer = metro.init(step_peripherals, bpm)
   dev_plan_timer:start()
 end
 
@@ -84,8 +84,12 @@ function refresh_peripherals()
   rings:refresh()
 end
 
+function step_peripherals()
+  map:step()
+end
+
 function redraw()
-  -- refresh_peripherals() -- Moved to clock for dev
+  refresh_peripherals() 
   screen.clear()
   screen.update()
 end

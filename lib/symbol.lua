@@ -23,8 +23,11 @@ function Symbol:set(k, v)
 end
 
 function Symbol:refresh()
-  -- move, flicker, fade out, whatever...then
   self.led(self.x + self.x_offset, self.y + self.y_offset, self.lumen)
+end
+
+function Symbol:step()
+  -- move, flicker, fade out, whatever
 end
 
 return Symbol

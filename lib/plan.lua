@@ -35,6 +35,10 @@ function Plan:refresh()
   self:_refresh_all_symbols()
 end
 
+function Plan:step()
+  self:_step_all_symbols()
+end
+
 function Plan:mark(x, y, z)
   if z == 1 then
     self:_update_held_keys(x, y, z)
@@ -136,6 +140,17 @@ function Plan:_refresh_all_symbols()
       local symbol = self.features[r][c]
       if symbol then
         symbol:refresh()
+      end
+    end
+  end
+end
+
+function Plan:_step_all_symbols()
+  for r = 1, self.height do
+    for c = 1, self.width do
+      local symbol = self.features[r][c]
+      if symbol then
+        symbol:step()
       end
     end
   end
