@@ -1,9 +1,11 @@
 local Plan = include('lib/plan')
 local PathSymbol = include('lib/path_symbol')
+local PathStepSymbol = include('lib/path_step_symbol')
 
 local PathPlan = {
   head = nil,
   steps_to_active = {},
+  step_symbol = nil,
   tail = nil
 }
 
@@ -47,8 +49,12 @@ function PathPlan:refresh()
 end
 
 function PathPlan:step()
-  self:_draw_steps_to_active()
-  self:_set_next_active_symbol()
+  if #self.steps_to_active > 0 then
+    self:_step_toward_active()
+  else
+    self.step_symbol = nil
+    self:_set_next_active_symbol()
+  end
 end
 
 function PathPlan:_set_next_active_symbol()
@@ -70,6 +76,7 @@ function PathPlan:_set_next_active_symbol()
     if active_symbol:get('next') then
       next_active_symbol = active_symbol:get('next')
     else
+      print('setting head')
       next_active_symbol = self.head
     end
     current_symbol:set('active', false)
@@ -78,10 +85,16 @@ function PathPlan:_set_next_active_symbol()
   end
 end
 
-function PathPlan:_draw_steps_to_active()
-  for i = 1, #self.steps_to_active do
-    self.led(self.steps_to_active[i][1] + self.x_offset, self.steps_to_active[i][2] + self.y_offset, 3)
-  end
+function PathPlan:_step_toward_active()
+  step_coord = table.remove(self.steps_to_active, 1)
+  self.step_symbol = PathStepSymbol:new({
+    led = self.led,
+    x = step_coord[1],
+    x_offset = self.x_offset,
+    y = step_coord[2],
+    y_offset = self.y_offset,
+    lumen = 3
+  })
 end
 
 function PathPlan:_add(x, y, insert_from_symbol)
@@ -144,6 +157,22 @@ function PathPlan:_symbol_from_held_key(label)
   local x = tonumber(label:sub(1,1))
   local y = tonumber(label:sub(2,2))
   return self.features[y][x]
+end
+
+function Plan:_refresh_all_symbols()
+
+  if self.step_symbol then
+    self.step_symbol:refresh()
+  end
+
+  for r = 1, self.height do
+    for c = 1, self.width do
+      local symbol = self.features[r][c]
+      if symbol then
+        symbol:refresh()
+      end
+    end
+  end
 end
 
 return PathPlan

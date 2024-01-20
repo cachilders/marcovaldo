@@ -16,18 +16,15 @@ function b_line(x1, y1, x2, y2)
     y1 = y1 + y_inc
   end
 
-  -- if x_diff > y_diff then
-  --   adjust_x()
-  -- else
-  --   adjust_y()
-  -- end
-
-  while x1 ~= x2 and y1 ~= y2 do
+  while true do
     table.insert(points, {x1, y1})
+    if x1 == x2 and y1 == y2 then break end
     e2 = error * 2
     if e2 >= y_diff and x1 ~= x2 then
+      if x1 == x2 then break end
       adjust_x()
     elseif y1 ~= y2 then
+      if y1 == y2 then break end
       adjust_y()
     end
   end
