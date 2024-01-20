@@ -3,12 +3,12 @@ local Symbol = include('lib/symbol')
 local CatSymbol = {
   laziness = 4
 }
-CatSymbol.__index = CatSymbol
 
 function CatSymbol:new(options)
-  local instance = Symbol:new(options)
-  setmetatable(CatSymbol, {__index = Symbol})
-  setmetatable(instance, CatSymbol)
+  local instance = Symbol:new(options or {})
+  setmetatable(self, {__index = Symbol})
+  setmetatable(instance, self)
+  self.__index = self
   instance.laziness = math.random(4, 16)
   return instance
 end
@@ -28,7 +28,7 @@ function CatSymbol:_inclination()
   return DIRECTIONS[math.random(1, 4)]
 end
 
-function CatSymbol:update()
+function CatSymbol:step()
   local lumen = self.lumen
   if self:_bored() then
     local last = {self.x, self.y}
@@ -38,7 +38,7 @@ function CatSymbol:update()
     self.y = last[2] + next[2]
     self.shift(last[1], last[2], self)
   end
-  self.led(self.x + self.x_offset, self.y + self.y_offset, self.lumen)
+  self:refresh(self.x + self.x_offset, self.y + self.y_offset, self.lumen)
   self.lumen = lumen
 end
 

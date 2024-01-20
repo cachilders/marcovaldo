@@ -11,13 +11,14 @@ include('lib/utils')
 include('lib/test/ring')
 
 util = require('util')
+tab = require('tabutil')
 
 function init()
+  math.randomseed(os.time())
   run_tests()
   init_rings()
   init_map()
-  
-  math.randomseed(os.time())
+  init_clocks()
 end
 
 function run_tests()
@@ -31,6 +32,12 @@ function init_rings()
   rings:add(Ring:new({id = 2, range = 8, x = 1}))
   rings:add(Ring:new({id = 3, range = 32, x = 1}))
   rings:add(Ring:new({id = 4, range = 64, x = 1}))
+end
+
+function init_clocks()
+  local bpm = 60 / params:get('clock_tempo')
+  dev_plan_timer = metro.init(step_peripherals, bpm)
+  dev_plan_timer:start()
 end
 
 function init_map()
@@ -70,13 +77,17 @@ function grid.key(x, y, z)
   map:press(x, y, z)
 end
 
-function update_peripherals()
-  map:update()
-  rings:update()
+function refresh_peripherals()
+  map:refresh()
+  rings:refresh()
+end
+
+function step_peripherals()
+  map:step()
 end
 
 function redraw()
-  update_peripherals()
+  refresh_peripherals() 
   screen.clear()
   screen.update()
 end

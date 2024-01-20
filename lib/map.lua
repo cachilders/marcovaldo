@@ -1,6 +1,6 @@
 local PANE_EDGE_LENGTH = 8
-local Plan = include('lib/plan')
 local CatPlan = include('lib/cat_plan')
+local PathPlan = include('lib/path_plan')
 
 local Map = {
   host = nil,
@@ -23,14 +23,15 @@ function Map:init(n)
   self.host = grid.connect(n)
   -- Just keeping these names to placehold the ideas before 
   -- moving them to the panel templates
-  local the_city_all_to_himself = Plan:new({led = function(x, y, l) self.host:led(x, y, l) end})
-  local the_city_of_stubborn_cats = CatPlan:new({
-    led = function(x, y, l) self.host:led(x, y, l) end,
+  local function led(x, y, l) self.host:led(x, y, l) end
+  local the_city_all_to_himself = PathPlan:new({led = led})
+  local the_garden_of_stubborn_cats = CatPlan:new({
+    led = led,
     x_offset = 8
   })
   self.panes = {
     the_city_all_to_himself,
-    the_city_of_stubborn_cats
+    the_garden_of_stubborn_cats
   }
 
   for i = 1, #self.panes do
@@ -50,12 +51,18 @@ function Map:press(x, y, z)
   end
 end
 
-function Map:update()
+function Map:refresh()
   self.host:all(0)
   for i = 1, #self.panes do
-    self.panes[i]:update()
+    self.panes[i]:refresh()
   end
   self.host:refresh()
+end
+
+function Map:step()
+  for i = 1, #self.panes do
+    self.panes[i]:step()
+  end
 end
 
 return Map

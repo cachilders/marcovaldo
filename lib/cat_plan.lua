@@ -2,12 +2,12 @@ local Plan = include('lib/plan')
 local CatSymbol = include('lib/cat_symbol')
 
 local CatPlan = {}
-CatPlan.__index = CatPlan
 
 function CatPlan:new(options)
-  local instance = Plan:new(options)
-  setmetatable(CatPlan, {__index = Plan})
-  setmetatable(instance, CatPlan)
+  local instance = Plan:new(options or {})
+  setmetatable(self, {__index = Plan})
+  setmetatable(instance, self)
+  self.__index = self
   return instance
 end
 
