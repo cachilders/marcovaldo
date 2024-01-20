@@ -2,6 +2,9 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(1/20/2024)**
+Muddled through implementation of the path follower plan. It was a long week and my attention was split, but it's nice to see this piece in action. The big win in this latest week's worth of effort, aside from the actual goal of completing this view, was clocking the updates and keeping the grid refresh frequent. It was inevitable we'd get there, but now that it's in place it's easier to see the musical outcomes this whole exercise is meant to support.
+
 **(1/12/2024)**
 Structure materialized in the shower for a method of laying out the app as a series of disconected 64 pixel layers, each with a purpose and representing an overlapping reality. Built out a few of the low level prototypes and got the arc and grid into an interactive state with most of the abstraction I wanted. Still need Panes.
 
