@@ -69,8 +69,9 @@ function Map:_init_panes()
 end
 
 function Map:press(x, y, z)
+  local panes_per_page = math.ceil(PANE_COUNT / self.pages)
   local pane = self:_select_pane(x, y)
-  self.panes[pane]:mark(x, y, z)
+  self.panes[pane]:pass(x, y, z, panes_per_page)
 end
 
 function Map:_select_pane(x, y)

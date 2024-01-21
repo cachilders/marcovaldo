@@ -19,28 +19,21 @@ end
 
 function PathPlan:init()
   self.features = self:_gesso()
-  self.keys_held = {}
   self.head = nil
   self.tail = nil
   self.steps_to_active = {}
   self.step_symbol = nil
 end
 
-function PathPlan:mark(x, y, z)
-  if z == 1 then
-    self:_update_held_keys(x, y, z)
-    self:_check_for_held_key_gestures()
-  end
-
+function PathPlan:mark(x, y, z, keys_held)
   if z == 0 then
-    self:_update_held_keys(x, y, z)
     if not self.keys_halt then 
-      if #self.keys_held == 0 and self.features[y][x] then
+      if #keys_held == 0 and self.features[y][x] then
         self:_remove(x, y)
-      elseif #self.keys_held == 0 then
+      elseif #keys_held == 0 then
         self:_add(x, y)
-      elseif #self.keys_held == 1 and not self.features[y][x] then
-        self:_add(x, y, self:_symbol_from_held_key(self.keys_held[1]))
+      elseif #keys_held == 1 and not self.features[y][x] then
+        self:_add(x, y, self:_symbol_from_held_key(keys_held[1]))
       end
     end
   end
@@ -139,8 +132,7 @@ function PathPlan:_add(x, y, insert_from_symbol)
       insert_from_symbol:get('next'):set('prev', symbol)
       insert_from_symbol:set('next', symbol)
     end
-    self.keys_held = {}
-    self:_sleep_grid_input(.5)
+    self.pause_marks(.5)
   end
   self.features[y][x] = symbol
 end
@@ -175,12 +167,6 @@ function PathPlan:_remove(x, y)
   end
 
   self.features[y][x] = nil
-end
-
-function PathPlan:_symbol_from_held_key(label)
-  local x = tonumber(label:sub(1,1))
-  local y = tonumber(label:sub(2,2))
-  return self.features[y][x]
 end
 
 function Plan:_refresh_all_symbols()

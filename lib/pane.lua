@@ -1,5 +1,6 @@
 local Pane = {
   edge_length = 8,
+  keys_held = nil,
   page = 1,
   pane = 1,
   plan = nil
@@ -14,7 +15,9 @@ end
 
 function Pane:init()
   self.plan:init()
+  self.keys_held = {}
   self:update_offsets()
+  self.plan:set('pause_marks', function(s) self:_pause_keys(s) end)
 end
 
 function Pane:get(k)
@@ -25,9 +28,20 @@ function Pane:set(k, v)
   self[k] = v
 end
 
-function Pane:mark(x, y, z)
+function Pane:pass(x, y, z, panes_per_page)
   local x_offset, y_offset = self:_determine_offsets()
-  self.plan:mark(x - x_offset, y - y_offset, z)
+  local offset_x = x - x_offset
+  local offset_y = y - y_offset
+
+  self:_update_held_keys(offset_x, offset_y, z)
+
+  if z == 1 then
+    self:_check_for_held_key_gestures(panes_per_page)
+  end
+
+  if not self.keys_halt then 
+    self.plan:mark(offset_x, offset_y, z, self.keys_held)
+  end
 end
 
 function Pane:update_offsets()
@@ -35,6 +49,14 @@ function Pane:update_offsets()
 
   self.plan:set('x_offset', x_offset)
   self.plan:set('y_offset', y_offset)
+end
+
+function Pane:refresh()
+  self.plan:refresh()
+end
+
+function Pane:step()
+  self.plan:step()
 end
 
 function Pane:_determine_offsets()
@@ -50,12 +72,46 @@ function Pane:_determine_offsets()
   return x_offset, y_offset
 end
 
-function Pane:refresh()
-  self.plan:refresh()
+function Pane:_update_held_keys(x, y, z)
+  -- This will need to change if we deviate from 64 key plans
+  -- So, you know, if a bug pops up...
+  if z == 1 then
+    table.insert(self.keys_held, x..y)
+  else
+    local next_keys = {}
+    for i = 1, #self.keys_held do
+      if self.keys_held[i] ~= x..y then
+        table.insert(next_keys, self.keys_held[i])
+      end
+    end
+    self.keys_held = next_keys
+  end
 end
 
-function Pane:step()
-  self.plan:step()
+function Pane:_check_for_held_key_gestures(panes_per_page)
+  local rightmost_pane = self.pane % panes_per_page == 0
+
+  if tab.contains(self.keys_held, '17') and tab.contains(self.keys_held, '18') and tab.contains(self.keys_held, '28') then
+    -- Bottom left corner of panel is reset gesture
+    self.plan:reset()
+    self:_flush_keys()
+  elseif rightmost_pane and tab.contains(self.keys_held, '87') and tab.contains(self.keys_held, '88') and tab.contains(self.keys_held, '78') then
+    print('Turn page')
+    self:_flush_keys()
+  end
+end
+
+function Pane:_flush_keys()
+  self.keys_held = {}
+  self:_pause_keys()
+end
+
+function Pane:_pause_keys(s)
+  self.keys_halt = true
+  clock.run(function() 
+    clock.sleep(s or .4)
+    self.keys_halt = false 
+  end)
 end
 
 return Pane
