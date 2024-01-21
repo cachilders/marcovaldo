@@ -9,6 +9,7 @@ local Pane = include('lib/pane')
 local Map = {
   host = nil,
   lumen = 5,
+  page = 1,
   pages = 2,
   panes = {}
 }
@@ -26,6 +27,27 @@ function Map:init(n)
   self:_init_panes()
 end
 
+function Map:press(x, y, z)
+  local pane = self:_select_pane(x, y)
+  self.panes[pane + self:_page_offset()]:pass(x, y, z, self:_panes_per_page())
+end
+
+function Map:refresh()
+  local page_offset = self:_page_offset()
+
+  self.host:all(0)
+  for i = 1, self:_panes_per_page() do
+    self.panes[i + page_offset]:refresh()
+  end
+  self.host:refresh()
+end
+
+function Map:step()
+  for i = 1, #self.panes do
+    self.panes[i]:step()
+  end
+end
+
 function Map:_init_pages()
   local map_height = self.host.rows
   local map_width = self.host.cols
@@ -37,13 +59,12 @@ function Map:_init_pages()
       self.pages = math.ceil(PANE_COUNT * PANE_EDGE_LENGTH / map_width)
     end
   else
-    self.page = math.ceil((PANE_COUNT * PANE_EDGE_LENGTH * PANE_EDGE_LENGTH) / (map_width * map_height))
+    self.pages = math.ceil((PANE_COUNT * PANE_EDGE_LENGTH * PANE_EDGE_LENGTH) / (map_width * map_height))
   end
 end
 
 function Map:_init_panes()
   local function led(x, y, l) self.host:led(x, y, l) end
-  local panes_per_page = math.ceil(PANE_COUNT / self.pages)
   local panes = {
     Pane:new({
       plan = PathPlan:new({led = led})
@@ -61,17 +82,11 @@ function Map:_init_panes()
 
   for i = 1, #panes do
     panes[i]:set('pane', i)
-    panes[i]:set('page', math.ceil(i/panes_per_page))
-    panes[i]:init()
+    panes[i]:set('flip_page', function() self:_flip_page() end)
+    panes[i]:init(self:_panes_per_page())
   end
 
   self.panes = panes
-end
-
-function Map:press(x, y, z)
-  local panes_per_page = math.ceil(PANE_COUNT / self.pages)
-  local pane = self:_select_pane(x, y)
-  self.panes[pane]:pass(x, y, z, panes_per_page)
 end
 
 function Map:_select_pane(x, y)
@@ -90,18 +105,16 @@ function Map:_select_pane(x, y)
   return pane
 end
 
-function Map:refresh()
-  self.host:all(0)
-  for i = 1, #self.panes do
-    self.panes[i]:refresh()
-  end
-  self.host:refresh()
+function Map:_panes_per_page()
+  return math.ceil(PANE_COUNT / self.pages)
 end
 
-function Map:step()
-  for i = 1, #self.panes do
-    self.panes[i]:step()
-  end
+function Map:_page_offset()
+  return (self.page - 1) * self:_panes_per_page()
+end
+
+function Map:_flip_page()
+  self.page = util.wrap(self.page + 1, 1, self.pages)
 end
 
 return Map

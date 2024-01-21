@@ -1,7 +1,6 @@
 local Pane = {
   edge_length = 8,
   keys_held = nil,
-  page = 1,
   pane = 1,
   plan = nil
 }
@@ -13,10 +12,10 @@ function Pane:new(options)
   return instance
 end
 
-function Pane:init()
+function Pane:init(panes_per_page)
   self.plan:init()
   self.keys_held = {}
-  self:update_offsets()
+  self:update_offsets(panes_per_page)
   self.plan:set('pause_marks', function(s) self:_pause_keys(s) end)
 end
 
@@ -29,7 +28,7 @@ function Pane:set(k, v)
 end
 
 function Pane:pass(x, y, z, panes_per_page)
-  local x_offset, y_offset = self:_determine_offsets()
+  local x_offset, y_offset = self:_determine_offsets(panes_per_page)
   local offset_x = x - x_offset
   local offset_y = y - y_offset
 
@@ -44,8 +43,8 @@ function Pane:pass(x, y, z, panes_per_page)
   end
 end
 
-function Pane:update_offsets()
-  local x_offset, y_offset = self:_determine_offsets()
+function Pane:update_offsets(panes_per_page)
+  local x_offset, y_offset = self:_determine_offsets(panes_per_page)
 
   self.plan:set('x_offset', x_offset)
   self.plan:set('y_offset', y_offset)
@@ -59,11 +58,11 @@ function Pane:step()
   self.plan:step()
 end
 
-function Pane:_determine_offsets()
+function Pane:_determine_offsets(panes_per_page)
   local x_offset = 0
   local y_offset = 0
 
-  if self.pane > 2 then
+  if panes_per_page > 2 and self.pane > 2 then
     y_offset = self.edge_length
   elseif self.pane % 2 == 0 then
     x_offset = self.edge_length
@@ -96,14 +95,14 @@ function Pane:_check_for_held_key_gestures(panes_per_page)
     self.plan:reset()
     self:_flush_keys()
   elseif rightmost_pane and tab.contains(self.keys_held, '87') and tab.contains(self.keys_held, '88') and tab.contains(self.keys_held, '78') then
-    print('Turn page')
+    self.flip_page()
     self:_flush_keys()
   end
 end
 
-function Pane:_flush_keys()
+function Pane:_flush_keys(s)
+  self:_pause_keys(s)
   self.keys_held = {}
-  self:_pause_keys()
 end
 
 function Pane:_pause_keys(s)

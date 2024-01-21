@@ -14,4 +14,10 @@ function ReliefPlan:new(options)
   return instance
 end
 
+function ReliefPlan:mark(x, y, z, keys_held)
+  if z == 1 then
+    print('Marking relief', x, y)
+  end
+end
+
 return ReliefPlan
