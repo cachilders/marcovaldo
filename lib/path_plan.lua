@@ -22,6 +22,8 @@ function PathPlan:init()
   self.keys_held = {}
   self.head = nil
   self.tail = nil
+  self.steps_to_active = {}
+  self.step_symbol = nil
 end
 
 function PathPlan:mark(x, y, z)
@@ -83,7 +85,11 @@ function PathPlan:_set_next_active_symbol()
     next_active_symbol:set('active', true)
 
     if self.head ~= self.tail then
-      self.steps_to_active = b_line(active_symbol:get('x'), active_symbol:get('y'), next_active_symbol:get('x'), next_active_symbol:get('y'))
+      local x1 = active_symbol:get('x')
+      local y1 =  active_symbol:get('y')
+      local x2 = next_active_symbol:get('x')
+      local y2 = next_active_symbol:get('y')
+      self.steps_to_active = b_line(x1,y1, x2, y2)
     end
   end
 end

@@ -74,6 +74,7 @@ function Plan:_remove(x, y)
 end
 
 function Plan:_gesso()
+  -- TODO: Animate
   local features = {}
   for r = 1, self.height do
     features[r] = {}
