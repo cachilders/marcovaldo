@@ -1,5 +1,5 @@
 local Plan = include('lib/plan')
-local CatSymbol = include('lib/cat_symbol')
+local CatSymbol = include('lib/symbols/cat_symbol')
 
 local CatPlan = {}
 

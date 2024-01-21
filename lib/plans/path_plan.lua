@@ -1,6 +1,6 @@
 local Plan = include('lib/plan')
-local PathSymbol = include('lib/path_symbol')
-local PathStepSymbol = include('lib/path_step_symbol')
+local PathSymbol = include('lib/symbols/path_symbol')
+local PathStepSymbol = include('lib/symbols/path_step_symbol')
 
 local PathPlan = {
   head = nil,

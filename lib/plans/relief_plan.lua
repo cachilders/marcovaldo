@@ -1,5 +1,5 @@
 local Plan = include('lib/plan')
-local ReliefSymbol = include('lib/relief_symbol')
+local ReliefSymbol = include('lib/symbols/relief_symbol')
 
 local ReliefPlan = {
   -- Stitches all the other plans together

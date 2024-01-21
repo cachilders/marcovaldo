@@ -1,9 +1,9 @@
 local PANE_COUNT = 4
 local PANE_EDGE_LENGTH = 8
-local CatPlan = include('lib/cat_plan')
-local PathPlan = include('lib/path_plan')
-local RadiationPlan = include('lib/radiation_plan')
-local ReliefPlan = include('lib/relief_plan')
+local CatPlan = include('lib/plans/cat_plan')
+local PathPlan = include('lib/plans/path_plan')
+local RadiationPlan = include('lib/plans/radiation_plan')
+local ReliefPlan = include('lib/plans/relief_plan')
 local Pane = include('lib/pane')
 
 local Map = {
