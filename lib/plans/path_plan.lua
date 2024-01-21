@@ -27,14 +27,12 @@ end
 
 function PathPlan:mark(x, y, z, keys_held)
   if z == 0 then
-    if not self.keys_halt then 
-      if #keys_held == 0 and self.features[y][x] then
-        self:_remove(x, y)
-      elseif #keys_held == 0 then
-        self:_add(x, y)
-      elseif #keys_held == 1 and not self.features[y][x] then
-        self:_add(x, y, self:_symbol_from_held_key(keys_held[1]))
-      end
+    if #keys_held == 0 and self.features[y][x] then
+      self:_remove(x, y)
+    elseif #keys_held == 0 then
+      self:_add(x, y)
+    elseif #keys_held == 1 and not self.features[y][x] then
+      self:_add(x, y, self:_symbol_from_held_key(keys_held[1]))
     end
   end
 end

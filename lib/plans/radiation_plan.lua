@@ -11,10 +11,10 @@ function RadiationPlan:new(options)
   return instance
 end
 
-function RadiationPlan:mark(x, y, z, keys_held)
-  if z == 1 then
-    print('Marking radiation', x, y)
-  end
-end
+-- function RadiationPlan:mark(x, y, z, keys_held)
+--   if z == 1 then
+--     print('Marking radiation', x, y)
+--   end
+-- end
 
 return RadiationPlan

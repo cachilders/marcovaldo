@@ -1,5 +1,6 @@
 local Pane = {
   edge_length = 8,
+  keys_halt = false,
   keys_held = nil,
   pane = 1,
   plan = nil
@@ -31,7 +32,7 @@ function Pane:pass(x, y, z, panes_per_page)
   local x_offset, y_offset = self:_determine_offsets(panes_per_page)
   local offset_x = x - x_offset
   local offset_y = y - y_offset
-
+  
   self:_update_held_keys(offset_x, offset_y, z)
 
   if z == 1 then
@@ -95,6 +96,7 @@ function Pane:_check_for_held_key_gestures(panes_per_page)
     self.plan:reset()
     self:_flush_keys()
   elseif rightmost_pane and tab.contains(self.keys_held, '87') and tab.contains(self.keys_held, '88') and tab.contains(self.keys_held, '78') then
+    -- Rightmost bottom corner is page flip gesture
     self.flip_page()
     self:_flush_keys()
   end
