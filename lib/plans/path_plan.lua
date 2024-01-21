@@ -1,6 +1,6 @@
 local Plan = include('lib/plan')
-local PathSymbol = include('lib/path_symbol')
-local PathStepSymbol = include('lib/path_step_symbol')
+local PathSymbol = include('lib/symbols/path_symbol')
+local PathStepSymbol = include('lib/symbols/path_step_symbol')
 
 local PathPlan = {
   head = nil,
@@ -19,27 +19,20 @@ end
 
 function PathPlan:init()
   self.features = self:_gesso()
-  self.keys_held = {}
   self.head = nil
   self.tail = nil
+  self.steps_to_active = {}
+  self.step_symbol = nil
 end
 
-function PathPlan:mark(x, y, z)
-  if z == 1 then
-    self:_update_held_keys(x, y, z)
-    self:_check_for_held_key_gestures()
-  end
-
+function PathPlan:mark(x, y, z, keys_held)
   if z == 0 then
-    self:_update_held_keys(x, y, z)
-    if not self.keys_halt then 
-      if #self.keys_held == 0 and self.features[y][x] then
-        self:_remove(x, y)
-      elseif #self.keys_held == 0 then
-        self:_add(x, y)
-      elseif #self.keys_held == 1 and not self.features[y][x] then
-        self:_add(x, y, self:_symbol_from_held_key(self.keys_held[1]))
-      end
+    if #keys_held == 0 and self.features[y][x] then
+      self:_remove(x, y)
+    elseif #keys_held == 0 then
+      self:_add(x, y)
+    elseif #keys_held == 1 and not self.features[y][x] then
+      self:_add(x, y, self:_symbol_from_held_key(keys_held[1]))
     end
   end
 end
@@ -83,7 +76,11 @@ function PathPlan:_set_next_active_symbol()
     next_active_symbol:set('active', true)
 
     if self.head ~= self.tail then
-      self.steps_to_active = b_line(active_symbol:get('x'), active_symbol:get('y'), next_active_symbol:get('x'), next_active_symbol:get('y'))
+      local x1 = active_symbol:get('x')
+      local y1 =  active_symbol:get('y')
+      local x2 = next_active_symbol:get('x')
+      local y2 = next_active_symbol:get('y')
+      self.steps_to_active = b_line(x1,y1, x2, y2)
     end
   end
 end
@@ -133,8 +130,7 @@ function PathPlan:_add(x, y, insert_from_symbol)
       insert_from_symbol:get('next'):set('prev', symbol)
       insert_from_symbol:set('next', symbol)
     end
-    self.keys_held = {}
-    self:_sleep_grid_input(.5)
+    self.pause_marks(.5)
   end
   self.features[y][x] = symbol
 end
@@ -169,12 +165,6 @@ function PathPlan:_remove(x, y)
   end
 
   self.features[y][x] = nil
-end
-
-function PathPlan:_symbol_from_held_key(label)
-  local x = tonumber(label:sub(1,1))
-  local y = tonumber(label:sub(2,2))
-  return self.features[y][x]
 end
 
 function Plan:_refresh_all_symbols()

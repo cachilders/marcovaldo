@@ -9,7 +9,7 @@ function CatSymbol:new(options)
   setmetatable(self, {__index = Symbol})
   setmetatable(instance, self)
   self.__index = self
-  instance.laziness = math.random(4, 16)
+  instance.laziness = math.random(3, 9)
   return instance
 end
 
