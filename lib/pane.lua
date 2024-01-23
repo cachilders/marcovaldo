@@ -1,7 +1,4 @@
 local Pane = {
-  edge_length = 8,
-  keys_halt = false,
-  keys_held = nil,
   pane = 1,
   plan = nil
 }
@@ -15,9 +12,7 @@ end
 
 function Pane:init(panes_per_page)
   self.plan:init()
-  self.keys_held = {}
   self:update_offsets(panes_per_page)
-  self.plan:set('pause_marks', function(s) self:_pause_keys(s) end)
 end
 
 function Pane:get(k)
@@ -28,20 +23,14 @@ function Pane:set(k, v)
   self[k] = v
 end
 
-function Pane:pass(x, y, z, panes_per_page)
-  local x_offset, y_offset = self:_determine_offsets(panes_per_page)
-  local offset_x = x - x_offset
-  local offset_y = y - y_offset
-  
-  self:_update_held_keys(offset_x, offset_y, z)
+function Pane:pass(x, y, z, keys_held, clear_held_keys)
+  local x_offset, y_offset = self:get_offsets()
 
   if z == 1 then
-    self:_check_for_held_key_gestures(panes_per_page)
+    self:_check_for_held_key_gestures(keys_held, clear_held_keys)
   end
 
-  if not self.keys_halt then 
-    self.plan:mark(offset_x, offset_y, z, self.keys_held)
-  end
+  self.plan:mark(x - x_offset, y - y_offset, z, keys_held, clear_held_keys)
 end
 
 function Pane:update_offsets(panes_per_page)
@@ -49,6 +38,10 @@ function Pane:update_offsets(panes_per_page)
 
   self.plan:set('x_offset', x_offset)
   self.plan:set('y_offset', y_offset)
+end
+
+function Pane:get_offsets()
+  return self.plan:get('x_offset'), self.plan:get('y_offset')
 end
 
 function Pane:refresh()
@@ -64,55 +57,20 @@ function Pane:_determine_offsets(panes_per_page)
   local y_offset = 0
 
   if panes_per_page > 2 and self.pane > 2 then
-    y_offset = self.edge_length
+    y_offset = PANE_EDGE_LENGTH
   elseif self.pane % 2 == 0 then
-    x_offset = self.edge_length
+    x_offset = PANE_EDGE_LENGTH
   end
 
   return x_offset, y_offset
 end
 
-function Pane:_update_held_keys(x, y, z)
-  -- This will need to change if we deviate from 64 key plans
-  -- So, you know, if a bug pops up...
-  if z == 1 then
-    table.insert(self.keys_held, x..y)
-  else
-    local next_keys = {}
-    for i = 1, #self.keys_held do
-      if self.keys_held[i] ~= x..y then
-        table.insert(next_keys, self.keys_held[i])
-      end
-    end
-    self.keys_held = next_keys
-  end
-end
-
-function Pane:_check_for_held_key_gestures(panes_per_page)
-  local rightmost_pane = self.pane % panes_per_page == 0
-
-  if tab.contains(self.keys_held, '17') and tab.contains(self.keys_held, '18') and tab.contains(self.keys_held, '28') then
+function Pane:_check_for_held_key_gestures(keys_held, clear_held_keys)
+  if tab.contains(keys_held, '17') and tab.contains(keys_held, '18') and tab.contains(keys_held, '28') then
     -- Bottom left corner of panel is reset gesture
     self.plan:reset()
-    self:_flush_keys()
-  elseif rightmost_pane and tab.contains(self.keys_held, '87') and tab.contains(self.keys_held, '88') and tab.contains(self.keys_held, '78') then
-    -- Rightmost bottom corner is page flip gesture
-    self.flip_page()
-    self:_flush_keys()
+    clear_held_keys()
   end
-end
-
-function Pane:_flush_keys(s)
-  self:_pause_keys(s)
-  self.keys_held = {}
-end
-
-function Pane:_pause_keys(s)
-  self.keys_halt = true
-  clock.run(function() 
-    clock.sleep(s or .4)
-    self.keys_halt = false 
-  end)
 end
 
 return Pane

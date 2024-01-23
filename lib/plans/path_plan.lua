@@ -25,14 +25,14 @@ function PathPlan:init()
   self.step_symbol = nil
 end
 
-function PathPlan:mark(x, y, z, keys_held)
+function PathPlan:mark(x, y, z, keys_held, clear_held_keys)
   if z == 0 then
     if #keys_held == 0 and self.features[y][x] then
       self:_remove(x, y)
     elseif #keys_held == 0 then
       self:_add(x, y)
     elseif #keys_held == 1 and not self.features[y][x] then
-      self:_add(x, y, self:_symbol_from_held_key(keys_held[1]))
+      self:_add(x, y, self:_symbol_from_held_key(keys_held[1]), clear_held_keys)
     end
   end
 end
@@ -97,7 +97,7 @@ function PathPlan:_step_toward_active()
   })
 end
 
-function PathPlan:_add(x, y, insert_from_symbol)
+function PathPlan:_add(x, y, insert_from_symbol, clear_held_keys)
   local symbol = PathSymbol:new({
     active = false,
     led = self.led,
@@ -130,7 +130,7 @@ function PathPlan:_add(x, y, insert_from_symbol)
       insert_from_symbol:get('next'):set('prev', symbol)
       insert_from_symbol:set('next', symbol)
     end
-    self.pause_marks(.5)
+    clear_held_keys(.5)
   end
   self.features[y][x] = symbol
 end
@@ -173,8 +173,8 @@ function Plan:_refresh_all_symbols()
     self.step_symbol:refresh()
   end
 
-  for r = 1, self.height do
-    for c = 1, self.width do
+  for r = 1, PANE_EDGE_LENGTH do
+    for c = 1, PANE_EDGE_LENGTH do
       local symbol = self.features[r][c]
       if symbol then
         symbol:refresh()

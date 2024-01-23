@@ -1,6 +1,9 @@
 -- Marcovaldo
 -- a spatial sequencer with cats
 
+PLAN_COUNT = 4
+PANE_EDGE_LENGTH = 8
+
 shift_depressed = false
 
 local Map = include('lib/map')
