@@ -1,8 +1,11 @@
 local Symbol = include('lib/map/symbol')
 
-local PathStepSymbol = {}
+local EphemeralSymbol = {
+  -- Make discrete cat, path, photon symbols if needed,
+  -- but for now keep it simple
+}
 
-function PathStepSymbol:new(options)
+function EphemeralSymbol:new(options)
   local instance = Symbol:new(options or {})
   setmetatable(self, {__index = Symbol})
   setmetatable(instance, self)
@@ -10,4 +13,4 @@ function PathStepSymbol:new(options)
   return instance
 end
 
-return PathStepSymbol
+return EphemeralSymbol

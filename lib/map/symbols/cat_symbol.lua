@@ -1,7 +1,9 @@
 local Symbol = include('lib/map/symbol')
 
 local CatSymbol = {
-  laziness = 4
+  act = nil,
+  laziness = 4,
+  shift = nil
 }
 
 function CatSymbol:new(options)
@@ -11,6 +13,20 @@ function CatSymbol:new(options)
   self.__index = self
   instance.laziness = math.random(3, 9)
   return instance
+end
+
+function CatSymbol:step()
+  local lumen = self.lumen
+  if self:_bored() then
+    local last = {self.x, self.y}
+    local next = self:_inclination()
+    self.x = last[1] + next[1]
+    self.y = last[2] + next[2]
+    self.act(last[1], last[2])
+    self.shift(last[1], last[2], self)
+  end
+  self:refresh(self.x + self.x_offset, self.y + self.y_offset, self.lumen)
+  self.lumen = lumen
 end
 
 function CatSymbol:_bored()
@@ -26,20 +42,6 @@ end
 function CatSymbol:_inclination()
   local DIRECTIONS = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}}
   return DIRECTIONS[math.random(1, 4)]
-end
-
-function CatSymbol:step()
-  local lumen = self.lumen
-  if self:_bored() then
-    local last = {self.x, self.y}
-    local next = self:_inclination()
-    self.lumen = 10
-    self.x = last[1] + next[1]
-    self.y = last[2] + next[2]
-    self.shift(last[1], last[2], self)
-  end
-  self:refresh(self.x + self.x_offset, self.y + self.y_offset, self.lumen)
-  self.lumen = lumen
 end
 
 return CatSymbol

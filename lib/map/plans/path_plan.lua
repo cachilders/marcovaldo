@@ -1,6 +1,6 @@
 local Plan = include('lib/map/plan')
 local PathSymbol = include('lib/map/symbols/path_symbol')
-local PathStepSymbol = include('lib/map/symbols/path_step_symbol')
+local EphemeralSymbol = include('lib/map/symbols/ephemeral_symbol')
 
 local PathPlan = {
   head = nil,
@@ -89,7 +89,7 @@ function PathPlan:_step_toward_active()
   local last_phenomenon = self.step_symbol
   local step_coord = table.remove(self.steps_to_active, 1)
 
-  self.step_symbol = PathStepSymbol:new({
+  self.step_symbol = EphemeralSymbol:new({
     led = self.led,
     x = step_coord[1],
     x_offset = self.x_offset,
