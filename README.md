@@ -2,6 +2,14 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(1/23/2024)**
+Hooked up a 64 to test the page scaling. Works great, but need to have a conditional brightness adjustment for non-varibright grids.
+
+![monome 64 near a lamp and glasses](./assets/images/64-monobright.jpeg)
+
+**(1/23/2024)**
+So much of this program is a free writing exercise that the bigger traps are the moments in which I attempt to pause and revise and insert some rigor into the structure. I had a page system that mostly worked, but the state was out of sync on page flip gestures—all gestures, I guess, but the clear gesture on the pane was unimpacted. Anyway, it was an underlying bug in my reasoning. Woke up with the piece I was missing the night before to address. The end result is much better, but the overall sketch will not get completed if I don't stop and think about the next revision I'll insist on before painting a section of floor.
+
 **(1/20/2024)**
 Muddled through implementation of the path follower plan. It was a long week and my attention was split, but it's nice to see this piece in action. The big win in this latest week's worth of effort, aside from the actual goal of completing this view, was clocking the updates and keeping the grid refresh frequent. It was inevitable we'd get there, but now that it's in place it's easier to see the musical outcomes this whole exercise is meant to support.
 

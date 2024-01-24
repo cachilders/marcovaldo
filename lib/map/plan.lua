@@ -1,9 +1,10 @@
-local Symbol = include('lib/symbol')
+local Symbol = include('lib/map/symbol')
 
 local Plan = {
   led = nil,
   name = '',
   features = nil,
+  phenomena = nil,
   x_offset = 0,
   y_offset = 0
 }
@@ -16,7 +17,7 @@ function Plan:new(options)
 end
 
 function Plan:init()
-  self.features = self:_gesso()
+  self.features, self.phenomena = self:_gesso()
 end
 
 function Plan:get(k)
@@ -68,13 +69,16 @@ end
 function Plan:_gesso()
   -- TODO: Animate
   local features = {}
+  local phenomena = {}
   for r = 1, PANE_EDGE_LENGTH do
     features[r] = {}
+    phenomena[r] = {}
     for c = 1, PANE_EDGE_LENGTH do
       features[r][c] = nil
+      phenomena[r][c] = nil
     end
   end
-  return features
+  return features, phenomena
 end
 
 function Plan:_shift_symbol(last_x, last_y, symbol)

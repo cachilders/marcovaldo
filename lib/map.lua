@@ -1,9 +1,9 @@
-local CatPlan = include('lib/plans/cat_plan')
-local PathPlan = include('lib/plans/path_plan')
-local RadiationPlan = include('lib/plans/radiation_plan')
-local ReliefPlan = include('lib/plans/relief_plan')
-local Page = include('lib/page')
-local Pane = include('lib/pane')
+local CatPlan = include('lib/map/plans/cat_plan')
+local PathPlan = include('lib/map/plans/path_plan')
+local RadiationPlan = include('lib/map/plans/radiation_plan')
+local ReliefPlan = include('lib/map/plans/relief_plan')
+local Page = include('lib/map/page')
+local Pane = include('lib/map/pane')
 
 local Map = {
   host = nil,
@@ -84,7 +84,14 @@ function Map:_init_pages()
 end
 
 function Map:_init_plans()
-  local function led(x, y, l) self.host:led(x, y, l) end
+  local function led(x, y, l)
+    if self.host.cols == PANE_EDGE_LENGTH then
+      -- Monobrite for 64s
+      l = 15
+    end
+    self.host:led(x, y, l)
+  end
+
   local panes = {}
   local plans = {
     PathPlan:new({led = led, name = 'The City All to Himself'}),

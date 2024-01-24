@@ -1,5 +1,5 @@
-local Plan = include('lib/plan')
-local RadiationSymbol = include('lib/symbols/radiation_symbol')
+local Plan = include('lib/map/plan')
+local RadiationSymbol = include('lib/map/symbols/radiation_symbol')
 
 local RadiationPlan = {}
 

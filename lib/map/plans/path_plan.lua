@@ -1,6 +1,6 @@
-local Plan = include('lib/plan')
-local PathSymbol = include('lib/symbols/path_symbol')
-local PathStepSymbol = include('lib/symbols/path_step_symbol')
+local Plan = include('lib/map/plan')
+local PathSymbol = include('lib/map/symbols/path_symbol')
+local PathStepSymbol = include('lib/map/symbols/path_step_symbol')
 
 local PathPlan = {
   head = nil,
@@ -18,7 +18,7 @@ function PathPlan:new(options)
 end
 
 function PathPlan:init()
-  self.features = self:_gesso()
+  self.features, self.phenomena = self:_gesso()
   self.head = nil
   self.tail = nil
   self.steps_to_active = {}

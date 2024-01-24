@@ -1,9 +1,9 @@
-local Pane = include('lib/pane')
+local Pane = include('lib/map/pane')
 local keys_halt = false
 local keys_held = {}
 
 local Page = {
-  flip_page = function() print('Flip page') end,
+  flip_page = nil,
   id = 1,
   panes = nil
 }
