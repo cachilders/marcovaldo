@@ -81,6 +81,14 @@ function Plan:_gesso()
   return features, phenomena
 end
 
+function Plan:_nullify_phenomenon(symbol)
+  if symbol then
+    local x = symbol:get('x')
+    local y = symbol:get('y')
+    self.phenomena[y][x] = nil
+  end
+end
+
 function Plan:_shift_symbol(last_x, last_y, symbol)
   if symbol.x > 0 and symbol.x <= PANE_EDGE_LENGTH and symbol.y > 0 and symbol.y <= PANE_EDGE_LENGTH then
     if self.features[symbol.y][symbol.x] == nil then
@@ -104,9 +112,13 @@ end
 function Plan:_refresh_all_symbols()
   for r = 1, PANE_EDGE_LENGTH do
     for c = 1, PANE_EDGE_LENGTH do
-      local symbol = self.features[r][c]
-      if symbol then
-        symbol:refresh()
+      local feature_symbol = self.features[r][c]
+      local phenomenon_symbol = self.phenomena[r][c]
+      if feature_symbol then
+        feature_symbol:refresh()
+      end
+      if phenomenon_symbol then
+        phenomenon_symbol:refresh()
       end
     end
   end
@@ -115,9 +127,13 @@ end
 function Plan:_step_all_symbols()
   for r = 1, PANE_EDGE_LENGTH do
     for c = 1, PANE_EDGE_LENGTH do
-      local symbol = self.features[r][c]
-      if symbol then
-        symbol:step()
+      local feature_symbol = self.features[r][c]
+      local phenomenon_symbol = self.phenomena[r][c]
+      if feature_symbol then
+        feature_symbol:step()
+      end
+      if phenomenon_symbol then
+        phenomenon_symbol:step()
       end
     end
   end

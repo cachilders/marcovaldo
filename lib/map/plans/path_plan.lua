@@ -86,7 +86,9 @@ function PathPlan:_set_next_active_symbol()
 end
 
 function PathPlan:_step_toward_active()
-  step_coord = table.remove(self.steps_to_active, 1)
+  local last_phenomenon = self.step_symbol
+  local step_coord = table.remove(self.steps_to_active, 1)
+
   self.step_symbol = PathStepSymbol:new({
     led = self.led,
     x = step_coord[1],
@@ -95,6 +97,15 @@ function PathPlan:_step_toward_active()
     y_offset = self.y_offset,
     lumen = 3
   })
+  
+  self.phenomena[step_coord[2]][step_coord[1]] = self.step_symbol
+
+  if last_phenomenon then
+    clock.run(function()
+      clock.sleep(.1)
+      self:_nullify_phenomenon(last_phenomenon)
+    end)
+  end
 end
 
 function PathPlan:_add(x, y, insert_from_symbol, clear_held_keys)
@@ -165,22 +176,6 @@ function PathPlan:_remove(x, y)
   end
 
   self.features[y][x] = nil
-end
-
-function Plan:_refresh_all_symbols()
-
-  if self.step_symbol then
-    self.step_symbol:refresh()
-  end
-
-  for r = 1, PANE_EDGE_LENGTH do
-    for c = 1, PANE_EDGE_LENGTH do
-      local symbol = self.features[r][c]
-      if symbol then
-        symbol:refresh()
-      end
-    end
-  end
 end
 
 return PathPlan
