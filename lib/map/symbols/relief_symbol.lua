@@ -1,4 +1,4 @@
-local Symbol = include('lib/symbol')
+local Symbol = include('lib/map/symbol')
 
 local ReliefSymbol = {}
 

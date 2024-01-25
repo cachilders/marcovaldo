@@ -1,10 +1,10 @@
-local Symbol = include('lib/symbol')
+local Symbol = include('lib/map/symbol')
 
 local Plan = {
   led = nil,
+  name = '',
   features = nil,
-  height = 8,
-  width = 8,
+  phenomena = nil,
   x_offset = 0,
   y_offset = 0
 }
@@ -17,7 +17,7 @@ function Plan:new(options)
 end
 
 function Plan:init()
-  self.features = self:_gesso()
+  self.features, self.phenomena = self:_gesso()
 end
 
 function Plan:get(k)
@@ -36,12 +36,12 @@ function Plan:step()
   self:_step_all_symbols()
 end
 
-function Plan:mark(x, y, z, keys_held)
+function Plan:mark(x, y, z, keys_held, clear_held_keys)
   if z == 0 then
     if self.features[y][x] then
-      self:_remove(x, y)
+      self:_remove(x, y, clear_held_keys)
     elseif z == 0 then
-      self:_add(x, y)
+      self:_add(x, y, clear_held_keys)
     end
   end
 end
@@ -69,17 +69,28 @@ end
 function Plan:_gesso()
   -- TODO: Animate
   local features = {}
-  for r = 1, self.height do
+  local phenomena = {}
+  for r = 1, PANE_EDGE_LENGTH do
     features[r] = {}
-    for c = 1, self.width do
+    phenomena[r] = {}
+    for c = 1, PANE_EDGE_LENGTH do
       features[r][c] = nil
+      phenomena[r][c] = nil
     end
   end
-  return features
+  return features, phenomena
+end
+
+function Plan:_nullify_phenomenon(symbol)
+  if symbol then
+    local x = symbol:get('x')
+    local y = symbol:get('y')
+    self.phenomena[y][x] = nil
+  end
 end
 
 function Plan:_shift_symbol(last_x, last_y, symbol)
-  if symbol.x > 0 and symbol.x <= self.width and symbol.y > 0 and symbol.y <= self.height then
+  if symbol.x > 0 and symbol.x <= PANE_EDGE_LENGTH and symbol.y > 0 and symbol.y <= PANE_EDGE_LENGTH then
     if self.features[symbol.y][symbol.x] == nil then
       self.features[symbol.y][symbol.x] = symbol
       self.features[last_y][last_x] = nil
@@ -99,22 +110,30 @@ function Plan:_symbol_from_held_key(label)
 end
 
 function Plan:_refresh_all_symbols()
-  for r = 1, self.height do
-    for c = 1, self.width do
-      local symbol = self.features[r][c]
-      if symbol then
-        symbol:refresh()
+  for r = 1, PANE_EDGE_LENGTH do
+    for c = 1, PANE_EDGE_LENGTH do
+      local feature_symbol = self.features[r][c]
+      local phenomenon_symbol = self.phenomena[r][c]
+      if feature_symbol then
+        feature_symbol:refresh()
+      end
+      if phenomenon_symbol then
+        phenomenon_symbol:refresh()
       end
     end
   end
 end
 
 function Plan:_step_all_symbols()
-  for r = 1, self.height do
-    for c = 1, self.width do
-      local symbol = self.features[r][c]
-      if symbol then
-        symbol:step()
+  for r = 1, PANE_EDGE_LENGTH do
+    for c = 1, PANE_EDGE_LENGTH do
+      local feature_symbol = self.features[r][c]
+      local phenomenon_symbol = self.phenomena[r][c]
+      if feature_symbol then
+        feature_symbol:step()
+      end
+      if phenomenon_symbol then
+        phenomenon_symbol:step()
       end
     end
   end
