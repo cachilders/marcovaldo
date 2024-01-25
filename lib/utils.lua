@@ -31,3 +31,33 @@ function b_line(x1, y1, x2, y2)
 
   return points
 end
+
+function midpoint_circle(mid_x, mid_y, r)
+  local points = {}
+  local d = 1 - r
+  local x = 0
+  local y = r
+
+  local function plot_points(x, y)
+    table.insert(points, { mid_x + x, mid_y + y })
+    table.insert(points, { mid_x - x, mid_y + y })
+    table.insert(points, { mid_x + x, mid_y - y })
+    table.insert(points, { mid_x - x, mid_y - y })
+    table.insert(points, { mid_x + y, mid_y + x })
+    table.insert(points, { mid_x - y, mid_y + x })
+    table.insert(points, { mid_x + y, mid_y - x })
+    table.insert(points, { mid_x - y, mid_y - x })
+  end
+
+  while x <= y do
+    if d < 0 then
+      d = d + 2 * x + 1
+    else
+      y = y - 1
+      d = d + 2 * (x - y) + 1
+    end
+    x = x + 1
+    plot_points(x, y)
+  end
+  return points
+end

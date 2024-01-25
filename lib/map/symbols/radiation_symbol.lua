@@ -1,6 +1,7 @@
 local Symbol = include('lib/map/symbol')
 
 local RadiationSymbol = {
+  active = true
   -- Sounds radiate from centers (four sequencers)
   -- centers can change position or mute but not
   -- delete. remove is a mute action. press hold
