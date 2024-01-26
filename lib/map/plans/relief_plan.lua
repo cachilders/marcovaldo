@@ -2,8 +2,8 @@ local Plan = include('lib/map/plan')
 local ReliefSymbol = include('lib/map/symbols/relief_symbol')
 
 local ReliefPlan = {
-  -- Stitches all the other plans together
-  -- Receives other plan features as input?
+  ephemera = nil,
+  features = nil
 }
 
 function ReliefPlan:new(options)
@@ -14,10 +14,26 @@ function ReliefPlan:new(options)
   return instance
 end
 
--- function ReliefPlan:mark(x, y, z, keys_held)
---   if z == 1 then
---     print('Marking relief', x, y)
---   end
--- end
+function ReliefPlan:refresh()
+  self:_ingest_ephemera()
+  self:_refresh_all_symbols()
+end
+
+function ReliefPlan:_ingest_ephemera()
+  local features = {}
+
+  for i = 1, #self.ephemera do
+    local ephemeron = self.ephemera[i]
+
+    for r = 1, PANE_EDGE_LENGTH do
+      features[r] = features[r] or {}
+      for c = 1, PANE_EDGE_LENGTH do
+        features[r][c] = ephemeron[r][c] or features[r][c]
+      end
+    end
+  end
+
+  self.features = features
+end
 
 return ReliefPlan

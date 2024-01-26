@@ -3,7 +3,11 @@ local RadiationSymbol = include('lib/map/symbols/radiation_symbol')
 local EphemeralSymbol = include('lib/map/symbols/ephemeral_symbol')
 
 local RadiationPlan = {
-  sources = {{2, 1, 1}, {1, 7, 1}, {8, 2, 1}, {7, 8, 1}}
+  -- TODO: Redius should be derived from something real
+  -- as should velocity of expansion
+  -- and new waves should issue on every beat of
+  -- related sequence
+  sources = {{2, 1, 1}, {1, 6, 1}, {8, 4, 1}, {5, 8, 1}}
 }
 
 function RadiationPlan:new(options)
