@@ -80,6 +80,7 @@ function Map:_init_pages()
     table.insert(pages, page)
   end
 
+  self:_layer_phenomena()
   self.pages = pages
 end
 
@@ -96,22 +97,24 @@ function Map:_init_plans()
   local plans = {
     PathPlan:new({led = led, name = 'The City All to Himself'}),
     CatPlan:new({led = led, name = 'The Garden of Stubborn Cats'}),
-    RadiationPlan:new({led = led, name = 'Moon anf GNAC'})
+    RadiationPlan:new({led = led, name = 'Moon anf GNAC'}),
+    ReliefPlan:new({led = led, name = 'Smoke, wind, and Soap Bubbles'})
   }
-  local layers = {}
-
-  for i = 1, #plans do
-    table.insert(layers, plans[i]:get('features'))
-  end
-
-  -- The relief plan is an overlay of all activity plans
-  table.insert(plans, ReliefPlan:new({
-    led = led,
-    layers = layers, 
-    name = 'Smoke, wind, and Soap Bubbles'
-  }))
 
   self.plans = plans
+end
+
+function Map:_layer_phenomena()
+  -- The relief plan is an overlay of all other plan
+  -- phenomena and must be initialized after the panes
+  local ephemera = {}
+  local plans = self.plans
+
+  for i = 1, #plans - 1 do
+    table.insert(ephemera, plans[i]:get('phenomena'))
+  end
+
+  self.plans[#plans]:set('ephemera', ephemera)
 end
 
 function Map:_flip_page()
