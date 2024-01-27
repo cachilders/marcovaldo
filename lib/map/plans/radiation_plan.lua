@@ -7,7 +7,7 @@ local RadiationPlan = {
   -- as should velocity of expansion
   -- and new waves should issue on every beat of
   -- related sequence
-  sources = {{2, 1, 1}, {1, 6, 1}, {8, 4, 1}, {5, 8, 1}}
+  emitters = {{2, 1, 1}, {1, 6, 1}, {8, 4, 1}, {5, 8, 1}}
 }
 
 function RadiationPlan:new(options)
@@ -19,8 +19,8 @@ function RadiationPlan:new(options)
 end
 
 function RadiationPlan:init()
-  self.features, self.phenomena = self:_gesso()
-  self:_init_sources()
+  self.features, self.phenomena = self._gesso()
+  self:_init_emitters()
 end
 
 function RadiationPlan:mark(x, y, z, keys_held, clear_held_keys)
@@ -34,20 +34,20 @@ function RadiationPlan:mark(x, y, z, keys_held, clear_held_keys)
 end
 
 function RadiationPlan:step()
-  local bpm = 60 / params:get('clock_tempo')
+  local bpm = self._get_bpm()
   local function tic_radius(i)
     return util.wrap(i + 1, 1, 9)
   end
 
-  for i = 1, #self.sources do
-    local x = self.sources[i][1]
-    local y = self.sources[i][2]
-    local r = self.sources[i][3]
+  for i = 1, #self.emitters do
+    local x = self.emitters[i][1]
+    local y = self.emitters[i][2]
+    local r = self.emitters[i][3]
     local phenomena = {}
 
     if self.features[y][x]:get('active') then
       phenomena = midpoint_circle(x, y, r)
-      self.sources[i][3] = tic_radius(r)
+      self.emitters[i][3] = tic_radius(r)
   
       for _, coords in ipairs(phenomena) do
         local x = coords[1]
@@ -82,27 +82,29 @@ function RadiationPlan:_toggle_active(x, y)
 end
 
 function RadiationPlan:_move(x, y, radiation_symbol, clear_held_keys)
-  local last_x = radiation_symbol:get('x')
-  local last_y = radiation_symbol:get('y')
-  radiation_symbol:set('x', x)
-  radiation_symbol:set('y', y)
-  for i = 1, #self.sources do
-    local source = self.sources[i]
-    if source[1] == last_x and source[2] == last_y then
-      source[1] = x
-      source[2] = y
-      break
+  if radiation_symbol then
+    local last_x = radiation_symbol:get('x')
+    local last_y = radiation_symbol:get('y')
+    radiation_symbol:set('x', x)
+    radiation_symbol:set('y', y)
+    for i = 1, #self.emitters do
+      local emitter = self.emitters[i]
+      if emitter[1] == last_x and emitter[2] == last_y then
+        emitter[1] = x
+        emitter[2] = y
+        break
+      end
     end
+    clear_held_keys(.5)
+    self.features[last_y][last_x] = nil
+    self.features[y][x] = radiation_symbol
   end
-  clear_held_keys(.5)
-  self.features[last_y][last_x] = nil
-  self.features[y][x] = radiation_symbol
 end
 
-function RadiationPlan:_init_sources()
-  for i = 1, #self.sources do
-    local x = self.sources[i][1]
-    local y = self.sources[i][2]
+function RadiationPlan:_init_emitters()
+  for i = 1, #self.emitters do
+    local x = self.emitters[i][1]
+    local y = self.emitters[i][2]
     self.features[y][x] = RadiationSymbol:new({
       led = self.led,
       x = x,
@@ -113,7 +115,7 @@ function RadiationPlan:_init_sources()
   end
 end
 
-function RadiationPlan:_move_source()
+function RadiationPlan:_move_emitter()
 end
 
 return RadiationPlan

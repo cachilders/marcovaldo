@@ -17,7 +17,7 @@ function Plan:new(options)
 end
 
 function Plan:init()
-  self.features, self.phenomena = self:_gesso()
+  self.features, self.phenomena = self._gesso()
 end
 
 function Plan:get(k)
@@ -66,7 +66,7 @@ function Plan:_remove(x, y)
   self.features[y][x] = nil
 end
 
-function Plan:_gesso()
+function Plan._gesso()
   -- TODO: Animate
   local features = {}
   local phenomena = {}
@@ -79,6 +79,23 @@ function Plan:_gesso()
     end
   end
   return features, phenomena
+end
+
+function Plan._pentimento(t)
+  -- The relief plan is bound to the phenomena of
+  -- other plans at init. Reusing the outer object
+  -- maintains that bond when clearing
+  for r = 1, PANE_EDGE_LENGTH do
+    t[r] = {}
+    for c = 1, PANE_EDGE_LENGTH do
+      t[r][c] = nil
+    end
+  end
+  return t
+end
+
+function Plan._get_bpm()
+  return 60 / params:get('clock_tempo')
 end
 
 function Plan:_nullify_phenomenon(symbol)
