@@ -26,7 +26,7 @@ function CatPlan:_add(x, y)
     self.phenomena[y][x] = phenomenon
 
     clock.run(function()
-      clock.sleep(.1)
+      clock.sleep(self._get_bpm())
       self:_nullify_phenomenon(phenomenon)
     end)
   end

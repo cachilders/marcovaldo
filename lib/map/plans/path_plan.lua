@@ -18,7 +18,7 @@ function PathPlan:new(options)
 end
 
 function PathPlan:init()
-  self.features, self.phenomena = self:_gesso()
+  self.features, self.phenomena = self._gesso()
   self.head = nil
   self.tail = nil
   self.steps_to_active = {}
@@ -141,7 +141,7 @@ function PathPlan:_add(x, y, insert_from_symbol, clear_held_keys)
       insert_from_symbol:get('next'):set('prev', symbol)
       insert_from_symbol:set('next', symbol)
     end
-    clear_held_keys(.5)
+    clear_held_keys(.75)
   end
   self.features[y][x] = symbol
 end
@@ -158,6 +158,7 @@ function PathPlan:_remove(x, y)
 
     if symbol_to_remove:get('active') then
       self.head:set('active', true)
+      self:_reset_path()
     end
   elseif not symbol_to_remove:get('prev') and symbol_to_remove:get('next') then
     symbol_to_remove:get('next'):set('prev', nil)
@@ -165,6 +166,7 @@ function PathPlan:_remove(x, y)
     
     if symbol_to_remove:get('active') then
       self.head:set('active', true)
+      self:_reset_path()
     end
   else
     symbol_to_remove:get('next'):set('prev', symbol_to_remove:get('prev'))
@@ -172,10 +174,17 @@ function PathPlan:_remove(x, y)
     
     if symbol_to_remove:get('active') then
       symbol_to_remove:get('next'):set('active', true)
+      self:_reset_path()
     end
   end
 
   self.features[y][x] = nil
+end
+
+function PathPlan:_reset_path()
+  self.active_symbol = nil
+  self.steps_to_active = {}
+  self.phenomena = self._pentimento(self.phenomena)
 end
 
 return PathPlan
