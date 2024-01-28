@@ -12,8 +12,9 @@ local Map = include('lib/map')
 include('lib/params')
 include('lib/utils')
 
-util = require('util')
+er = require('er')
 tab = require('tabutil')
+util = require('util')
 local music_util = require('musicutil')
 
 function init()

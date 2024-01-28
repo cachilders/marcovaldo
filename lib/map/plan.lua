@@ -131,13 +131,13 @@ end
 function Plan:_refresh_all_symbols()
   for r = 1, PANE_EDGE_LENGTH do
     for c = 1, PANE_EDGE_LENGTH do
-      local feature_symbol = self.features[r][c]
       local phenomenon_symbol = self.phenomena[r][c]
-      if feature_symbol then
-        feature_symbol:refresh()
-      end
+      local feature_symbol = self.features[r][c]
       if phenomenon_symbol then
         phenomenon_symbol:refresh()
+      end
+      if feature_symbol then
+        feature_symbol:refresh()
       end
     end
   end

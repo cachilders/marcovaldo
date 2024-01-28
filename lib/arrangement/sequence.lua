@@ -4,8 +4,9 @@ local Sequence = {
   id = 1,
   notes = nil,
   octaves = 1,
-  pulses = 8,
-  steps = 8
+  pulse_count = 8,
+  pulses = nil,
+  step_count = 8
 }
 
 function Sequence:new(options)
@@ -31,28 +32,29 @@ end
 
 function Sequence:step()
   self:_emit_note()
-  self.current_step = util.wrap(self.current_step + 1, 1, self.steps)
+  self.current_step = util.wrap(self.current_step + 1, 1, self.step_count)
 end
 
 function Sequence:_distribute_pulses()
-  -- Euclid
+  self.pulses = er.gen(self.pulse_count, self.step_count)
 end
 
 function Sequence:_emit_note()
-  if self.notes[self.current_step] then
-    self.emitter({emitter = self.id, note = self.notes[self.current_step]})
+  local step = self.current_step
+  if self.notes[step] and self.pulses[step] then
+    self.emitter({emitter = self.id, note = self.notes[step]})
   end
 end
 
 function Sequence:_init_notes()
   self.notes = {}
-  for i = 1, self.steps do
+  for i = 1, self.step_count do
     self.notes[i] = nil
   end
 end
 
 function Sequence:_update_steps()
-  for i = 1, self.steps do
+  for i = 1, self.step_count do
     if not self.notes[i] then
       self.notes[i] = nil
     end

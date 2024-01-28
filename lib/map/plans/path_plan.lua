@@ -88,6 +88,7 @@ function PathPlan:_set_next_active_symbol()
 end
 
 function PathPlan:_step_toward_active()
+  local bpm = self._get_bpm()
   local last_phenomenon = self.step_symbol
   local step_coord = table.remove(self.steps_to_active, 1)
 
@@ -105,7 +106,7 @@ function PathPlan:_step_toward_active()
 
   if last_phenomenon then
     clock.run(function()
-      clock.sleep(.1)
+      clock.sleep(bpm / 4)
       self:_nullify_phenomenon(last_phenomenon)
     end)
   end
