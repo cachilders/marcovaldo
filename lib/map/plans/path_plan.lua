@@ -93,6 +93,7 @@ function PathPlan:_step_toward_active()
 
   self.step_symbol = EphemeralSymbol:new({
     led = self.led,
+    source_type = 'path',
     x = step_coord[1],
     x_offset = self.x_offset,
     y = step_coord[2],

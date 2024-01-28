@@ -20,7 +20,6 @@ end
 
 function RadiationPlan:init()
   self.features, self.phenomena = self._gesso()
-  self:_init_emitters()
 end
 
 function RadiationPlan:mark(x, y, z, keys_held, clear_held_keys)
@@ -38,6 +37,8 @@ function RadiationPlan:step()
   local function tick_radius(i)
     return util.wrap(i + 1, 1, 9)
   end
+
+  self:_place_emitters()
 
   for i = 1, #self.emitters do
     local x = self.emitters[i][1]
@@ -57,13 +58,14 @@ function RadiationPlan:step()
           local phenomenon = EphemeralSymbol:new({
             active = false,
             led = self.led,
-            lumen = 3 * i,
+            lumen = 3,
+            source_type = 'radiation',
             x = x,
             x_offset = self.x_offset,
             y = y,
             y_offset = self.y_offset
           })
-    
+
           self.phenomena[y][x] = phenomenon
     
           clock.run(function()
@@ -110,17 +112,20 @@ function RadiationPlan:_move(x, y, radiation_symbol, clear_held_keys)
   end
 end
 
-function RadiationPlan:_init_emitters()
+function RadiationPlan:_place_emitters()
   for i = 1, #self.emitters do
     local x = self.emitters[i][1]
     local y = self.emitters[i][2]
-    self.features[y][x] = RadiationSymbol:new({
-      led = self.led,
-      x = x,
-      x_offset = self.x_offset,
-      y = y,
-      y_offset = self.y_offset
-    })
+    if not self.features[y][x] then
+      self.features[y][x] = RadiationSymbol:new({
+        led = self.led,
+        lumen = 10,
+        x = x,
+        x_offset = self.x_offset,
+        y = y,
+        y_offset = self.y_offset
+      })
+    end
   end
 end
 

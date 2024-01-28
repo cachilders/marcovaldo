@@ -99,7 +99,7 @@ function Map:_init_plans()
   local plans = {
     PathPlan:new({led = led, name = 'The City All to Himself'}),
     CatPlan:new({led = led, name = 'The Garden of Stubborn Cats'}),
-    RadiationPlan:new({led = led, name = 'Moon anf GNAC'}),
+    RadiationPlan:new({led = led, name = 'Moon and GNAC'}),
     ReliefPlan:new({led = led, name = 'Smoke, wind, and Soap Bubbles'})
   }
 

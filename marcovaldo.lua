@@ -22,6 +22,7 @@ function init()
   init_params()
   init_arrangement()
   init_map()
+  init_view()
   init_clocks()
 end
 
@@ -46,6 +47,18 @@ end
 function init_map()
   map = Map:new()
   map:init()
+end
+
+function init_view()
+  -- changes with each context, maybe
+  -- turn a ring, see seq pulses and steps
+  -- and the notes on the steps
+  -- ...x..x..x...x
+  --    c  d  g   c
+  -- when not touch it animates pigeons
+  -- or whatever. weather. cats. probably
+  -- just display_png, but i still want to
+  -- mess with p8
 end
 
 function enc(e, d)

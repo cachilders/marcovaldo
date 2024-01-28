@@ -2,13 +2,14 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(1/28/2024)**
+Puzzled over a bug in offsets I noticed on the first run with a 256 this morning and had to grapple with the cognitive complexity of the spript, to date. There's a dual reminder here that a design is worth its weight in gold and that I should have coffee before programming.
+
 **(1/26/2024)**
 Thought up some new scope creep (keyboard navigation) while fixing the bugs of the last scope creep (relief plan), and that got me thinking about the problems of software design as an expression of artistic impulse. Also having doubts about the radiation plan now that I've seen it on a 128 beside the relief plan. The two are too busy side-by side. I think I want to reduce the expression of the waves to pulses in the radiant plan and only show the full waves in the relief. Going to play with variable brightness before I make a call. Also going to wait until the emitters represent actual sequencer pulse and I set them up to decay.
 
 **(1/23/2024)**
 Hooked up a 64 to test the page scaling. Works great, but need to have a conditional brightness adjustment for non-varibright grids.
-
-![monome 64 near a lamp and glasses](./assets/images/64-monobright.jpeg)
 
 **(1/23/2024)**
 So much of this program is a free writing exercise that the bigger traps are the moments in which I attempt to pause and revise and insert some rigor into the structure. I had a page system that mostly worked, but the state was out of sync on page flip gestures—all gestures, I guess, but the clear gesture on the pane was unimpacted. Anyway, it was an underlying bug in my reasoning. Woke up with the piece I was missing the night before to address. The end result is much better, but the overall sketch will not get completed if I don't stop and think about the next revision I'll insist on before painting a section of floor.
@@ -18,8 +19,6 @@ Muddled through implementation of the path follower plan. It was a long week and
 
 **(1/12/2024)**
 Structure materialized in the shower for a method of laying out the app as a series of disconected 64 pixel layers, each with a purpose and representing an overlapping reality. Built out a few of the low level prototypes and got the arc and grid into an interactive state with most of the abstraction I wanted. Still need Panes.
-
-![notes on carpet next to monome norns](./assets/images/panes_and_plans.jpeg)
 
 Created the cat plan and cat symbol so I wouldn't forget, but didn't get far.
 
