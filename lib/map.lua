@@ -4,6 +4,7 @@ local RadiationPlan = include('lib/map/plans/radiation_plan')
 local ReliefPlan = include('lib/map/plans/relief_plan')
 local Page = include('lib/map/page')
 local Pane = include('lib/map/pane')
+local count = 1
 
 local Map = {
   host = nil,
@@ -38,8 +39,9 @@ end
 
 function Map:step()
   for i = 1, #self.plans do
-    self.plans[i]:step()
+    self.plans[i]:step(count)
   end
+  self:_step_count()
 end
 
 function Map:_init_pages()
@@ -119,6 +121,10 @@ end
 
 function Map:_flip_page()
   self.page = util.wrap(self.page + 1, 1, #self.pages)
+end
+
+function Map:_step_count()
+  count = util.wrap(count + 1, 1, 2)
 end
 
 return Map

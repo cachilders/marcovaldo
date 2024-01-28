@@ -41,12 +41,14 @@ function PathPlan:refresh()
   self:_refresh_all_symbols()
 end
 
-function PathPlan:step()
-  if #self.steps_to_active > 0 then
-    self:_step_toward_active()
-  else
-    self.step_symbol = nil
-    self:_set_next_active_symbol()
+function PathPlan:step(count)
+  if count == 1 then
+    if #self.steps_to_active > 0 then
+      self:_step_toward_active()
+    else
+      self.step_symbol = nil
+      self:_set_next_active_symbol()
+    end
   end
 end
 

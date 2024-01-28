@@ -32,8 +32,10 @@ function Plan:refresh()
   self:_refresh_all_symbols()
 end
 
-function Plan:step()
-  self:_step_all_symbols()
+function Plan:step(count)
+  if count == 1 then
+    self:_step_all_symbols(count)
+  end
 end
 
 function Plan:mark(x, y, z, keys_held, clear_held_keys)

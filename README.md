@@ -3,7 +3,7 @@ a spatial sequencer with cats
 
 ## Dev Notes
 **(1/26/2024)**
-Thought up some new scope creep (keyboard navigation) while fixing the bugs of the last scope creep (relief plan), and that got me thinking about the problems of software design as an expression of artistic impulse. Also having doubts about the radiation plannow that I've seen it on a 128 beside the relief plan. The two are too busy side-by side. I think I want to reduce the expression of the waves to pulses in the radiant plan and only show the full waves in the relief. Going to play with variable brightness before I make a call. Also going to wait until the emitters represent actual sequencer pulse and I set them up to decay.
+Thought up some new scope creep (keyboard navigation) while fixing the bugs of the last scope creep (relief plan), and that got me thinking about the problems of software design as an expression of artistic impulse. Also having doubts about the radiation plan now that I've seen it on a 128 beside the relief plan. The two are too busy side-by side. I think I want to reduce the expression of the waves to pulses in the radiant plan and only show the full waves in the relief. Going to play with variable brightness before I make a call. Also going to wait until the emitters represent actual sequencer pulse and I set them up to decay.
 
 **(1/23/2024)**
 Hooked up a 64 to test the page scaling. Works great, but need to have a conditional brightness adjustment for non-varibright grids.

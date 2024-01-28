@@ -35,7 +35,7 @@ end
 
 function RadiationPlan:step()
   local bpm = self._get_bpm()
-  local function tic_radius(i)
+  local function tick_radius(i)
     return util.wrap(i + 1, 1, 9)
   end
 
@@ -47,7 +47,7 @@ function RadiationPlan:step()
 
     if self.features[y][x]:get('active') then
       phenomena = midpoint_circle(x, y, r)
-      self.emitters[i][3] = tic_radius(r)
+      self.emitters[i][3] = tick_radius(r)
   
       for _, coords in ipairs(phenomena) do
         local x = coords[1]
@@ -67,7 +67,9 @@ function RadiationPlan:step()
           self.phenomena[y][x] = phenomenon
     
           clock.run(function()
-            clock.sleep(bpm)
+            -- Sort this out when we start getting real
+            -- input from the arrangement
+            clock.sleep(bpm/2)
             self:_nullify_phenomenon(phenomenon)
           end)
         end
@@ -78,7 +80,14 @@ function RadiationPlan:step()
 end
 
 function RadiationPlan:_toggle_active(x, y)
-  self.features[y][x]:set('active', not self.features[y][x]:get('active'))
+  local symbol = self.features[y][x]
+  symbol:set('active', not symbol:get('active'))
+
+  if not symbol:get('active') then
+    -- reset the radius to 1
+    -- Wait to worry about this until 
+    -- we know 
+  end
 end
 
 function RadiationPlan:_move(x, y, radiation_symbol, clear_held_keys)
@@ -113,9 +122,6 @@ function RadiationPlan:_init_emitters()
       y_offset = self.y_offset
     })
   end
-end
-
-function RadiationPlan:_move_emitter()
 end
 
 return RadiationPlan

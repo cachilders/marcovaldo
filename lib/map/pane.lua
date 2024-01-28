@@ -48,8 +48,8 @@ function Pane:refresh()
   self.plan:refresh()
 end
 
-function Pane:step()
-  self.plan:step()
+function Pane:step(count)
+  self.plan:step(count)
 end
 
 function Pane:_determine_offsets(panes_per_page)

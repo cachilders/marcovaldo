@@ -1,5 +1,5 @@
-local test = require 'test/luaunit'
-local Ring = include('lib/ring')
+local test = require('test/luaunit')
+local Ring = include('lib/arrangement/ring')
 
 function test_extents_in_radians()
   -- Background: Radians should range from 0 to 2*math.pi

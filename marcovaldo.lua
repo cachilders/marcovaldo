@@ -6,46 +6,42 @@ PANE_EDGE_LENGTH = 8
 
 shift_depressed = false
 
+local Arrangement = include('lib/arrangement')
 local Map = include('lib/map')
-local Ring = include('lib/ring')
-local Rings = include('lib/rings')
 
 include('lib/utils')
-include('lib/test/ring')
 
+music_util = require('musicutil')
 util = require('util')
 tab = require('tabutil')
 
 function init()
   math.randomseed(os.time())
   run_tests()
-  init_rings()
+  init_arrangement()
   init_map()
   init_clocks()
 end
 
-function run_tests()
-  test_extents_in_radians()
-end
-
-function init_rings()
-  rings = Rings:new()
-  rings:init()
-  rings:add(Ring:new({id = 1, range = 16, x = 1}))
-  rings:add(Ring:new({id = 2, range = 8, x = 1}))
-  rings:add(Ring:new({id = 3, range = 32, x = 1}))
-  rings:add(Ring:new({id = 4, range = 64, x = 1}))
+function init_arrangement()
+  arrangement = Arrangement:new()
+  arrangement:init()
 end
 
 function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
-  dev_plan_timer = metro.init(step_peripherals, bpm)
-  dev_plan_timer:start()
+  podium_time = metro.init(step_arrangement)
+  world_time = metro.init(step_map, bpm / 2)
+  podium_time:start()
+  world_time:start()
 end
 
 function init_map()
   map = Map:new()
   map:init()
+end
+
+function run_tests()
 end
 
 function enc(e, d)
@@ -73,7 +69,7 @@ function key(k, z)
 end
 
 function arc.delta(n, delta)
-  rings:turn(n, delta)
+  arrangement:turn(n, delta)
 end
 
 function grid.key(x, y, z)
@@ -81,12 +77,16 @@ function grid.key(x, y, z)
 end
 
 function refresh_peripherals()
+  arrangement:refresh()
   map:refresh()
-  rings:refresh()
 end
 
-function step_peripherals()
+function step_map()
   map:step()
+end
+
+function step_arrangement()
+  arrangement:step()
 end
 
 function redraw()

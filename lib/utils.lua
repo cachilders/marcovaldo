@@ -34,7 +34,7 @@ end
 
 function midpoint_circle(mid_x, mid_y, r)
   local points = {}
-  local d = 1 - r
+  local d = r
   local x = 0
   local y = r
 
@@ -60,4 +60,11 @@ function midpoint_circle(mid_x, mid_y, r)
     plot_points(x, y)
   end
   return points
+end
+
+function truncate_string(s, l)
+  if string.len(s) > l then
+    return ''..string.sub(s, 1, l-1)..'...'
+  end
+  return s
 end

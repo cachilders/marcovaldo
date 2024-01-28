@@ -29,7 +29,7 @@ function Rings:refresh()
   end
 end
 
-function Rings:turn(n, delta)
+function Rings:turn_to_ring(n, delta)
   self.rings[n]:change(delta)
 end
 
