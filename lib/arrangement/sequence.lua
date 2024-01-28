@@ -1,9 +1,10 @@
 local Sequence = {
+  current_step = 1,
   emitter = nil,
+  id = 1,
   notes = nil,
   octaves = 1,
   pulses = 8,
-  step = 1,
   steps = 8
 }
 
@@ -30,7 +31,7 @@ end
 
 function Sequence:step()
   self:_emit_note()
-  self.step = util.wrap(step.step + 1, 1, self.steps)
+  self.current_step = util.wrap(self.current_step + 1, 1, self.steps)
 end
 
 function Sequence:_distribute_pulses()
@@ -38,8 +39,8 @@ function Sequence:_distribute_pulses()
 end
 
 function Sequence:_emit_note()
-  if self.notes[self.step] then
-    self.emitter:emit_note(self.notes[self.step])
+  if self.notes[self.current_step] then
+    self.emitter({emitter = self.id, note = self.notes[self.current_step]})
   end
 end
 

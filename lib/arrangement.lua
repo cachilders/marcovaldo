@@ -24,6 +24,9 @@ function Arrangement:refresh()
 end
 
 function Arrangement:step()
+  for i = 1, #self.sequences do
+    self.sequences[i]:step()
+  end
 end
 
 function Arrangement:turn(n, delta)
@@ -44,7 +47,8 @@ function Arrangement:_init_sequences()
   local steps = 8
   for i = 1, 4 do
     local sequence = Sequence:new({
-      emitter = function(n) print('Emitting '..n) end,
+      emitter = function(n) print('Emitting '..n.note..' from sequencer '..n.emitter) end,
+      id = i,
       steps = steps
     })
     sequence:init()

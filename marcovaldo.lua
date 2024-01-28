@@ -35,17 +35,12 @@ end
 
 function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
-  podium_time = metro.init(step_arrangement)
+  atomic_time = metro.init(refresh_peripherals, 1 / 60)
+  podium_time = metro.init(step_arrangement, bpm)
   world_time = metro.init(step_map, bpm / 2)
+  atomic_time:start()
   podium_time:start()
   world_time:start()
-
-  clock.run(function()
-    while true do
-      refresh_peripherals() 
-      clock.sleep(1/60)
-    end
-  end)
 end
 
 function init_map()
