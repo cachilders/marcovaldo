@@ -6,46 +6,59 @@ PANE_EDGE_LENGTH = 8
 
 shift_depressed = false
 
+local Arrangement = include('lib/arrangement')
 local Map = include('lib/map')
-local Ring = include('lib/ring')
-local Rings = include('lib/rings')
 
+include('lib/params')
 include('lib/utils')
-include('lib/test/ring')
 
 util = require('util')
 tab = require('tabutil')
+local music_util = require('musicutil')
 
 function init()
   math.randomseed(os.time())
   run_tests()
-  init_rings()
+  init_params()
+  init_arrangement()
   init_map()
+  init_view()
   init_clocks()
 end
 
 function run_tests()
-  test_extents_in_radians()
 end
 
-function init_rings()
-  rings = Rings:new()
-  rings:init()
-  rings:add(Ring:new({id = 1, range = 16, x = 1}))
-  rings:add(Ring:new({id = 2, range = 8, x = 1}))
-  rings:add(Ring:new({id = 3, range = 32, x = 1}))
-  rings:add(Ring:new({id = 4, range = 64, x = 1}))
+function init_arrangement()
+  arrangement = Arrangement:new()
+  arrangement:init()
 end
 
 function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
-  dev_plan_timer = metro.init(step_peripherals, bpm)
-  dev_plan_timer:start()
+  atomic_time = metro.init(refresh_peripherals, 1 / 60)
+  podium_time = metro.init(step_arrangement, bpm)
+  world_time = metro.init(step_map, bpm / 2)
+  atomic_time:start()
+  podium_time:start()
+  world_time:start()
 end
 
 function init_map()
   map = Map:new()
   map:init()
+end
+
+function init_view()
+  -- changes with each context, maybe
+  -- turn a ring, see seq pulses and steps
+  -- and the notes on the steps
+  -- ...x..x..x...x
+  --    c  d  g   c
+  -- when not touch it animates pigeons
+  -- or whatever. weather. cats. probably
+  -- just display_png, but i still want to
+  -- mess with p8
 end
 
 function enc(e, d)
@@ -73,7 +86,7 @@ function key(k, z)
 end
 
 function arc.delta(n, delta)
-  rings:turn(n, delta)
+  arrangement:turn(n, delta)
 end
 
 function grid.key(x, y, z)
@@ -81,16 +94,19 @@ function grid.key(x, y, z)
 end
 
 function refresh_peripherals()
+  arrangement:refresh()
   map:refresh()
-  rings:refresh()
 end
 
-function step_peripherals()
+function step_map()
   map:step()
 end
 
+function step_arrangement()
+  arrangement:step()
+end
+
 function redraw()
-  refresh_peripherals() 
   screen.clear()
   screen.update()
 end

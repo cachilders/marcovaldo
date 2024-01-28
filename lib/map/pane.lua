@@ -35,7 +35,6 @@ end
 
 function Pane:update_offsets(panes_per_page)
   local x_offset, y_offset = self:_determine_offsets(panes_per_page)
-
   self.plan:set('x_offset', x_offset)
   self.plan:set('y_offset', y_offset)
 end
@@ -48,8 +47,8 @@ function Pane:refresh()
   self.plan:refresh()
 end
 
-function Pane:step()
-  self.plan:step()
+function Pane:step(count)
+  self.plan:step(count)
 end
 
 function Pane:_determine_offsets(panes_per_page)
@@ -58,7 +57,9 @@ function Pane:_determine_offsets(panes_per_page)
 
   if panes_per_page > 2 and self.pane > 2 then
     y_offset = PANE_EDGE_LENGTH
-  elseif self.pane % 2 == 0 then
+  end
+
+  if self.pane % 2 == 0 then
     x_offset = PANE_EDGE_LENGTH
   end
 

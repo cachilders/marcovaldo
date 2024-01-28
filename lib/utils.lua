@@ -1,3 +1,5 @@
+local music_util = require('musicutil')
+
 function b_line(x1, y1, x2, y2)
   local x_diff = math.abs(x2 - x1)
   local x_inc = x1 < x2 and 1 or -1
@@ -34,7 +36,7 @@ end
 
 function midpoint_circle(mid_x, mid_y, r)
   local points = {}
-  local d = 1 - r
+  local d = r
   local x = 0
   local y = r
 
@@ -60,4 +62,13 @@ function midpoint_circle(mid_x, mid_y, r)
     plot_points(x, y)
   end
   return points
+end
+
+function get_musicutil_scale_names()
+  local scales = {}
+  for i = 1, #music_util.SCALES do
+    scales[i] = music_util.SCALES[i].name
+  end
+
+  return scales
 end

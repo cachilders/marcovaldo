@@ -1,6 +1,7 @@
 local Symbol = include('lib/map/symbol')
 
 local EphemeralSymbol = {
+  source_type = ''
   -- Make discrete cat, path, photon symbols if needed,
   -- but for now keep it simple
 }

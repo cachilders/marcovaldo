@@ -37,11 +37,13 @@ function ReliefPlan:_ingest_ephemera()
 end
 
 function ReliefPlan:_local_clone(symbol)
-  -- Needs work
   local clone = nil 
   if symbol then
+    local type = symbol:get('source_type')
+    local lumen = type == 'cat' and 10 or type == 'path' and 15 or type == 'radiation' and 2 or 3
     clone = ReliefSymbol:new({
       led = symbol:get('led'),
+      lumen = lumen,
       x = symbol:get('x'),
       x_offset = self.x_offset,
       y = symbol:get('y'),

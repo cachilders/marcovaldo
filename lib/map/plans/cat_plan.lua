@@ -17,6 +17,7 @@ function CatPlan:_add(x, y)
       -- Purr, Meow, Hiss, Mewl, Yowl, Scratch, Jump ¯\_(ツ)_/¯
     local phenomenon = EphemeralSymbol:new({
       led = self.led,
+      source_type = 'cat',
       x = x,
       x_offset = self.x_offset,
       y = y,
