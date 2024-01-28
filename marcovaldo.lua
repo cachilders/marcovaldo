@@ -9,18 +9,23 @@ shift_depressed = false
 local Arrangement = include('lib/arrangement')
 local Map = include('lib/map')
 
+include('lib/params')
 include('lib/utils')
 
-music_util = require('musicutil')
 util = require('util')
 tab = require('tabutil')
+local music_util = require('musicutil')
 
 function init()
   math.randomseed(os.time())
   run_tests()
+  init_params()
   init_arrangement()
   init_map()
   init_clocks()
+end
+
+function run_tests()
 end
 
 function init_arrangement()
@@ -34,14 +39,18 @@ function init_clocks()
   world_time = metro.init(step_map, bpm / 2)
   podium_time:start()
   world_time:start()
+
+  clock.run(function()
+    while true do
+      refresh_peripherals() 
+      clock.sleep(1/60)
+    end
+  end)
 end
 
 function init_map()
   map = Map:new()
   map:init()
-end
-
-function run_tests()
 end
 
 function enc(e, d)
@@ -90,7 +99,6 @@ function step_arrangement()
 end
 
 function redraw()
-  refresh_peripherals() 
   screen.clear()
   screen.update()
 end

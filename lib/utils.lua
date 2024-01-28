@@ -1,3 +1,5 @@
+local music_util = require('musicutil')
+
 function b_line(x1, y1, x2, y2)
   local x_diff = math.abs(x2 - x1)
   local x_inc = x1 < x2 and 1 or -1
@@ -62,9 +64,11 @@ function midpoint_circle(mid_x, mid_y, r)
   return points
 end
 
-function truncate_string(s, l)
-  if string.len(s) > l then
-    return ''..string.sub(s, 1, l-1)..'...'
+function get_musicutil_scale_names()
+  local scales = {}
+  for i = 1, #music_util.SCALES do
+    scales[i] = music_util.SCALES[i].name
   end
-  return s
+
+  return scales
 end
