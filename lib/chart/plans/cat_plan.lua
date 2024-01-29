@@ -1,6 +1,6 @@
-local Plan = include('lib/map/plan')
-local CatSymbol = include('lib/map/symbols/cat_symbol')
-local EphemeralSymbol = include('lib/map/symbols/ephemeral_symbol')
+local Plan = include('lib/chart/plan')
+local CatSymbol = include('lib/chart/symbols/cat_symbol')
+local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 
 local CatPlan = {}
 

@@ -1,6 +1,6 @@
-local Plan = include('lib/map/plan')
-local PathSymbol = include('lib/map/symbols/path_symbol')
-local EphemeralSymbol = include('lib/map/symbols/ephemeral_symbol')
+local Plan = include('lib/chart/plan')
+local PathSymbol = include('lib/chart/symbols/path_symbol')
+local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 
 local PathPlan = {
   head = nil,

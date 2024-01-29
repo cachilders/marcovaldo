@@ -7,7 +7,9 @@ PANE_EDGE_LENGTH = 8
 shift_depressed = false
 
 local Arrangement = include('lib/arrangement')
-local Map = include('lib/map')
+local Chart = include('lib/chart')
+local Console = include('lib/console')
+local Ensemble = include('lib/ensemble')
 
 include('lib/params')
 include('lib/utils')
@@ -22,8 +24,9 @@ function init()
   run_tests()
   init_params()
   init_arrangement()
-  init_map()
-  init_view()
+  init_chart()
+  init_console()
+  init_ensemble()
   init_clocks()
 end
 
@@ -39,18 +42,18 @@ function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
   atomic_time = metro.init(refresh_peripherals, 1 / 60)
   podium_time = metro.init(step_arrangement, bpm)
-  world_time = metro.init(step_map, bpm / 2)
+  world_time = metro.init(step_chart, bpm / 2)
   atomic_time:start()
   podium_time:start()
   world_time:start()
 end
 
-function init_map()
-  map = Map:new()
-  map:init()
+function init_chart()
+  chart = Chart:new()
+  chart:init()
 end
 
-function init_view()
+function init_console()
   -- changes with each context, maybe
   -- turn a ring, see seq pulses and steps
   -- and the notes on the steps
@@ -60,6 +63,9 @@ function init_view()
   -- or whatever. weather. cats. probably
   -- just display_png, but i still want to
   -- mess with p8
+end
+
+function init_ensemble()
 end
 
 function enc(e, d)
@@ -91,16 +97,16 @@ function arc.delta(n, delta)
 end
 
 function grid.key(x, y, z)
-  map:press(x, y, z)
+  chart:press(x, y, z)
 end
 
 function refresh_peripherals()
   arrangement:refresh()
-  map:refresh()
+  chart:refresh()
 end
 
-function step_map()
-  map:step()
+function step_chart()
+  chart:step()
 end
 
 function step_arrangement()

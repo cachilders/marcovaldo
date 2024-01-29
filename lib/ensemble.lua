@@ -1,0 +1,4 @@
+-- I orchestrate the outputs and provide
+-- play_note (arrangement)
+-- effect_output (chart: cats)
+-- observer_proximity (chart: distance from path step to emitter; loudness/stereoness?)

@@ -1,0 +1,3 @@
+-- I show animations and useful data
+-- I provide takeover callbacks with input timeouts
+-- for sequencer editing and whatnot

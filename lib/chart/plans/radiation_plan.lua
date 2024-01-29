@@ -1,6 +1,6 @@
-local Plan = include('lib/map/plan')
-local RadiationSymbol = include('lib/map/symbols/radiation_symbol')
-local EphemeralSymbol = include('lib/map/symbols/ephemeral_symbol')
+local Plan = include('lib/chart/plan')
+local RadiationSymbol = include('lib/chart/symbols/radiation_symbol')
+local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 
 local RadiationPlan = {
   -- TODO: Redius should be derived from something real

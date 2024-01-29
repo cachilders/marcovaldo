@@ -1,0 +1,1 @@
+- Device detection and alerts for absence of grid
