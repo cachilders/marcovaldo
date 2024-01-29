@@ -29,6 +29,12 @@ function Rings:refresh()
   end
 end
 
+function Rings:step_feedback(sequencer, step_value)
+  -- TEMP POC This needs to reflect the sequencer state, distinct from the input state
+  -- so a more thoughtful approach is required
+  self.rings[sequencer]:set('x', step_value)
+end
+
 function Rings:turn_to_ring(n, delta)
   self.rings[n]:change(delta)
 end

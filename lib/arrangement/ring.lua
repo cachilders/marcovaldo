@@ -36,6 +36,7 @@ end
 
 function Ring:set(k, v)
   self[k] = v
+  self.dirty = true
 end
 
 function Ring:get(k)

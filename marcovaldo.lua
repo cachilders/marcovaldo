@@ -23,11 +23,11 @@ function init()
   math.randomseed(os.time())
   run_tests()
   init_params()
-  init_ensemble()
   init_arrangement()
   init_chart()
   init_console()
   init_clocks()
+  init_ensemble()
 end
 
 function run_tests()

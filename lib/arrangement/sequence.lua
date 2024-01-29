@@ -21,6 +21,14 @@ function Sequence:init()
   self:_init_notes()
 end
 
+function Sequence:get(k)
+  return self[k]
+end
+
+function Sequence:set(k, v)
+  selk[k] = v
+end
+
 function Sequence:randomize()
   -- TODO: Random notes quantized to scale
   -- within octave range from root

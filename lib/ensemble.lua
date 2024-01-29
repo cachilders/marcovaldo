@@ -1,9 +1,10 @@
 -- I orchestrate the outputs and provide
 -- play_note (arrangement)
--- effect_output (chart: cats)
+-- affect_output (chart: cats)
 -- observer_proximity (chart: distance from path step to emitter; loudness/stereoness?)
 local Ensemble = {}
--- TEMP
+
+-- TEMP: Just getting the sequencers in a good place before getting into voice
 engine.name = 'PolyPerc'
 
 function Ensemble:new(options)
@@ -14,11 +15,11 @@ function Ensemble:new(options)
 end
 
 function Ensemble:init()
-  -- big TEMP
+  -- TODO
 end
 
 function Ensemble:play_note(sequencer, note, velocity, attack, release)
-  -- Also big temp
+  -- TEMP, see above
   engine.amp(1)
   engine.hz(music_util.note_num_to_freq(note))
 end

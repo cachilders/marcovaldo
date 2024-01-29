@@ -1,1 +1,2 @@
 - Device detection and alerts for absence of grid
+- Update clocks on tempo shift

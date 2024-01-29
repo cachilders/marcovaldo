@@ -26,7 +26,9 @@ end
 
 function Arrangement:step()
   for i = 1, #self.sequences do
-    self.sequences[i]:step()
+    local sequence = self.sequences[i]
+    sequence:step()
+    self.rings:step_feedback(i, sequence:get('current_step'))
   end
 end
 
@@ -42,10 +44,12 @@ end
 function Arrangement:_init_rings()
   local rings = Rings:new()
   rings:init()
-  rings:add(Ring:new({id = 1, range = 16, x = 1}))
-  rings:add(Ring:new({id = 2, range = 8, x = 1}))
-  rings:add(Ring:new({id = 3, range = 32, x = 1}))
-  rings:add(Ring:new({id = 4, range = 64, x = 1}))
+  for i = 1, #self.sequences do
+    -- TEMP Ultimately the ring will represent at least two things
+    -- and a robust model will be needed to support that
+    local sequence = self.sequences[i]
+    rings:add(Ring:new({id = i, range = sequence:get('step_count'), x = 1}))
+  end
   self.rings = rings
 end
 
