@@ -42,14 +42,15 @@ end
 function Sequence:_emit_note()
   local step = self.current_step
   if self.notes[step] and self.pulses[step] then
-    self.emitter({emitter = self.id, note = self.notes[step]})
+    self.emitter(self.id, self.notes[step])
   end
 end
 
 function Sequence:_init_notes()
   self.notes = {}
   for i = 1, self.step_count do
-    self.notes[i] = nil
+    -- TEMP TEMP
+    self.notes[i] = math.random(48, 84)
   end
 end
 

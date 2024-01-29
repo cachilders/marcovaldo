@@ -3,6 +3,7 @@ local Rings = include('lib/arrangement/rings')
 local Sequence = include('lib/arrangement/sequence')
 
 local Arrangement = {
+  play_note = nil,
   rings = nil,
   sequences = {}
 }
@@ -33,6 +34,11 @@ function Arrangement:turn(n, delta)
   self.rings:turn_to_ring(n, delta)
 end
 
+function Arrangement:_emit_note(sequencer, note)
+  -- TEMP
+  self.play_note(sequencer, note)
+end
+
 function Arrangement:_init_rings()
   local rings = Rings:new()
   rings:init()
@@ -47,9 +53,11 @@ function Arrangement:_init_sequences()
   local steps = 8
   for i = 1, 4 do
     local sequence = Sequence:new({
-      emitter = function(n) print('Emitting '..n.note..' from sequencer '..n.emitter) end,
+      emitter = function(i, note) self:_emit_note(i, note) end,
       id = i,
-      steps = steps
+      step_count = steps,
+      -- REALLY JUST JAMMING ON TEMP
+      pulse_count = math.floor(steps * (.1 * math.random(1, 10)))
     })
     sequence:init()
     table.insert(self.sequences, sequence)

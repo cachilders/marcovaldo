@@ -17,16 +17,16 @@ include('lib/utils')
 er = require('er')
 tab = require('tabutil')
 util = require('util')
-local music_util = require('musicutil')
+music_util = require('musicutil')
 
 function init()
   math.randomseed(os.time())
   run_tests()
   init_params()
+  init_ensemble()
   init_arrangement()
   init_chart()
   init_console()
-  init_ensemble()
   init_clocks()
 end
 
@@ -34,7 +34,9 @@ function run_tests()
 end
 
 function init_arrangement()
-  arrangement = Arrangement:new()
+  arrangement = Arrangement:new({
+    play_note = function(sequencer, note, velocity) ensemble:play_note(sequencer, note, velocity) end
+  })
   arrangement:init()
 end
 
@@ -66,6 +68,8 @@ function init_console()
 end
 
 function init_ensemble()
+  ensemble = Ensemble:new()
+  ensemble:init()
 end
 
 function enc(e, d)
