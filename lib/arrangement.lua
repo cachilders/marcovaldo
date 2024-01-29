@@ -50,7 +50,7 @@ function Arrangement:_init_rings()
 end
 
 function Arrangement:_init_sequences()
-  local steps = 8
+  local steps = 16
   for i = 1, 4 do
     local sequence = Sequence:new({
       emitter = function(i, note) self:_emit_note(i, note) end,
