@@ -19,6 +19,9 @@ end
 function Sequence:init()
   self:_distribute_pulses()
   self:_init_notes()
+
+  -- DEV TEMP
+  self:randomize()
 end
 
 function Sequence:get(k)
@@ -30,8 +33,11 @@ function Sequence:set(k, v)
 end
 
 function Sequence:randomize()
-  -- TODO: Random notes quantized to scale
-  -- within octave range from root
+  self.pulse_count = math.floor(self.step_count * (.1 * math.random(1, 10)))
+  self:_distribute_pulses()
+  for i = 1, self.step_count do
+    self.notes[i] = math.random(48, 84)
+  end
 end
 
 function Sequence:refresh()
@@ -57,8 +63,7 @@ end
 function Sequence:_init_notes()
   self.notes = {}
   for i = 1, self.step_count do
-    -- TEMP TEMP
-    self.notes[i] = math.random(48, 84)
+    self.notes[i] = nil
   end
 end
 

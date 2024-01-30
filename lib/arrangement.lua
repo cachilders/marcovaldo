@@ -60,8 +60,7 @@ function Arrangement:_init_sequences()
       emitter = function(i, note) self:_emit_note(i, note) end,
       id = i,
       step_count = steps,
-      -- REALLY JUST JAMMING ON TEMP
-      pulse_count = math.floor(steps * (.1 * math.random(1, 10)))
+      pulse_count = steps
     })
     sequence:init()
     table.insert(self.sequences, sequence)

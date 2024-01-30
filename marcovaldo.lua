@@ -44,9 +44,11 @@ function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
   atomic_time = metro.init(refresh_peripherals, 1 / 60)
   podium_time = metro.init(step_arrangement, bpm)
+  screen_time = metro.init(step_console, 1 / 30) -- TODO TBD
   world_time = metro.init(step_chart, bpm / 2)
   atomic_time:start()
   podium_time:start()
+  screen_time:start()
   world_time:start()
 end
 
@@ -56,6 +58,8 @@ function init_chart()
 end
 
 function init_console()
+  console = Console:new()
+  console:init()
   -- changes with each context, maybe
   -- turn a ring, see seq pulses and steps
   -- and the notes on the steps
@@ -109,19 +113,18 @@ function refresh_peripherals()
   chart:refresh()
 end
 
-function step_chart()
-  chart:step()
-end
-
 function step_arrangement()
   arrangement:step()
 end
 
-function redraw()
-  screen.clear()
-  screen.update()
+function step_chart()
+  chart:step()
+end
+
+function step_console()
+  console:step()
 end
 
 function refresh()
-  redraw()
+  console:refresh()
 end
