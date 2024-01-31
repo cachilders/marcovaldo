@@ -6,6 +6,11 @@ local Page = include('lib/chart/page')
 local Pane = include('lib/chart/pane')
 local count = 1
 
+local PATH_PLAN = 'The City All to Himself'
+local CAT_PLAN = 'The Garden of Stubborn Cats'
+local RADIATION_PLAN = 'Moon and GNAC'
+local RELIEF_PLAN ='Smoke, wind, and Soap Bubbles'
+
 local Chart = {
   host = nil,
   lumen = 5,
@@ -36,6 +41,14 @@ function Chart:refresh()
   self.pages[self.page]:refresh()
   self.host:refresh()
 end
+
+function Chart:emit_pulse(sequencer, velocity)
+  -- TODO velocity -> radius
+  -- derive radiation plan index more programitically
+  print('emit pulse in chart')
+  self.plans[3]:emit_pulse(sequencer, velocity)
+end
+
 
 function Chart:step()
   for i = 1, #self.plans do

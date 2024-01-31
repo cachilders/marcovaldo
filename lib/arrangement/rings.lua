@@ -23,10 +23,14 @@ function Rings:refresh()
     self.host:all(0)
     for _, ring in pairs(self.rings) do
       ring:paint(self.host)
-      ring:set('dirty', false)
     end
     self.host:refresh()
   end
+end
+
+
+function Rings:pulse_ring(sequencer)
+  self.rings[sequencer]:pulse(self.host)
 end
 
 function Rings:step_feedback(sequencer, step_value)

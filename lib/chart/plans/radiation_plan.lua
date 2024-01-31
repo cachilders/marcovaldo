@@ -2,6 +2,8 @@ local Plan = include('lib/chart/plan')
 local RadiationSymbol = include('lib/chart/symbols/radiation_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 
+local PULSE_RADIUS_OPERAND = 8 / 127
+
 local RadiationPlan = {
   -- TODO: Redius should be derived from something real
   -- as should velocity of expansion
@@ -33,52 +35,53 @@ function RadiationPlan:mark(x, y, z, keys_held, clear_held_keys)
 end
 
 function RadiationPlan:step()
+  self:_place_emitters()
+  self:_step_all_symbols()
+end
+
+function RadiationPlan:emit_pulse(i, v)
   local bpm = self._get_bpm()
+
+  local phenomena = {}
   local function tick_radius(i)
     return util.wrap(i + 1, 1, 9)
   end
-
-  self:_place_emitters()
-
-  for i = 1, #self.emitters do
-    local x = self.emitters[i][1]
-    local y = self.emitters[i][2]
-    local r = self.emitters[i][3]
-    local phenomena = {}
-
-    if self.features[y][x]:get('active') then
-      phenomena = midpoint_circle(x, y, r)
-      self.emitters[i][3] = tick_radius(r)
   
-      for _, coords in ipairs(phenomena) do
-        local x = coords[1]
-        local y = coords[2]
-  
-        if x > 0 and y > 0 and x < PANE_EDGE_LENGTH + 1 and y < PANE_EDGE_LENGTH + 1 then
-          local phenomenon = EphemeralSymbol:new({
-            active = false,
-            led = self.led,
-            lumen = 3,
-            source_type = 'radiation',
-            x = x,
-            x_offset = self.x_offset,
-            y = y,
-            y_offset = self.y_offset
-          })
+  local x = self.emitters[i][1]
+  local y = self.emitters[i][2]
+  local r = self.emitters[i][3]
 
-          self.phenomena[y][x] = phenomenon
-    
-          clock.run(function()
-            -- Sort this out when we start getting real
-            -- input from the arrangement
-            clock.sleep(bpm/2)
-            self:_nullify_phenomenon(phenomenon)
-          end)
-        end
+  if self.features[y][x]:get('active') then
+    phenomena = midpoint_circle(x, y, r)
+    self.emitters[i][3] = tick_radius(r)
+
+    for _, coords in ipairs(phenomena) do
+      local x = coords[1]
+      local y = coords[2]
+
+      if x > 0 and y > 0 and x < PANE_EDGE_LENGTH + 1 and y < PANE_EDGE_LENGTH + 1 then
+        local phenomenon = EphemeralSymbol:new({
+          active = false,
+          led = self.led,
+          lumen = 3,
+          source_type = 'radiation',
+          x = x,
+          x_offset = self.x_offset,
+          y = y,
+          y_offset = self.y_offset
+        })
+
+        self.phenomena[y][x] = phenomenon
+  
+        clock.run(function()
+          -- Sort this out when we start getting real
+          -- input from the arrangement
+          clock.sleep(bpm/2)
+          self:_nullify_phenomenon(phenomenon)
+        end)
       end
     end
   end
-  self:_step_all_symbols()
 end
 
 function RadiationPlan:_toggle_active(x, y)

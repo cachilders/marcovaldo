@@ -50,6 +50,15 @@ function Ring:paint(host)
     local a, b = self._extents_in_radians(self.x, self.range)
     host:segment(self.id, a, b, self.lumen)
   end
+
+  self:set('dirty', false)
+end
+
+function Ring:pulse(host)
+  local a, b = self._extents_in_radians(1, 1)
+  host:segment(self.id, 0, 6.283185, self.lumen)
+  host:refresh()
+  self.dirty = false
 end
 
 return Ring

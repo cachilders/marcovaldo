@@ -3,6 +3,7 @@ local Rings = include('lib/arrangement/rings')
 local Sequence = include('lib/arrangement/sequence')
 
 local Arrangement = {
+  emit_pulse = nil,
   play_note = nil,
   rings = nil,
   sequences = {}
@@ -37,7 +38,8 @@ function Arrangement:turn(n, delta)
 end
 
 function Arrangement:_emit_note(sequencer, note)
-  -- TEMP
+  self.emit_pulse(sequencer, 100)
+  self.rings:pulse_ring(sequencer)
   self.play_note(sequencer, note)
 end
 

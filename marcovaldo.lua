@@ -35,6 +35,7 @@ end
 
 function init_arrangement()
   arrangement = Arrangement:new({
+    emit_pulse = function(sequencer, velocity) chart:emit_pulse(sequencer, velocity) end,
     play_note = function(sequencer, note, velocity) ensemble:play_note(sequencer, note, velocity) end
   })
   arrangement:init()
@@ -53,7 +54,7 @@ function init_clocks()
 end
 
 function init_chart()
-  chart = Chart:new()
+  chart = Chart:new({})
   chart:init()
 end
 

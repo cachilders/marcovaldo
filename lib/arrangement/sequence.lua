@@ -33,7 +33,7 @@ function Sequence:set(k, v)
 end
 
 function Sequence:randomize()
-  self.pulse_count = math.floor(self.step_count * (.1 * math.random(1, 10)))
+  self.pulse_count = math.floor(self.step_count * (.1 * math.random(1, 10) / self.id))
   self:_distribute_pulses()
   for i = 1, self.step_count do
     self.notes[i] = math.random(48, 84)
