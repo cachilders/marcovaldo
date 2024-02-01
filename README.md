@@ -2,6 +2,9 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(1/31/2024)**
+This was a big one. Figured out a workable pattern for communicating events across the domains after getting the radiation plan to emit waves fluidly in sequence, and now individual sequences can be toggled on and off. I'm also set up with the tools to start knocking out the remaining functionality a piece at a time. I'm not out of the woods, but this felt like cresting the hill. I can see how to reach the end, and i can already see a ton of the ideas actually working.
+
 **(1/28/2024)**
 Puzzled over a bug in offsets I noticed on the first run with a 256 this morning and had to grapple with the cognitive complexity of the spript, to date. There's a dual reminder here that a design is worth its weight in gold and that I should have coffee before programming.
 

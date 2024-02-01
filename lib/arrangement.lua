@@ -3,8 +3,9 @@ local Rings = include('lib/arrangement/rings')
 local Sequence = include('lib/arrangement/sequence')
 
 local Arrangement = {
-  emit_pulse = nil,
-  play_note = nil,
+  affect_chart = function() end,
+  affect_console = function() end,
+  affect_ensemble = function() end,
   rings = nil,
   sequences = {}
 }
@@ -21,6 +22,14 @@ function Arrangement:init()
   self:_init_rings()
 end
 
+function Arrangement:get(k)
+  return self[k]
+end
+
+function Arrangement:set(k, v)
+  self[k] = v
+end
+
 function Arrangement:refresh()
   self.rings:refresh()
 end
@@ -28,8 +37,10 @@ end
 function Arrangement:step()
   for i = 1, #self.sequences do
     local sequence = self.sequences[i]
-    sequence:step()
-    self.rings:step_feedback(i, sequence:get('current_step'))
+    if sequence:get('active') then
+      sequence:step()
+      self.rings:step_feedback(i, sequence:get('current_step'))
+    end
   end
 end
 
@@ -37,10 +48,20 @@ function Arrangement:turn(n, delta)
   self.rings:turn_to_ring(n, delta)
 end
 
+function Arrangement:affect_arrangement(action, index, values)
+  local sequencer = self.sequences[index]
+  if action == 'toggle_sequence' then
+    sequencer:set('active', not sequencer:get('active'))
+  end
+end
+
 function Arrangement:_emit_note(sequencer, note)
-  self.emit_pulse(sequencer, 100)
+  -- TODO - actual velocity derived from sequence and behavior
+  -- maybe the chart
+  local velocity = 100
+  self.affect_chart('emit_pulse', sequencer, {velocity = velocity})
   self.rings:pulse_ring(sequencer)
-  self.play_note(sequencer, note)
+  self.affect_ensemble('play_note', sequencer, {note = note, velocity = velocity})
 end
 
 function Arrangement:_init_rings()

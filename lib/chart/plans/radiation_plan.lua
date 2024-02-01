@@ -2,14 +2,13 @@ local Plan = include('lib/chart/plan')
 local RadiationSymbol = include('lib/chart/symbols/radiation_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 
-local PULSE_RADIUS_OPERAND = 8 / 127
+local MAX_AMP = 127
+local MAX_RAD = 8
+local PULSE_RADIUS_OPERAND = MAX_RAD / MAX_AMP
 
 local RadiationPlan = {
-  -- TODO: Redius should be derived from something real
-  -- as should velocity of expansion
-  -- and new waves should issue on every beat of
-  -- related sequence
-  emitters = {{2, 1, 1}, {1, 6, 1}, {8, 4, 1}, {5, 8, 1}}
+  affect_arrangement = nil,
+  emitters = {{1, 1}, {1, 8}, {8, 1}, {8, 8}}
 }
 
 function RadiationPlan:new(options)
@@ -39,60 +38,63 @@ function RadiationPlan:step()
   self:_step_all_symbols()
 end
 
-function RadiationPlan:emit_pulse(i, v)
-  local bpm = self._get_bpm()
-
-  local phenomena = {}
-  local function tick_radius(i)
-    return util.wrap(i + 1, 1, 9)
-  end
-  
+function RadiationPlan:emit_pulse(i, v, s)  
   local x = self.emitters[i][1]
   local y = self.emitters[i][2]
-  local r = self.emitters[i][3]
 
   if self.features[y][x]:get('active') then
-    phenomena = midpoint_circle(x, y, r)
-    self.emitters[i][3] = tick_radius(r)
+    self:_spawn_wave(x, y, v, s)
+  end
+end
 
-    for _, coords in ipairs(phenomena) do
-      local x = coords[1]
-      local y = coords[2]
+function RadiationPlan:_spawn_wave(x, y, velocity, envelope_time)
+  -- TODO: a, d, s, r timing defines diffusion characteristics
+  -- Push more behavior down to the symbol and reconsider the
+  -- Nature of phenomena belonging to plans.
+  clock.run(function ()
+    local i = 1
+    local radius = math.floor(PULSE_RADIUS_OPERAND * (velocity or 100))
+    local step_duration = (envelope_time or .5) / radius
+    local phenomena = nil
 
-      if x > 0 and y > 0 and x < PANE_EDGE_LENGTH + 1 and y < PANE_EDGE_LENGTH + 1 then
-        local phenomenon = EphemeralSymbol:new({
-          active = false,
-          led = self.led,
-          lumen = 3,
-          source_type = 'radiation',
-          x = x,
-          x_offset = self.x_offset,
-          y = y,
-          y_offset = self.y_offset
-        })
-
-        self.phenomena[y][x] = phenomenon
-  
-        clock.run(function()
-          -- Sort this out when we start getting real
-          -- input from the arrangement
-          clock.sleep(bpm/2)
-          self:_nullify_phenomenon(phenomenon)
-        end)
+    while i <= radius do    
+      phenomena = midpoint_circle(x, y, i)
+      local lumen = radius * 2 - i * 2 + 2
+      for _, coords in ipairs(phenomena) do
+        self:_spawn_wave_particle(coords[1], coords[2], lumen, step_duration)
       end
+      i = i + 1
+      clock.sleep(step_duration)
     end
+  end)
+end
+
+function RadiationPlan:_spawn_wave_particle(x, y, lumen, lifespan)
+  if x > 0 and y > 0 and x < PANE_EDGE_LENGTH + 1 and y < PANE_EDGE_LENGTH + 1 then
+    local phenomenon = EphemeralSymbol:new({
+      active = false,
+      led = self.led,
+      lumen = lumen,
+      source_type = 'radiation',
+      x = x,
+      x_offset = self.x_offset,
+      y = y,
+      y_offset = self.y_offset
+    })
+
+    self.phenomena[y][x] = phenomenon
+
+    clock.run(function()
+      clock.sleep(lifespan)
+      self:_nullify_phenomenon(phenomenon)
+    end)
   end
 end
 
 function RadiationPlan:_toggle_active(x, y)
   local symbol = self.features[y][x]
   symbol:set('active', not symbol:get('active'))
-
-  if not symbol:get('active') then
-    -- reset the radius to 1
-    -- Wait to worry about this until 
-    -- we know 
-  end
+  self.affect_arrangement('toggle_sequence', symbol:get('id'))
 end
 
 function RadiationPlan:_move(x, y, radiation_symbol, clear_held_keys)
@@ -121,6 +123,7 @@ function RadiationPlan:_place_emitters()
     local y = self.emitters[i][2]
     if not self.features[y][x] then
       self.features[y][x] = RadiationSymbol:new({
+        id = i,
         led = self.led,
         lumen = 10,
         x = x,

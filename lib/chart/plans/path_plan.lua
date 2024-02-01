@@ -3,6 +3,7 @@ local PathSymbol = include('lib/chart/symbols/path_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 
 local PathPlan = {
+  affect_ensemble = nil,
   head = nil,
   steps_to_active = {},
   step_symbol = nil,

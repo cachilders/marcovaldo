@@ -1,4 +1,5 @@
 local Sequence = {
+  active = true,
   current_step = 1,
   emitter = nil,
   id = 1,
@@ -29,11 +30,11 @@ function Sequence:get(k)
 end
 
 function Sequence:set(k, v)
-  selk[k] = v
+  self[k] = v
 end
 
 function Sequence:randomize()
-  self.pulse_count = math.floor(self.step_count * (.1 * math.random(1, 10) / self.id))
+  self.pulse_count = math.floor(self.step_count * (.1 * math.random(1, 10)))
   self:_distribute_pulses()
   for i = 1, self.step_count do
     self.notes[i] = math.random(48, 84)

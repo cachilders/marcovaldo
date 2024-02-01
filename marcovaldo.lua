@@ -28,17 +28,20 @@ function init()
   init_console()
   init_clocks()
   init_ensemble()
+  init_events()
 end
 
 function run_tests()
 end
 
 function init_arrangement()
-  arrangement = Arrangement:new({
-    emit_pulse = function(sequencer, velocity) chart:emit_pulse(sequencer, velocity) end,
-    play_note = function(sequencer, note, velocity) ensemble:play_note(sequencer, note, velocity) end
-  })
+  arrangement = Arrangement:new()
   arrangement:init()
+end
+
+function init_chart()
+  chart = Chart:new()
+  chart:init()
 end
 
 function init_clocks()
@@ -53,28 +56,42 @@ function init_clocks()
   world_time:start()
 end
 
-function init_chart()
-  chart = Chart:new({})
-  chart:init()
-end
-
 function init_console()
   console = Console:new()
   console:init()
-  -- changes with each context, maybe
-  -- turn a ring, see seq pulses and steps
-  -- and the notes on the steps
-  -- ...x..x..x...x
-  --    c  d  g   c
-  -- when not touch it animates pigeons
-  -- or whatever. weather. cats. probably
-  -- just display_png, but i still want to
-  -- mess with p8
 end
 
 function init_ensemble()
   ensemble = Ensemble:new()
   ensemble:init()
+end
+
+function init_events()
+  local function affect_arrangement(action, index, values)
+    arrangement:affect_arrangement(action, index, values)
+  end
+  local function affect_chart(action, index, values)
+    chart:affect_chart(action, index, values)
+  end
+  local function affect_console(action, index, values)
+    console:affect_console(action, index, values)
+  end
+  local function affect_ensemble(action, index, values)
+    ensemble:affect_ensemble(action, index, values)
+  end
+
+  arrangement:set('affect_chart', affect_chart)
+  arrangement:set('affect_console', affect_console)
+  arrangement:set('affect_ensemble', affect_ensemble)
+  chart:set('affect_arrangement', affect_arrangement)
+  chart:set('affect_console', affect_console)
+  chart:set('affect_ensemble', affect_ensemble)
+  console:set('affect_arrangement', affect_arrangement)
+  console:set('affect_chart', affect_chart)
+  console:set('affect_ensemble', affect_ensemble)
+  ensemble:set('affect_arrangement', affect_arrangement)
+  ensemble:set('affect_chart', affect_chart)
+  ensemble:set('affect_console', affect_console)
 end
 
 function enc(e, d)

@@ -11,6 +11,9 @@ local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/sprites/'
 local count = 1
 
 local Console = {
+  affect_arrangement = function() end,
+  affect_chart = function() end,
+  affect_ensemble = function() end,
   current_mode = 1,
   dirty = true,
   modes = {ANIMATION},
@@ -29,6 +32,14 @@ end
 function Console:init()
   self.sprite_frames = 9
   -- self.sprite_sheet = screen.load_png(SPRITE_PATH..'mushroom.png')
+end
+
+function Console:get(k)
+  return self[k]
+end
+
+function Console:set(k, v)
+  self[k] = v
 end
 
 function Console:refresh()

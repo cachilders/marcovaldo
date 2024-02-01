@@ -12,6 +12,9 @@ local RADIATION_PLAN = 'Moon and GNAC'
 local RELIEF_PLAN ='Smoke, wind, and Soap Bubbles'
 
 local Chart = {
+  affect_arrangement = function() end,
+  affect_console = function() end,
+  affect_ensemble = function() end,
   host = nil,
   lumen = 5,
   page = 1,
@@ -32,6 +35,14 @@ function Chart:init(n)
   self:_init_pages()
 end
 
+function Chart:get(k)
+  return self[k]
+end
+
+function Chart:set(k, v)
+  self[k] = v
+end
+
 function Chart:press(x, y, z)
   self.pages[self.page]:press_to_page(x, y, z)
 end
@@ -42,19 +53,21 @@ function Chart:refresh()
   self.host:refresh()
 end
 
-function Chart:emit_pulse(sequencer, velocity)
-  -- TODO velocity -> radius
-  -- derive radiation plan index more programitically
-  print('emit pulse in chart')
-  self.plans[3]:emit_pulse(sequencer, velocity)
-end
-
-
 function Chart:step()
   for i = 1, #self.plans do
     self.plans[i]:step(count)
   end
   self:_step_count()
+end
+
+
+function Chart:affect_chart(action, index, values)
+  if action == 'emit_pulse' then
+    local sequencer = index
+    local velocity = values.velocity
+    -- TODO - cleanup: this is brittle
+    self.plans[3]:emit_pulse(sequencer, velocity)
+  end
 end
 
 function Chart:_init_pages()
@@ -110,9 +123,9 @@ function Chart:_init_plans()
 
   local panes = {}
   local plans = {
-    PathPlan:new({led = led, name = 'The City All to Himself'}),
-    CatPlan:new({led = led, name = 'The Garden of Stubborn Cats'}),
-    RadiationPlan:new({led = led, name = 'Moon and GNAC'}),
+    PathPlan:new({led = led, name = 'The City All to Himself', affect_ensemble = self.affect_ensemble}),
+    CatPlan:new({led = led, name = 'The Garden of Stubborn Cats', affect_ensemble = self.affect_ensemble}),
+    RadiationPlan:new({led = led, name = 'Moon and GNAC', affect_arrangement = self.affect_arrangement}),
     ReliefPlan:new({led = led, name = 'Smoke, wind, and Soap Bubbles'})
   }
 
