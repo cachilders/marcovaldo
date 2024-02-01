@@ -1,7 +1,5 @@
 include('lib/utils')
 
-local music_util = require('musicutil')
-
 parameters = {
   scale = '',
   scale_names = get_musicutil_scale_names()

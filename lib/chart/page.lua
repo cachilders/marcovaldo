@@ -1,4 +1,4 @@
-local Pane = include('lib/map/pane')
+local Pane = include('lib/chart/pane')
 local keys_halt = false
 local keys_held = {}
 

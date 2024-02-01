@@ -1,4 +1,4 @@
-local Symbol = include('lib/map/symbol')
+local Symbol = include('lib/chart/symbol')
 
 ACTIVE_ADJ = 5
 

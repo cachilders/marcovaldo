@@ -23,10 +23,20 @@ function Rings:refresh()
     self.host:all(0)
     for _, ring in pairs(self.rings) do
       ring:paint(self.host)
-      ring:set('dirty', false)
     end
     self.host:refresh()
   end
+end
+
+
+function Rings:pulse_ring(sequencer)
+  self.rings[sequencer]:pulse(self.host)
+end
+
+function Rings:step_feedback(sequencer, step_value)
+  -- TEMP POC This needs to reflect the sequencer state, distinct from the input state
+  -- so a more thoughtful approach is required
+  self.rings[sequencer]:set('x', step_value)
 end
 
 function Rings:turn_to_ring(n, delta)

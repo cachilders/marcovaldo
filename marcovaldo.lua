@@ -7,23 +7,28 @@ PANE_EDGE_LENGTH = 8
 shift_depressed = false
 
 local Arrangement = include('lib/arrangement')
-local Map = include('lib/map')
+local Chart = include('lib/chart')
+local Console = include('lib/console')
+local Ensemble = include('lib/ensemble')
 
 include('lib/params')
 include('lib/utils')
 
-util = require('util')
+er = require('er')
 tab = require('tabutil')
-local music_util = require('musicutil')
+util = require('util')
+music_util = require('musicutil')
 
 function init()
   math.randomseed(os.time())
   run_tests()
   init_params()
   init_arrangement()
-  init_map()
-  init_view()
+  init_chart()
+  init_console()
   init_clocks()
+  init_ensemble()
+  init_events()
 end
 
 function run_tests()
@@ -34,31 +39,59 @@ function init_arrangement()
   arrangement:init()
 end
 
+function init_chart()
+  chart = Chart:new()
+  chart:init()
+end
+
 function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
   atomic_time = metro.init(refresh_peripherals, 1 / 60)
   podium_time = metro.init(step_arrangement, bpm)
-  world_time = metro.init(step_map, bpm / 2)
+  screen_time = metro.init(step_console, 1 / 30) -- TODO TBD
+  world_time = metro.init(step_chart, bpm / 2)
   atomic_time:start()
   podium_time:start()
+  screen_time:start()
   world_time:start()
 end
 
-function init_map()
-  map = Map:new()
-  map:init()
+function init_console()
+  console = Console:new()
+  console:init()
 end
 
-function init_view()
-  -- changes with each context, maybe
-  -- turn a ring, see seq pulses and steps
-  -- and the notes on the steps
-  -- ...x..x..x...x
-  --    c  d  g   c
-  -- when not touch it animates pigeons
-  -- or whatever. weather. cats. probably
-  -- just display_png, but i still want to
-  -- mess with p8
+function init_ensemble()
+  ensemble = Ensemble:new()
+  ensemble:init()
+end
+
+function init_events()
+  local function affect_arrangement(action, index, values)
+    arrangement:affect_arrangement(action, index, values)
+  end
+  local function affect_chart(action, index, values)
+    chart:affect_chart(action, index, values)
+  end
+  local function affect_console(action, index, values)
+    console:affect_console(action, index, values)
+  end
+  local function affect_ensemble(action, index, values)
+    ensemble:affect_ensemble(action, index, values)
+  end
+
+  arrangement:set('affect_chart', affect_chart)
+  arrangement:set('affect_console', affect_console)
+  arrangement:set('affect_ensemble', affect_ensemble)
+  chart:set('affect_arrangement', affect_arrangement)
+  chart:set('affect_console', affect_console)
+  chart:set('affect_ensemble', affect_ensemble)
+  console:set('affect_arrangement', affect_arrangement)
+  console:set('affect_chart', affect_chart)
+  console:set('affect_ensemble', affect_ensemble)
+  ensemble:set('affect_arrangement', affect_arrangement)
+  ensemble:set('affect_chart', affect_chart)
+  ensemble:set('affect_console', affect_console)
 end
 
 function enc(e, d)
@@ -90,27 +123,26 @@ function arc.delta(n, delta)
 end
 
 function grid.key(x, y, z)
-  map:press(x, y, z)
+  chart:press(x, y, z)
 end
 
 function refresh_peripherals()
   arrangement:refresh()
-  map:refresh()
-end
-
-function step_map()
-  map:step()
+  chart:refresh()
 end
 
 function step_arrangement()
   arrangement:step()
 end
 
-function redraw()
-  screen.clear()
-  screen.update()
+function step_chart()
+  chart:step()
+end
+
+function step_console()
+  console:step()
 end
 
 function refresh()
-  redraw()
+  console:refresh()
 end

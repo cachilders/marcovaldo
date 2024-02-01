@@ -1,12 +1,20 @@
-local CatPlan = include('lib/map/plans/cat_plan')
-local PathPlan = include('lib/map/plans/path_plan')
-local RadiationPlan = include('lib/map/plans/radiation_plan')
-local ReliefPlan = include('lib/map/plans/relief_plan')
-local Page = include('lib/map/page')
-local Pane = include('lib/map/pane')
+local CatPlan = include('lib/chart/plans/cat_plan')
+local PathPlan = include('lib/chart/plans/path_plan')
+local RadiationPlan = include('lib/chart/plans/radiation_plan')
+local ReliefPlan = include('lib/chart/plans/relief_plan')
+local Page = include('lib/chart/page')
+local Pane = include('lib/chart/pane')
 local count = 1
 
-local Map = {
+local PATH_PLAN = 'The City All to Himself'
+local CAT_PLAN = 'The Garden of Stubborn Cats'
+local RADIATION_PLAN = 'Moon and GNAC'
+local RELIEF_PLAN ='Smoke, wind, and Soap Bubbles'
+
+local Chart = {
+  affect_arrangement = function() end,
+  affect_console = function() end,
+  affect_ensemble = function() end,
   host = nil,
   lumen = 5,
   page = 1,
@@ -14,51 +22,69 @@ local Map = {
   plans = {}
 }
 
-function Map:new(options)
+function Chart:new(options)
   local instance = options or {}
   setmetatable(instance, self)
   self.__index = self
   return instance
 end
 
-function Map:init(n)
+function Chart:init(n)
   self.host = grid.connect(n)
   self:_init_plans()
   self:_init_pages()
 end
 
-function Map:press(x, y, z)
+function Chart:get(k)
+  return self[k]
+end
+
+function Chart:set(k, v)
+  self[k] = v
+end
+
+function Chart:press(x, y, z)
   self.pages[self.page]:press_to_page(x, y, z)
 end
 
-function Map:refresh()
+function Chart:refresh()
   self.host:all(0)
   self.pages[self.page]:refresh()
   self.host:refresh()
 end
 
-function Map:step()
+function Chart:step()
   for i = 1, #self.plans do
     self.plans[i]:step(count)
   end
   self:_step_count()
 end
 
-function Map:_init_pages()
-  local map_height = self.host.rows
-  local map_width = self.host.cols
+
+function Chart:affect_chart(action, index, values)
+  if action == 'emit_pulse' then
+    local sequencer = index
+    local velocity = values.velocity
+    -- TODO - cleanup: this is brittle
+    self.plans[3]:emit_pulse(sequencer, velocity)
+  end
+end
+
+function Chart:_init_pages()
+  local chart_height = self.host.rows
+  local chart_width = self.host.cols
   local page_count = 1
   local pages = {}
   local panes_per_page = 4
   
-  if map_height == PANE_EDGE_LENGTH then
-    if map_width == PANE_EDGE_LENGTH then
+  if chart_height == PANE_EDGE_LENGTH then
+    if chart_width == PANE_EDGE_LENGTH then
       page_count = PLAN_COUNT
     else
-      page_count = math.ceil(PLAN_COUNT * PANE_EDGE_LENGTH / map_width)
+      page_count = math.ceil(PLAN_COUNT * PANE_EDGE_LENGTH / chart_width)
     end
   else
-    page_count = math.ceil((PLAN_COUNT * PANE_EDGE_LENGTH * PANE_EDGE_LENGTH) / (map_width * map_height))
+    page_count = math.ceil((PLAN_COUNT * PANE_EDGE_LENGTH * PANE_EDGE_LENGTH) / (chart_width * chart_height))
   end
 
   panes_per_page = math.ceil(PLAN_COUNT / page_count)
@@ -86,7 +112,7 @@ function Map:_init_pages()
   self.pages = pages
 end
 
-function Map:_init_plans()
+function Chart:_init_plans()
   local function led(x, y, l)
     if self.host.cols == PANE_EDGE_LENGTH then
       -- Monobrite for 64s
@@ -97,16 +123,16 @@ function Map:_init_plans()
 
   local panes = {}
   local plans = {
-    PathPlan:new({led = led, name = 'The City All to Himself'}),
-    CatPlan:new({led = led, name = 'The Garden of Stubborn Cats'}),
-    RadiationPlan:new({led = led, name = 'Moon and GNAC'}),
+    PathPlan:new({led = led, name = 'The City All to Himself', affect_ensemble = self.affect_ensemble}),
+    CatPlan:new({led = led, name = 'The Garden of Stubborn Cats', affect_ensemble = self.affect_ensemble}),
+    RadiationPlan:new({led = led, name = 'Moon and GNAC', affect_arrangement = self.affect_arrangement}),
     ReliefPlan:new({led = led, name = 'Smoke, wind, and Soap Bubbles'})
   }
 
   self.plans = plans
 end
 
-function Map:_layer_phenomena()
+function Chart:_layer_phenomena()
   -- The relief plan is an overlay of all other plan
   -- phenomena and must be initialized after the panes
   local ephemera = {}
@@ -119,12 +145,12 @@ function Map:_layer_phenomena()
   self.plans[#plans]:set('ephemera', ephemera)
 end
 
-function Map:_flip_page()
+function Chart:_flip_page()
   self.page = util.wrap(self.page + 1, 1, #self.pages)
 end
 
-function Map:_step_count()
+function Chart:_step_count()
   count = util.wrap(count + 1, 1, 2)
 end
 
-return Map
+return Chart

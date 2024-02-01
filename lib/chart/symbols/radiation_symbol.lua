@@ -1,11 +1,8 @@
-local Symbol = include('lib/map/symbol')
+local Symbol = include('lib/chart/symbol')
 
 local RadiationSymbol = {
-  active = true
-  -- Sounds radiate from centers (four sequencers)
-  -- centers can change position or mute but not
-  -- delete. remove is a mute action. press hold
-  -- and press moves the center
+  active = true,
+  id = 1
 }
 
 function RadiationSymbol:new(options)

@@ -1,5 +1,5 @@
-local Plan = include('lib/map/plan')
-local ReliefSymbol = include('lib/map/symbols/relief_symbol')
+local Plan = include('lib/chart/plan')
+local ReliefSymbol = include('lib/chart/symbols/relief_symbol')
 
 local ReliefPlan = {
   ephemera = nil,
