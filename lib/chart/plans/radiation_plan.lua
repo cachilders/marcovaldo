@@ -1,3 +1,4 @@
+local actions = include('lib/actions')
 local Plan = include('lib/chart/plan')
 local RadiationSymbol = include('lib/chart/symbols/radiation_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
@@ -20,7 +21,7 @@ end
 
 function RadiationPlan:init()
   self.features, self.phenomena = self._gesso()
-  self.affect_ensemble('set_source_positions', nil, self.emitters)
+  self.affect_ensemble(actions.set_source_positions, nil, self.emitters)
 end
 
 function RadiationPlan:mark(x, y, z, keys_held, clear_held_keys)
@@ -94,7 +95,7 @@ end
 function RadiationPlan:_toggle_active(x, y)
   local symbol = self.features[y][x]
   symbol:set('active', not symbol:get('active'))
-  self.affect_ensemble('toggle_sequence', symbol:get('id'))
+  self.affect_ensemble(actions.toggle_sequence, symbol:get('id'))
 end
 
 function RadiationPlan:_move(x, y, radiation_symbol, clear_held_keys)
@@ -114,7 +115,7 @@ function RadiationPlan:_move(x, y, radiation_symbol, clear_held_keys)
     clear_held_keys(.5)
     self.features[last_y][last_x] = nil
     self.features[y][x] = radiation_symbol
-    self.affect_ensemble('set_source_positions', nil, self.emitters)
+    self.affect_ensemble(actions.set_source_positions, nil, self.emitters)
   end
 end
 

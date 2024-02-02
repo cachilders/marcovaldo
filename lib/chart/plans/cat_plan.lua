@@ -1,6 +1,7 @@
-local Plan = include('lib/chart/plan')
+local actions = include('lib/actions')
 local CatSymbol = include('lib/chart/symbols/cat_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
+local Plan = include('lib/chart/plan')
 
 local CatPlan = {}
 
@@ -13,8 +14,7 @@ function CatPlan:new(options)
 end
 
 function CatPlan:_add(x, y)
-  local act = function(x, y)
-      -- Purr, Meow, Hiss, Mewl, Yowl, Scratch, Jump ¯\_(ツ)_/¯
+  local act = function(x, y, flavor)
     local phenomenon = EphemeralSymbol:new({
       led = self.led,
       source_type = 'cat',
@@ -25,6 +25,7 @@ function CatPlan:_add(x, y)
     })
 
     self.phenomena[y][x] = phenomenon
+    self.affect_ensemble(actions.apply_effect, flavor, {x, y})
 
     clock.run(function()
       clock.sleep(self._get_bpm())

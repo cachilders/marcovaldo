@@ -1,3 +1,4 @@
+local actions = include('lib/actions')
 local Plan = include('lib/chart/plan')
 local PathSymbol = include('lib/chart/symbols/path_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
@@ -103,7 +104,7 @@ function PathPlan:_step_toward_active()
   })
   
   self.phenomena[step_coord[2]][step_coord[1]] = self.step_symbol
-  self.affect_ensemble('set_observer_position', nil, {step_coord[1], step_coord[2]})
+  self.affect_ensemble(actions.set_observer_position, nil, {step_coord[1], step_coord[2]})
 
   if last_phenomenon then
     clock.run(function()
@@ -157,7 +158,7 @@ function PathPlan:_remove(x, y)
   if not symbol_to_remove:get('prev') and not symbol_to_remove:get('next') then
     self.head = nil
     self.tail = nil
-    self.affect_ensemble('set_observer_position', nil, {0, 0})
+    self.affect_ensemble(actions.set_observer_position, nil, {0, 0})
   elseif symbol_to_remove:get('prev') and not symbol_to_remove:get('next') then
     symbol_to_remove:get('prev'):set('next', nil)
     self.tail = symbol_to_remove:get('prev')

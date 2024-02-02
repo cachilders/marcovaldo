@@ -1,3 +1,4 @@
+local actions = include('lib/actions')
 local Ring = include('lib/arrangement/ring')
 local Rings = include('lib/arrangement/rings')
 local Sequence = include('lib/arrangement/sequence')
@@ -50,7 +51,7 @@ end
 
 function Arrangement:affect_arrangement(action, index, values)
   local sequencer = self.sequences[index]
-  if action == 'toggle_sequence' then
+  if action == actions.toggle_sequence then
     sequencer:set('active', not sequencer:get('active'))
   end
 end
@@ -59,9 +60,9 @@ function Arrangement:_emit_note(sequencer, note)
   -- TODO - actual velocity derived from sequence and behavior
   -- maybe the chart
   local velocity = 100
-  self.affect_chart('emit_pulse', sequencer, {velocity = velocity})
+  self.affect_chart(actions.emit_pulse, sequencer, {velocity = velocity})
   self.rings:pulse_ring(sequencer)
-  self.affect_ensemble('play_note', sequencer, {note = note, velocity = velocity})
+  self.affect_ensemble(actions.play_note, sequencer, {note = note, velocity = velocity})
 end
 
 function Arrangement:_init_rings()

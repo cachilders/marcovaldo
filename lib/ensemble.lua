@@ -1,5 +1,8 @@
+local actions = include('lib/actions')
 local AMPLITUDE_OPERAND = 1/127
 local MAX_DISTANCE_OPERAND = 1/9
+-- TODO: Truly tbd
+local EFFECTS = {'echo', 'reverb', 'ratchet', 'filter', 'pitch', 'delay'}
 
 local Ensemble = {
   affect_arrangement = nil,
@@ -32,16 +35,18 @@ function Ensemble:set(k, v)
 end
 
 function Ensemble:affect_ensemble(action, index, values)
-  if action == 'play_note' then
+  if action == actions.play_note then
     local voice = index
     local note = values.note
     local velocity = values.velocity or 100
     -- TODO - envelope, etc
     self:_play_note(voice, note, velocity)
-  elseif action == 'set_observer_position' then
+  elseif action == actions.set_observer_position then
     self.observer_position = values
-  elseif action == 'set_source_positions' then
+  elseif action == actions.set_source_positions then
     self.source_positions = values
+  elseif action == actions.apply_effect then
+    self:_apply_effect(index, values)
   end
 end
 
@@ -55,12 +60,15 @@ function Ensemble:_get_distance_operand(voice)
     local source_y = self.source_positions[voice][2]
     local distance = distance_between(x, y, source_x, source_y)
 
-    if distance > 0 then
-      operand = 1 - (MAX_DISTANCE_OPERAND * distance)
-    end
+    operand = 1 - (MAX_DISTANCE_OPERAND * distance)
   end
 
   return operand
+end
+
+function Ensemble:_apply_effect(index, data)
+  local effect = EFFECTS[index]
+  print('Appplying '..effect)
 end
 
 function Ensemble:_calculate_amplitude(voice, velocity)
