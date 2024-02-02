@@ -1,6 +1,9 @@
 local Symbol = include('lib/chart/symbol')
 
 local Plan = {
+  affect_arrangement = nil,
+  affect_ensemble = nil,
+  affect_console = nil,
   led = nil,
   name = '',
   features = nil,

@@ -3,9 +3,9 @@ local Rings = include('lib/arrangement/rings')
 local Sequence = include('lib/arrangement/sequence')
 
 local Arrangement = {
-  affect_chart = function() end,
-  affect_console = function() end,
-  affect_ensemble = function() end,
+  affect_chart = nil,
+  affect_console = nil,
+  affect_ensemble = nil,
   rings = nil,
   sequences = {}
 }

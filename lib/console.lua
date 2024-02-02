@@ -11,9 +11,9 @@ local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/sprites/'
 local count = 1
 
 local Console = {
-  affect_arrangement = function() end,
-  affect_chart = function() end,
-  affect_ensemble = function() end,
+  affect_arrangement = nil,
+  affect_chart = nil,
+  affect_ensemble = nil,
   current_mode = 1,
   dirty = true,
   modes = {ANIMATION},

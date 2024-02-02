@@ -23,25 +23,20 @@ function init()
   math.randomseed(os.time())
   run_tests()
   init_params()
-  init_arrangement()
-  init_chart()
-  init_console()
-  init_clocks()
-  init_ensemble()
+  create_metaphors()
   init_events()
+  init_metaphors()
+  init_clocks()
 end
 
 function run_tests()
 end
 
-function init_arrangement()
+function create_metaphors()
   arrangement = Arrangement:new()
-  arrangement:init()
-end
-
-function init_chart()
   chart = Chart:new()
-  chart:init()
+  console = Console:new()
+  ensemble = Ensemble:new()
 end
 
 function init_clocks()
@@ -54,16 +49,6 @@ function init_clocks()
   podium_time:start()
   screen_time:start()
   world_time:start()
-end
-
-function init_console()
-  console = Console:new()
-  console:init()
-end
-
-function init_ensemble()
-  ensemble = Ensemble:new()
-  ensemble:init()
 end
 
 function init_events()
@@ -92,6 +77,13 @@ function init_events()
   ensemble:set('affect_arrangement', affect_arrangement)
   ensemble:set('affect_chart', affect_chart)
   ensemble:set('affect_console', affect_console)
+end
+
+function init_metaphors()
+  arrangement:init()
+  chart:init()
+  console:init()
+  ensemble:init()
 end
 
 function enc(e, d)

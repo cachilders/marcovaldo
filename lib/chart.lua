@@ -12,9 +12,9 @@ local RADIATION_PLAN = 'Moon and GNAC'
 local RELIEF_PLAN ='Smoke, wind, and Soap Bubbles'
 
 local Chart = {
-  affect_arrangement = function() end,
-  affect_console = function() end,
-  affect_ensemble = function() end,
+  affect_arrangement = nil,
+  affect_console = nil,
+  affect_ensemble = nil,
   host = nil,
   lumen = 5,
   page = 1,
@@ -125,7 +125,12 @@ function Chart:_init_plans()
   local plans = {
     PathPlan:new({led = led, name = 'The City All to Himself', affect_ensemble = self.affect_ensemble}),
     CatPlan:new({led = led, name = 'The Garden of Stubborn Cats', affect_ensemble = self.affect_ensemble}),
-    RadiationPlan:new({led = led, name = 'Moon and GNAC', affect_arrangement = self.affect_arrangement}),
+    RadiationPlan:new({
+      led = led,
+      name = 'Moon and GNAC',
+      affect_arrangement = self.affect_arrangement,
+      affect_ensemble = self.affect_ensemble
+    }),
     ReliefPlan:new({led = led, name = 'Smoke, wind, and Soap Bubbles'})
   }
 
