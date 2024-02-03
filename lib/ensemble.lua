@@ -7,9 +7,8 @@ local Ensemble = {
   affect_arrangement = nil,
   affect_chart = nil,
   affect_console = nil,
-  observer_position = {0, 0},
-  scale = nil,
-  source_positions = {}
+  observer_position = nil,
+  source_positions = nil
 }
 
 engine.name='MxSynths'
@@ -18,13 +17,14 @@ function Ensemble:new(options)
   local instance = options or {}
   setmetatable(instance, self)
   self.__index = self
+  self.observer_position = {0, 0}
+  self.source_positions = {}
   return instance
 end
 
 function Ensemble:init()
   local mxsynths_ = include('mx.synths/lib/mx.synths')
   mxsynths = mxsynths_:new()
-  self.scale = music_util.generate_scale(48, 'Major', 4)
 end
 
 function Ensemble:get(k)
@@ -40,8 +40,8 @@ function Ensemble:affect_ensemble(action, index, values)
     local voice = index
     local note = values.note
     local velocity = values.velocity or 100
-    local envelope_time = values.envelope_time
-    self:_play_note(voice, note, velocity, envelope_time)
+    local envelope_duration = values.envelope_duration
+    self:_play_note(voice, note, velocity, envelope_duration)
   elseif action == actions.set_observer_position then
     self.observer_position = values
   elseif action == actions.set_source_positions then
@@ -92,17 +92,17 @@ function Ensemble:_calculate_amplitude(voice, velocity)
   return adjusted_velocity * AMPLITUDE_OPERAND
 end
 
-function Ensemble:_play_note(voice, note, velocity, envelope_time)
+function Ensemble:_play_note(voice, note, velocity, envelope_duration)
   local vel = math.floor(self:_calculate_adjusted_velocity(voice, velocity))
 
   mxsynths:play({
-    synth = 'casio',
+    synth = 'PolyPerc',
     note = note,
     velocity = vel,
-    attack = envelope_time * 0.2,
-    decay = envelope_time * 0.25,
-    sustain = envelope_time * 0.2,
-    release = envelope_time * 0.35 -- ¯\_(ツ)_/¯
+    attack = envelope_duration * 0.2,
+    decay = envelope_duration * 0.25,
+    sustain = envelope_duration * 0.2,
+    release = envelope_duration * 0.35 -- ¯\_(ツ)_/¯
   })
 end
 

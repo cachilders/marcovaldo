@@ -66,9 +66,9 @@ function Chart:affect_chart(action, index, values)
   if action == actions.emit_pulse then
     local sequencer = index
     local velocity = values.velocity
-    local envelope_time = values.envelope_time
+    local envelope_duration = values.envelope_duration
     -- TODO - cleanup: this is brittle
-    self.plans[3]:emit_pulse(sequencer, velocity, envelope_time)
+    self.plans[3]:emit_pulse(sequencer, velocity, envelope_duration)
   end
 end
 
