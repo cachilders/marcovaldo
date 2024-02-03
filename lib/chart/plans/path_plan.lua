@@ -28,11 +28,11 @@ end
 
 function PathPlan:mark(x, y, z, keys_held, clear_held_keys)
   if z == 0 then
-    if #keys_held == 0 and self.features[y][x] then
+    if #keys_held == 0 and self.features[x][y] then
       self:_remove(x, y)
     elseif #keys_held == 0 then
       self:_add(x, y)
-    elseif #keys_held == 1 and not self.features[y][x] then
+    elseif #keys_held == 1 and not self.features[x][y] then
       self:_add(x, y, self:_symbol_from_held_key(keys_held[1]), clear_held_keys)
     end
   end
@@ -103,7 +103,7 @@ function PathPlan:_step_toward_active()
     lumen = 3
   })
   
-  self.phenomena[step_coord[2]][step_coord[1]] = self.step_symbol
+  self.phenomena[step_coord[1]][step_coord[2]] = self.step_symbol
   self.affect_ensemble(actions.set_observer_position, nil, {step_coord[1], step_coord[2]})
 
   if last_phenomenon then
@@ -149,11 +149,11 @@ function PathPlan:_add(x, y, insert_from_symbol, clear_held_keys)
     end
     clear_held_keys(.75)
   end
-  self.features[y][x] = symbol
+  self.features[x][y] = symbol
 end
 
 function PathPlan:_remove(x, y)
-  local symbol_to_remove = self.features[y][x]
+  local symbol_to_remove = self.features[x][y]
 
   if not symbol_to_remove:get('prev') and not symbol_to_remove:get('next') then
     self.head = nil
@@ -185,7 +185,7 @@ function PathPlan:_remove(x, y)
     end
   end
 
-  self.features[y][x] = nil
+  self.features[x][y] = nil
 end
 
 function PathPlan:_reset_path()

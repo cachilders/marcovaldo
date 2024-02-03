@@ -24,7 +24,7 @@ function CatPlan:_add(x, y)
       y_offset = self.y_offset
     })
 
-    self.phenomena[y][x] = phenomenon
+    self.phenomena[x][y] = phenomenon
     self.affect_ensemble(actions.apply_effect, flavor, {x, y})
 
     clock.run(function()
@@ -43,7 +43,7 @@ function CatPlan:_add(x, y)
     y_offset = self.y_offset,
     shift = function(x, y, to_x, to_y) self:_shift_symbol(x, y, to_x, to_y) end
   }
-  self.features[y][x] = CatSymbol:new(symbol)
+  self.features[x][y] = CatSymbol:new(symbol)
 end
 
 return CatPlan
