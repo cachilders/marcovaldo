@@ -56,13 +56,18 @@ function Arrangement:affect_arrangement(action, index, values)
   end
 end
 
-function Arrangement:_emit_note(sequencer, note)
-  -- TODO - actual velocity derived from sequence and behavior
-  -- maybe the chart
+function Arrangement:_emit_note(sequencer, note, velocity, envelope_time)
   local velocity = 100
-  self.affect_chart(actions.emit_pulse, sequencer, {velocity = velocity})
+  self.affect_chart(actions.emit_pulse, sequencer, {
+    velocity = velocity,
+    envelope_time = envelope_time
+  })
   self.rings:pulse_ring(sequencer)
-  self.affect_ensemble(actions.play_note, sequencer, {note = note, velocity = velocity})
+  self.affect_ensemble(actions.play_note, sequencer, {
+    note = note,
+    velocity = velocity,
+    envelope_time = envelope_time
+  })
 end
 
 function Arrangement:_init_rings()
@@ -79,9 +84,10 @@ end
 
 function Arrangement:_init_sequences()
   local steps = 16
+  local subdivision = 1
   for i = 1, 4 do
     local sequence = Sequence:new({
-      emitter = function(i, note) self:_emit_note(i, note) end,
+      emitter = function(i, note, velocity, envelope_time) self:_emit_note(i, note, velocity, envelope_time) end,
       id = i,
       step_count = steps,
       pulse_count = steps
@@ -89,6 +95,7 @@ function Arrangement:_init_sequences()
     sequence:init()
     table.insert(self.sequences, sequence)
     steps = steps * 2
+    subdivision = subdivision * 2
   end
 end
 

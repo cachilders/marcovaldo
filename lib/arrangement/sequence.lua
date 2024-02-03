@@ -6,8 +6,10 @@ local Sequence = {
   notes = nil,
   octaves = 1,
   pulse_count = 8,
-  pulses = nil,
-  step_count = 8
+  pulse_positions = nil,
+  pulse_strengths = nil,
+  step_count = 8,
+  subdivision = 1
 }
 
 function Sequence:new(options)
@@ -18,8 +20,8 @@ function Sequence:new(options)
 end
 
 function Sequence:init()
-  self:_distribute_pulses()
   self:_init_notes()
+  self:_init_pulses()
 
   -- DEV TEMP
   self:randomize()
@@ -37,7 +39,8 @@ function Sequence:randomize()
   self.pulse_count = math.floor(self.step_count * (.1 * math.random(1, 10)))
   self:_distribute_pulses()
   for i = 1, self.step_count do
-    self.notes[i] = math.random(48, 84)
+    self.notes[i] = math.random(36, 72)
+    self.pulse_strengths[i] = math.random(37, 117)
   end
 end
 
@@ -51,13 +54,14 @@ function Sequence:step()
 end
 
 function Sequence:_distribute_pulses()
-  self.pulses = er.gen(self.pulse_count, self.step_count)
+  self.pulse_positions = er.gen(self.pulse_count, self.step_count)
 end
 
 function Sequence:_emit_note()
   local step = self.current_step
-  if self.notes[step] and self.pulses[step] then
-    self.emitter(self.id, self.notes[step])
+  if self.notes[step] and self.pulse_positions[step] then
+    local pulse_time = (60 / params:get('clock_tempo')) / (self.subdivision * 1.5)
+    self.emitter(self.id, self.notes[step], self.pulse_strengths[i], pulse_time)
   end
 end
 
@@ -68,11 +72,11 @@ function Sequence:_init_notes()
   end
 end
 
-function Sequence:_update_steps()
+function Sequence:_init_pulses()
+  self:_distribute_pulses()
+  self.pulse_strengths = {}
   for i = 1, self.step_count do
-    if not self.notes[i] then
-      self.notes[i] = nil
-    end
+    self.pulse_strengths[i] = 100
   end
 end
 

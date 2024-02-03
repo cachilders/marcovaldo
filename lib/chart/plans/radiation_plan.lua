@@ -43,7 +43,7 @@ function RadiationPlan:emit_pulse(i, v, s)
   local x = self.emitters[i][1]
   local y = self.emitters[i][2]
 
-  if self.features[x][y]:get('active') then
+  if self.features[x][y] and self.features[x][y]:get('active') then
     self:_spawn_wave(x, y, v, s)
   end
 end
@@ -95,7 +95,7 @@ end
 function RadiationPlan:_toggle_active(x, y)
   local symbol = self.features[x][y]
   symbol:set('active', not symbol:get('active'))
-  self.affect_ensemble(actions.toggle_sequence, symbol:get('id'))
+  self.affect_arrangement(actions.toggle_sequence, symbol:get('id'))
 end
 
 function RadiationPlan:_move(x, y, radiation_symbol, clear_held_keys)
@@ -113,7 +113,7 @@ function RadiationPlan:_move(x, y, radiation_symbol, clear_held_keys)
       end
     end
     clear_held_keys(.5)
-    self.features[last_y][last_x] = nil
+    self.features[last_x][last_y] = nil
     self.features[x][y] = radiation_symbol
     self.affect_ensemble(actions.set_source_positions, nil, self.emitters)
   end

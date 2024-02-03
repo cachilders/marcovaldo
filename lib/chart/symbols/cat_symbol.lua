@@ -13,7 +13,7 @@ function CatSymbol:new(options)
   setmetatable(instance, self)
   self.__index = self
   instance.laziness = math.random(3, 9)
-  instance.flavor = math.random(1, 6)
+  instance.flavor = math.random(1, 4) -- TEMP: Presently pinned to the mx.synths mods
   return instance
 end
 
