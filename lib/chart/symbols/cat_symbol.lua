@@ -2,6 +2,7 @@ local Symbol = include('lib/chart/symbol')
 
 local CatSymbol = {
   act = nil,
+  flavor = 1,
   laziness = 4,
   shift = nil
 }
@@ -12,6 +13,7 @@ function CatSymbol:new(options)
   setmetatable(instance, self)
   self.__index = self
   instance.laziness = math.random(3, 9)
+  instance.flavor = math.random(1, 4) -- TEMP: Presently pinned to the mx.synths mods
   return instance
 end
 
@@ -22,7 +24,7 @@ function CatSymbol:step()
     local next = self:_inclination()
     self.x = last[1] + next[1]
     self.y = last[2] + next[2]
-    self.act(last[1], last[2])
+    self.act(last[1], last[2], self.flavor)
     self.shift(last[1], last[2], self)
   end
   self:refresh(self.x + self.x_offset, self.y + self.y_offset, self.lumen)

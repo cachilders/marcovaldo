@@ -1,3 +1,4 @@
+local actions = include('lib/actions')
 local CatPlan = include('lib/chart/plans/cat_plan')
 local PathPlan = include('lib/chart/plans/path_plan')
 local RadiationPlan = include('lib/chart/plans/radiation_plan')
@@ -12,9 +13,9 @@ local RADIATION_PLAN = 'Moon and GNAC'
 local RELIEF_PLAN ='Smoke, wind, and Soap Bubbles'
 
 local Chart = {
-  affect_arrangement = function() end,
-  affect_console = function() end,
-  affect_ensemble = function() end,
+  affect_arrangement = nil,
+  affect_console = nil,
+  affect_ensemble = nil,
   host = nil,
   lumen = 5,
   page = 1,
@@ -62,11 +63,12 @@ end
 
 
 function Chart:affect_chart(action, index, values)
-  if action == 'emit_pulse' then
+  if action == actions.emit_pulse then
     local sequencer = index
     local velocity = values.velocity
+    local envelope_time = values.envelope_time
     -- TODO - cleanup: this is brittle
-    self.plans[3]:emit_pulse(sequencer, velocity)
+    self.plans[3]:emit_pulse(sequencer, velocity, envelope_time)
   end
 end
 
@@ -123,10 +125,26 @@ function Chart:_init_plans()
 
   local panes = {}
   local plans = {
-    PathPlan:new({led = led, name = 'The City All to Himself', affect_ensemble = self.affect_ensemble}),
-    CatPlan:new({led = led, name = 'The Garden of Stubborn Cats', affect_ensemble = self.affect_ensemble}),
-    RadiationPlan:new({led = led, name = 'Moon and GNAC', affect_arrangement = self.affect_arrangement}),
-    ReliefPlan:new({led = led, name = 'Smoke, wind, and Soap Bubbles'})
+    PathPlan:new({
+      led = led,
+      name = PATH_PLAN,
+      affect_ensemble = self.affect_ensemble
+    }),
+    CatPlan:new({
+      led = led,
+      name = CAT_PLAN,
+      affect_ensemble = self.affect_ensemble
+    }),
+    RadiationPlan:new({
+      led = led,
+      name = RADIATION_PLAN,
+      affect_arrangement = self.affect_arrangement,
+      affect_ensemble = self.affect_ensemble
+    }),
+    ReliefPlan:new({
+      led = led,
+      name = RELIEF_PLAN
+    })
   }
 
   self.plans = plans

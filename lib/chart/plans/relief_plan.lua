@@ -25,10 +25,10 @@ function ReliefPlan:_ingest_ephemera()
   for i = 1, #self.ephemera do
     local ephemeron = self.ephemera[i]
 
-    for r = 1, PANE_EDGE_LENGTH do
-      features[r] = features[r] or {}
-      for c = 1, PANE_EDGE_LENGTH do
-        features[r][c] = self:_local_clone(ephemeron[r][c]) or features[r][c]
+    for c = 1, PANE_EDGE_LENGTH do
+      features[c] = features[c] or {}
+      for r = 1, PANE_EDGE_LENGTH do
+        features[c][r] = self:_local_clone(ephemeron[c][r]) or features[c][r]
       end
     end
   end
