@@ -26,6 +26,7 @@ end
 
 function Sequence:init()
   self:_init_notes()
+  self:_init_observers()
   self:_init_pulses()
   self:_set_scale()
   -- DEV TEMP
@@ -107,6 +108,11 @@ function Sequence:_init_notes()
   end
 end
 
+function Sequence:_init_observers()
+  parameters.scale:register('seq'..self.id, function() self:_set_scale() end)
+  parameters.root:register('seq'..self.id, function() self:_set_scale() end)
+end
+
 function Sequence:_init_pulses()
   self:_distribute_pulses()
   self.pulse_strengths = {}
@@ -135,8 +141,8 @@ end
 
 function Sequence:_set_scale()
   self.scale = music_util.generate_scale(
-    params:get('marco_root'),
-    parameters.scale,
+    parameters.root(),
+    parameters.scale(),
     self.octaves
   )
 end

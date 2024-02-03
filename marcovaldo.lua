@@ -10,14 +10,15 @@ local Arrangement = include('lib/arrangement')
 local Chart = include('lib/chart')
 local Console = include('lib/console')
 local Ensemble = include('lib/ensemble')
+local Parameters = include('lib/parameters')
 
-include('lib/params')
-include('lib/utils')
-
+observable = require('container.observable')
 er = require('er')
 tab = require('tabutil')
 util = require('util')
 music_util = require('musicutil')
+
+include('lib/utils')
 
 function init()
   math.randomseed(os.time())
@@ -84,6 +85,11 @@ function init_metaphors()
   chart:init()
   console:init()
   ensemble:init()
+end
+
+function init_params()
+  parameters = Parameters:new()
+  parameters:init()
 end
 
 function enc(e, d)

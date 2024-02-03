@@ -94,9 +94,9 @@ end
 
 function Ensemble:_play_note(voice, note, velocity, envelope_duration)
   local vel = math.floor(self:_calculate_adjusted_velocity(voice, velocity))
-
+  local synth = mxsynths.synths[params:get('mxsynths_synth')]
   mxsynths:play({
-    synth = 'PolyPerc',
+    synth = synth,
     note = note,
     velocity = vel,
     attack = envelope_duration * 0.2,
