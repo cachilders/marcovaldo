@@ -2,6 +2,11 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(2/4/2024)**
+Oof. Spent too many hours on this, yesterday, and my brain went to mush when it came time to revisit the input and feedback model for the arc. Think I've cleaned up the relationships of things for the better, but there are some edges yet to be teased out. Hoisted some behavior, pushed other bits down. Feel like I want to move some of the new global context stuff (for switching between viewer and editor modes) someplace more contained, but I'll come to that once everything is on the page.
+
+I'm at the editing functionality now, and I can't stall anymore on it. Should be the last complex piece, and from there its cleanup and polish.
+
 **(1/31/2024)**
 This was a big one. Figured out a workable pattern for communicating events across the domains after getting the radiation plan to emit waves fluidly in sequence, and now individual sequences can be toggled on and off. I'm also set up with the tools to start knocking out the remaining functionality a piece at a time. I'm not out of the woods, but this felt like cresting the hill. I can see how to reach the end, and i can already see a ton of the ideas actually working.
 

@@ -2,8 +2,8 @@
 -- a spatial sequencer with cats
 
 DEFAULT = 'default'
-MODES = {DEFAULT, SEQUENCER, STEP}
-MODE_TIMEOUT_DELAY = 30
+MODES = {DEFAULT, SEQUENCE, STEP}
+MODE_TIMEOUT_DELAY = 5
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
@@ -134,24 +134,6 @@ function grid.key(x, y, z)
   chart:press(x, y, z)
 end
 
-function step_arrangement()
-  arrangement:step()
-end
-
-function step_chart()
-  chart:step()
-end
-
-function set_current_mode(mode)
-  if MODES[current_mode()] == DEFAULT then
-    default_mode_timeout_new()
-  elseif mode ~= DEFAULT then
-    default_mode_timeout_extend()
-  end
-
-  current_mode:set(mode)
-end
-
 function default_mode_timeout_cancel()
   if default_mode_timeout then
     clock.cancel(default_mode_timeout)
@@ -167,11 +149,37 @@ end
 function default_mode_timeout_new()
   default_mode_timeout = clock.run(
     function()
-      clock.sleep(TIMEOUT_DELAY)
-      default_mode_timeout = nil
+      clock.sleep(MODE_TIMEOUT_DELAY)
       set_current_mode(DEFAULT)
+      default_mode_timeout = nil
     end
   )
+end
+
+function get_current_mode()
+  return MODES[current_mode()]
+end
+
+function get_mode_index(mode)
+  return tab.key(MODES, mode)
+end
+
+function set_current_mode(mode)
+  if get_current_mode() == DEFAULT then
+    default_mode_timeout_new()
+  elseif mode ~= DEFAULT then
+    default_mode_timeout_extend()
+  end
+  print('Setting mode to '..mode)
+  current_mode:set(get_mode_index(mode))
+end
+
+function step_arrangement()
+  arrangement:step()
+end
+
+function step_chart()
+  chart:step()
 end
 
 function step_console()

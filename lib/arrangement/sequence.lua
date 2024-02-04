@@ -15,7 +15,8 @@ local Sequence = {
   scale = nil,
   step_count = 8,
   subdivision = 1,
-  transmit_edit_sequence = nil,
+  throttled = false,
+  transmit_edit_state = nil,
   transmit_edit_step = nil
 }
 
@@ -91,6 +92,21 @@ end
 
 function Sequence:_distribute_pulses()
   self.pulse_positions = er.gen(self.pulse_count, self.step_count)
+end
+
+
+function Sequence:change(delta)
+  -- If touched, change mode to THIS SEQUENCER
+  -- 
+  -- if not self.throttled then
+  --   self:set('x', util.wrap(self.x + delta, 1, self.range))
+  --   self.dirty = true
+  --   self.throttled = true
+  --   clock.run(function()
+  --     clock.sleep((LEDS/self.range) * .01)
+  --     self.throttled = false
+  --   end)
+  -- end
 end
 
 function Sequence:_emit_note()

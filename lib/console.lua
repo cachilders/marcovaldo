@@ -69,7 +69,7 @@ end
 function Console:step()
   if parameters.animations_enabled() then
     count = util.wrap(count + 1, 1, KEY_FRAME)
-    if MODES[current_mode()] == DEFAULT and
+    if get_current_mode() == DEFAULT and
       DEFAULT_CONSOLE_MODES[self.default_mode] ~= INFO and 
       count == KEY_FRAME then
       self:_advance_sprite_frame()
@@ -79,7 +79,7 @@ function Console:step()
 end
 
 function Console:affect(action, index, values)
-  if action == actions.transmit_edit_sequence then
+  if action == actions.transmit_edit_state then
     self.screens[INFO]:update(index, values)
   elseif action == actions.edit_sequence then
     self.screens[SEQUENCE]:update(index, values)

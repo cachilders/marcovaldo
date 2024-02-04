@@ -1,4 +1,5 @@
 local Rings = {
+  context = nil,
   host = nil,
   rings = {}
 }
@@ -12,6 +13,17 @@ end
 
 function Rings:init(n)
   self.host = arc.connect(n)
+  for _, ring in pairs(self.rings) do
+    ring:set('host', self.host)
+  end
+end
+
+function Rings:get(k)
+  return self[k]
+end
+
+function Rings:set(k, v)
+  self[k] = v
 end
 
 function Rings:add(ring)
@@ -28,19 +40,14 @@ function Rings:refresh()
   end
 end
 
-
 function Rings:pulse_ring(sequencer)
-  self.rings[sequencer]:pulse(self.host)
+  self.rings[sequencer]:pulse()
 end
 
 function Rings:step_feedback(sequencer, step_value)
   -- TEMP POC This needs to reflect the sequencer state, distinct from the input state
   -- so a more thoughtful approach is required
   self.rings[sequencer]:set('x', step_value)
-end
-
-function Rings:turn_to_ring(n, delta)
-  self.rings[n]:change(delta)
 end
 
 function Rings:_dirty()
