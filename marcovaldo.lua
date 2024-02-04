@@ -6,7 +6,7 @@ MODES = {DEFAULT, SEQUENCER, STEP}
 MODE_TIMEOUT_DELAY = 30
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
-SEQUENCE = 'sequencer'
+SEQUENCE = 'sequence'
 STEP = 'step'
 
 shift_depressed = false
@@ -143,7 +143,7 @@ function step_chart()
 end
 
 function set_current_mode(mode)
-  if MODES[current_mode] == DEFAULT then
+  if MODES[current_mode()] == DEFAULT then
     default_mode_timeout_new()
   elseif mode ~= DEFAULT then
     default_mode_timeout_extend()

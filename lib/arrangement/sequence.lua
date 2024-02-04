@@ -14,7 +14,9 @@ local Sequence = {
   pulse_widths = nil,
   scale = nil,
   step_count = 8,
-  subdivision = 1
+  subdivision = 1,
+  transmit_edit_sequence = nil,
+  transmit_edit_step = nil
 }
 
 function Sequence:new(options)

@@ -1,6 +1,7 @@
 local actions = include('lib/actions')
+local Screen = include('lib/console/screen')
 
-local MUSHROOM= 'mushroom' -- ANIMATION SCENES
+local MUSHROOM = 'mushroom' -- ANIMATION SCENES
 local DEFAULT_CONSOLE_MODES = {MUSHROOM, INFO}
 local CONSOLE_HEIGHT = 64
 local CONSOLE_WIDTH = 128
@@ -16,6 +17,7 @@ local Console = {
   affect_ensemble = nil,
   default_mode = 1,
   dirty = true,
+  screens = nil,
   sprite_frame = 1,
   sprite_frames = 1,
   sprite_sheet = nil
@@ -31,6 +33,7 @@ end
 function Console:init()
   self.sprite_frames = 9 -- TODO Calculate
   self:_init_observers()
+  self:_init_screens()
 end
 
 function Console:get(k)
@@ -43,12 +46,20 @@ end
 
 function Console:refresh()
   if self.dirty then
+    local console_mode = MODES[current_mode()]
     screen.clear()
-    if parameters.animations_enabled() and
-      MODES[current_mode()] == DEFAULT and
-      DEFAULT_CONSOLE_MODES[self.default_mode] ~= INFO then
-      local filepath = SPRITE_PATH..DEFAULT_CONSOLE_MODES[self.default_mode]..'/'..self.sprite_frame..'.png'
-      screen.display_png(filepath, 0, 0)
+    if console_mode == DEFAULT then
+      local default_console_mode = DEFAULT_CONSOLE_MODES[self.default_mode]
+      if parameters.animations_enabled() and default_console_mode ~= INFO then
+        local filepath = SPRITE_PATH..default_console_mode..'/'..self.sprite_frame..'.png'
+        screen.display_png(filepath, 0, 0)
+      else
+        self.screens[INFO]:refresh()
+      end
+    elseif console_mode == SEQUENCE then
+      self.screens[SEQUENCE]:refresh()
+    elseif console_mode == STEP then
+      self.screens[STEP]:refresh()
     end
     screen.update()
     self:_toggle_dirty()
@@ -68,11 +79,15 @@ function Console:step()
 end
 
 function Console:affect(action, index, values)
-  if action == actions.edit_sequence then
-    -- Send values to edit screen for render
+  if action == actions.transmit_edit_sequence then
+    self.screens[INFO]:update(index, values)
+  elseif action == actions.edit_sequence then
+    self.screens[SEQUENCE]:update(index, values)
   elseif action == actions.edit_step then
-    -- Send values to edit screen for render
+    self.screens[STEP]:update(index, values)
   end
+
+  self:_toggle_dirty()
 end
 
 function Console:_advance_sprite_frame()
@@ -82,6 +97,15 @@ end
 function Console:_init_observers()
   current_mode:register('console', function() self:_switch_mode() end)
   parameters.animations_enabled:register('console', function() self:_toggle_default_mode() end)
+end
+
+function Console:_init_screens()
+  -- TODO move animation to a Screen
+  self.screens = {
+    [INFO] = Screen:new({type = INFO}),
+    [SEQUENCE] = Screen:new({type = SEQUENCE}),
+    [STEP] = Screen:new({type = STEP})
+  }
 end
 
 function Console:_switch_mode()

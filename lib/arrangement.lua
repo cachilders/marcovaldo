@@ -34,6 +34,7 @@ end
 
 function Arrangement:refresh()
   self.rings:refresh()
+  self:_transmit_arrangement_status()
 end
 
 function Arrangement:step()
@@ -96,6 +97,8 @@ function Arrangement:_init_sequences()
   local subdivision = 1
   for i = 1, 4 do
     local sequence = Sequence:new({
+      transmit_edit_sequence = function(i, values) self:_transmit_edit_event(SEQUENCE, i, values) end,
+      transmit_edit_step = function(i, values) self:_transmit_edit_event(STEP, i, values) end,
       emitter = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
       id = i,
       step_count = steps,
@@ -109,8 +112,23 @@ function Arrangement:_init_sequences()
   end
 end
 
-function Arrangement:_switch_mode()
-  -- do stuff
+function Arrangement:_transmit_edit_event(editor, i, values)
+  local editor_mode_index = tab.key(MODES, editor)
+  if current_mode() ~= editor_mode_index then
+    set_current_mode(editor_mode_index)
+  end
+
+  self.affect_console('edit_'..editor, i, values)
+end
+
+function Arrangement:_transmit_arrangement_status()
+  if MODES[current_mode()] == DEFAULT then
+    local values = {}
+    for i = 1, #self.sequences do
+      values['Sequencer '..i..' step'] = self.sequences[i]:get('current_step')
+    end
+    self.affect_console(actions.transmit_edit_sequence, '', values)
+  end
 end
 
 return Arrangement
