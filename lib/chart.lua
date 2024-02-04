@@ -62,7 +62,7 @@ function Chart:step()
 end
 
 
-function Chart:affect_chart(action, index, values)
+function Chart:affect(action, index, values)
   if action == actions.emit_pulse then
     local sequencer = index
     local velocity = values.velocity

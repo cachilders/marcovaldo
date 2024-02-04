@@ -35,7 +35,7 @@ function Ensemble:set(k, v)
   self[k] = v
 end
 
-function Ensemble:affect_ensemble(action, index, values)
+function Ensemble:affect(action, index, values)
   if action == actions.play_note then
     local voice = index
     local note = values.note

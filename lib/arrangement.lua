@@ -49,7 +49,7 @@ function Arrangement:turn(n, delta)
   self.rings:turn_to_ring(n, delta)
 end
 
-function Arrangement:affect_arrangement(action, index, values)
+function Arrangement:affect(action, index, values)
   local sequencer = self.sequences[index]
   if action == actions.toggle_sequence then
     sequencer:set('active', not sequencer:get('active'))

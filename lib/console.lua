@@ -1,14 +1,17 @@
--- I show animations and useful data
--- I provide takeover callbacks with input timeouts
--- for sequencer editing and whatnot
+local actions = include('lib/actions')
 
 local ANIMATION = 'animation'
 local CONSOLE_HEIGHT = 64
 local CONSOLE_WIDTH = 128
+local INFO = 'info'
 local KEY_FRAME = 15
+local SEQUENCE_EDITOR = 'sequencer'
 local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/sprites/'
+local STEP_EDITOR = 'step'
+local TIMEOUT_DELAY = 30
 
 local count = 1
+local default_mode_timeout = nil
 
 local Console = {
   affect_arrangement = nil,
@@ -16,7 +19,7 @@ local Console = {
   affect_ensemble = nil,
   current_mode = 1,
   dirty = true,
-  modes = {ANIMATION},
+  modes = {ANIMATION, SEQUENCER, STEP, INFO},
   sprite_frame = 1,
   sprite_frames = 1,
   sprite_sheet = nil
@@ -30,8 +33,9 @@ function Console:new(options)
 end
 
 function Console:init()
-  self.sprite_frames = 9
+  self.sprite_frames = 9 -- TODO Calculate
   -- self.sprite_sheet = screen.load_png(SPRITE_PATH..'mushroom.png')
+  self:_init_observers()
 end
 
 function Console:get(k)
@@ -52,20 +56,79 @@ function Console:refresh()
       screen.display_png(SPRITE_PATH..'mushroom/'..self.sprite_frame..'.png', 0, 0)
     end
     screen.update()
-    self.dirty = false
+    self:_toggle_dirty()
   end
 end
 
 function Console:step()
-  count = util.wrap(count + 1, 1, KEY_FRAME)
-  if self.modes[self.current_mode] == ANIMATION and count == KEY_FRAME then
-    self:_advance_sprite_frame()
-    self.dirty = true
+  if parameters.animations_enabled() then
+    count = util.wrap(count + 1, 1, KEY_FRAME)
+    if self.modes[self.current_mode] == ANIMATION and count == KEY_FRAME then
+      self:_advance_sprite_frame()
+      self:_toggle_dirty()
+    end
+  end
+end
+
+function Console:affect(action, index, values)
+  if action == actions.edit_sequence then
+    --
+  elseif action == actions.edit_step then
+    --
   end
 end
 
 function Console:_advance_sprite_frame()
   self.sprite_frame = util.wrap(self.sprite_frame + 1, 1, self.sprite_frames)
+end
+
+function Console:_cancel_default_mode_timeout()
+  if default_mode_timeout then
+    clock.cancel(default_mode_timeout)
+    default_mode_timeout = nil
+  end
+end
+
+function Console:_extend_default_mode_timeout()
+  self:_cancel_default_mode_timeout()
+  self:_new_default_mode_timeout()
+end
+
+function Console:_init_observers()
+  parameters.animations_enabled:register('console', function() self:_toggle_default_mode() end)
+end
+
+function Console:_new_default_mode_timeout()
+  default_mode_timeout = clock.run(
+    function()
+      clock.sleep(TIMEOUT_DELAY)
+      default_mode_timeout = nil
+      self:_toggle_default_mode()
+    end
+  )
+end
+
+function Console:_toggle_default_mode()
+  local animations_enabled = parameters.animations_enabled()
+  local animation_mode = tab.key(self.modes, ANIMATION)
+  local info_mode = tab.key(self.modes, INFO)
+
+  if self.modes[self.current_mode] == ANIMATION and animations_enabled then
+    self.current_mode = info_mode
+  elseif self.modes[self.current_mode] == INFO and animations_enabled then
+    self.current_mode = animation_mode
+  elseif animations_enabled then
+    self.current_mode = animation_mode
+  else
+    self.current_mode = info_mode
+  end
+
+  self:_cancel_default_mode_timeout()
+  self:_toggle_dirty()
+end
+
+function Console:_toggle_dirty()
+  self.dirty = not self.dirty
 end
 
 return Console

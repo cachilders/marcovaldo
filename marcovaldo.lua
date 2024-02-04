@@ -54,16 +54,16 @@ end
 
 function init_events()
   local function affect_arrangement(action, index, values)
-    arrangement:affect_arrangement(action, index, values)
+    arrangement:affect(action, index, values)
   end
   local function affect_chart(action, index, values)
-    chart:affect_chart(action, index, values)
+    chart:affect(action, index, values)
   end
   local function affect_console(action, index, values)
-    console:affect_console(action, index, values)
+    console:affect(action, index, values)
   end
   local function affect_ensemble(action, index, values)
-    ensemble:affect_ensemble(action, index, values)
+    ensemble:affect(action, index, values)
   end
 
   arrangement:set('affect_chart', affect_chart)

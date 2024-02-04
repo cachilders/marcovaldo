@@ -1,4 +1,7 @@
+local ENABLED_STATES = {'Enabled', 'Disabled'}
+
 local Parameters = {
+  animations_enabled = nil,
   root = nil,
   scale = nil,
   scale_names = nil
@@ -19,19 +22,21 @@ function Parameters:init()
 end
 
 function Parameters:_init_observables()
+  parameters.animations_enabled = observable.new(true)
   parameters.root = observable.new(48)
   parameters.scale = observable.new('')
 end
 
 function Parameters:_init_params()
-  params:add_group('marcovaldo', 'MARCOVALDO', 3)
+  params:add_group('marcovaldo', 'MARCOVALDO', 4)
   -- Load State From File
   -- Save State To File
   --
   -- Randomize State
   -- Reset State
   -- 
-  -- Synth Voice
+  params:add_option('marco_animations', 'Animations', ENABLED_STATES, 1)
+  params:set_action('marco_animations', function(i) parameters.animations_enabled:set(i == 1) end)
   params:add_option('marco_scale', 'Scale Type', parameters.scale_names, 1)
   params:set_action('marco_scale', function(i) parameters.scale:set(parameters.scale_names[i]) end)
   params:add_number('marco_root', 'Root Note', 0, 127, 48, function(param) return music_util.note_num_to_name(param:get(), true) end)
