@@ -23,6 +23,8 @@ function Ring:new(options)
 end
 
 function Ring:change(delta)
+  -- If touched, change mode to THIS SEQUENCER
+  -- 
   if not self.throttled then
     self:set('x', util.wrap(self.x + delta, 1, self.range))
     self.dirty = true

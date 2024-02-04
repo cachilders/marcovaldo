@@ -1,16 +1,24 @@
 -- Marcovaldo
 -- a spatial sequencer with cats
 
+DEFAULT = 'default'
+MODES = {DEFAULT, SEQUENCER, STEP}
+MODE_TIMEOUT_DELAY = 30
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
+SEQUENCE = 'sequencer'
+STEP = 'step'
 
 shift_depressed = false
+current_mode = nil
 
 local Arrangement = include('lib/arrangement')
 local Chart = include('lib/chart')
 local Console = include('lib/console')
 local Ensemble = include('lib/ensemble')
 local Parameters = include('lib/parameters')
+
+local default_mode_timeout = nil
 
 observable = require('container.observable')
 er = require('er')
@@ -78,6 +86,8 @@ function init_events()
   ensemble:set('affect_arrangement', affect_arrangement)
   ensemble:set('affect_chart', affect_chart)
   ensemble:set('affect_console', affect_console)
+
+  current_mode = observable.new(1)
 end
 
 function init_metaphors()
@@ -124,11 +134,6 @@ function grid.key(x, y, z)
   chart:press(x, y, z)
 end
 
-function refresh_peripherals()
-  arrangement:refresh()
-  chart:refresh()
-end
-
 function step_arrangement()
   arrangement:step()
 end
@@ -137,8 +142,45 @@ function step_chart()
   chart:step()
 end
 
+function set_current_mode(mode)
+  if MODES[current_mode] == DEFAULT then
+    default_mode_timeout_new()
+  elseif mode ~= DEFAULT then
+    default_mode_timeout_extend()
+  end
+
+  current_mode:set(mode)
+end
+
+function default_mode_timeout_cancel()
+  if default_mode_timeout then
+    clock.cancel(default_mode_timeout)
+    default_mode_timeout = nil
+  end
+end
+
+function default_mode_timeout_extend()
+  default_mode_timeout_cancel()
+  default_mode_timeout_new()
+end
+
+function default_mode_timeout_new()
+  default_mode_timeout = clock.run(
+    function()
+      clock.sleep(TIMEOUT_DELAY)
+      default_mode_timeout = nil
+      set_current_mode(DEFAULT)
+    end
+  )
+end
+
 function step_console()
   console:step()
+end
+
+function refresh_peripherals()
+  arrangement:refresh()
+  chart:refresh()
 end
 
 function refresh()

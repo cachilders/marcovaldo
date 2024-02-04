@@ -140,6 +140,7 @@ function Sequence:_set_step_pulse_width(step, delta)
 end
 
 function Sequence:_set_scale()
+  -- TODO TRANSPOSE
   self.scale = music_util.generate_scale(
     parameters.root(),
     parameters.scale(),

@@ -19,6 +19,7 @@ function Arrangement:new(options)
 end
 
 function Arrangement:init()
+  self:_init_observers()
   self:_init_sequences()
   self:_init_rings()
 end
@@ -70,6 +71,10 @@ function Arrangement:_emit_note(sequencer, note, velocity, envelope_duration)
   })
 end
 
+function Arrangement:_init_observers()
+  current_mode:register('arrangement', function() self:_switch_mode() end)
+end
+
 function Arrangement:_init_rings()
   local rings = Rings:new()
   rings:init()
@@ -77,7 +82,11 @@ function Arrangement:_init_rings()
     -- TEMP Ultimately the ring will represent at least two things
     -- and a robust model will be needed to support that
     local sequence = self.sequences[i]
-    rings:add(Ring:new({id = i, range = sequence:get('step_count'), x = 1}))
+    rings:add(Ring:new({
+      id = i,
+      range = sequence:get('step_count'),
+      x = 1
+    }))
   end
   self.rings = rings
 end
@@ -98,6 +107,10 @@ function Arrangement:_init_sequences()
     steps = steps * 2
     subdivision = subdivision * 2
   end
+end
+
+function Arrangement:_switch_mode()
+  -- do stuff
 end
 
 return Arrangement
