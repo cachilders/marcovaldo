@@ -1,23 +1,33 @@
 -- Marcovaldo
 -- a spatial sequencer with cats
 
+DEFAULT = 'default'
+MODE_TIMEOUT_DELAY = 15
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
+SEQUENCE = 'sequence'
+STEP = 'step'
+
+MODES = {DEFAULT, SEQUENCE, STEP}
 
 shift_depressed = false
+current_mode = nil
 
 local Arrangement = include('lib/arrangement')
 local Chart = include('lib/chart')
 local Console = include('lib/console')
 local Ensemble = include('lib/ensemble')
+local Parameters = include('lib/parameters')
 
-include('lib/params')
-include('lib/utils')
+local default_mode_timeout = nil
 
+observable = require('container.observable')
 er = require('er')
 tab = require('tabutil')
 util = require('util')
 music_util = require('musicutil')
+
+include('lib/utils')
 
 function init()
   math.randomseed(os.time())
@@ -53,16 +63,16 @@ end
 
 function init_events()
   local function affect_arrangement(action, index, values)
-    arrangement:affect_arrangement(action, index, values)
+    arrangement:affect(action, index, values)
   end
   local function affect_chart(action, index, values)
-    chart:affect_chart(action, index, values)
+    chart:affect(action, index, values)
   end
   local function affect_console(action, index, values)
-    console:affect_console(action, index, values)
+    console:affect(action, index, values)
   end
   local function affect_ensemble(action, index, values)
-    ensemble:affect_ensemble(action, index, values)
+    ensemble:affect(action, index, values)
   end
 
   arrangement:set('affect_chart', affect_chart)
@@ -77,6 +87,8 @@ function init_events()
   ensemble:set('affect_arrangement', affect_arrangement)
   ensemble:set('affect_chart', affect_chart)
   ensemble:set('affect_console', affect_console)
+
+  current_mode = observable.new(1)
 end
 
 function init_metaphors()
@@ -86,17 +98,17 @@ function init_metaphors()
   ensemble:init()
 end
 
-function enc(e, d)
-  if e == 1 and not shift then
-  elseif e == 2 and not shift then
-  elseif e == 3 and not shift then
-  elseif e == 1 and shift then
-  elseif e == 2 and shift then
-  elseif e == 3 and shift then
-  end
+function init_params()
+  parameters = Parameters:new()
+  parameters:init()
+end
+
+function enc(e, delta)
+  arrangement:twist(e, delta)
 end
 
 function key(k, z)
+  local mode = get_current_mode()
   if k == 1 and z == 1 then
     shift_depressed = true
   elseif k == 1 and z == 0 then
@@ -104,8 +116,17 @@ function key(k, z)
   end
 
   if k == 2 and z == 0 and not shift_depressed then
+    if mode == SEQUENCE then
+      set_current_mode(DEFAULT)
+    elseif mode == STEP then
+      set_current_mode(SEQUENCE)
+    end
   elseif k == 2 and z == 0 and shift_depressed then
+    -- TBD
   elseif k == 3 and z == 0 and not shift_depressed then
+    if mode == SEQUENCE then
+      set_current_mode(STEP)
+    end
   elseif k == 3 and z == 0 and shift_depressed  then
   end
 end
@@ -118,9 +139,43 @@ function grid.key(x, y, z)
   chart:press(x, y, z)
 end
 
-function refresh_peripherals()
-  arrangement:refresh()
-  chart:refresh()
+function default_mode_timeout_cancel()
+  if default_mode_timeout then
+    clock.cancel(default_mode_timeout)
+    default_mode_timeout = nil
+  end
+end
+
+function default_mode_timeout_extend()
+  default_mode_timeout_cancel()
+  default_mode_timeout_new()
+end
+
+function default_mode_timeout_new()
+  default_mode_timeout = clock.run(
+    function()
+      clock.sleep(MODE_TIMEOUT_DELAY)
+      set_current_mode(DEFAULT)
+      default_mode_timeout = nil
+    end
+  )
+end
+
+function get_current_mode()
+  return MODES[current_mode()]
+end
+
+function get_mode_index(mode)
+  return tab.key(MODES, mode)
+end
+
+function set_current_mode(mode)
+  if mode ~= default and get_current_mode() == DEFAULT then
+    default_mode_timeout_new()
+  elseif mode ~= DEFAULT then
+    default_mode_timeout_extend()
+  end
+  current_mode:set(get_mode_index(mode))
 end
 
 function step_arrangement()
@@ -133,6 +188,11 @@ end
 
 function step_console()
   console:step()
+end
+
+function refresh_peripherals()
+  arrangement:refresh()
+  chart:refresh()
 end
 
 function refresh()

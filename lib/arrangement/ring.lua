@@ -1,12 +1,11 @@
 local LEDS = 64
 
 local Ring = {
+  context = nil,
   dirty = true,
+  host = nil,
   id = 1,
-  lumen = 10,
-  range = LEDS,
-  throttled = false,
-  x = 1
+  lumen = 10
 }
 
 function Ring._extents_in_radians(i, range)
@@ -22,43 +21,56 @@ function Ring:new(options)
   return instance
 end
 
-function Ring:change(delta)
-  if not self.throttled then
-    self:set('x', util.wrap(self.x + delta, 1, self.range))
-    self.dirty = true
-    self.throttled = true
-    clock.run(function()
-      clock.sleep((LEDS/self.range) * .01)
-      self.throttled = false
-    end)
-  end
-end
-
 function Ring:set(k, v)
   self[k] = v
-  self.dirty = true
 end
 
 function Ring:get(k)
   return self[k]
 end
 
-function Ring:paint(host)
-  if self.range == LEDS then
-    host:led(self.id, self.x, self.lumen)
-  else
-    local a, b = self._extents_in_radians(self.x, self.range)
-    host:segment(self.id, a, b, self.lumen)
+function Ring:paint()
+  -- This will expand with context once we get it working again
+  if get_current_mode() == DEFAULT then
+    local x = self.context:get('current_step')
+    local range = self.context:get('step_count')
+    self:_paint_segment(x, range)
   end
 
   self:set('dirty', false)
 end
 
-function Ring:pulse(host)
+function Ring:_paint_segment(x, range)
+  local a, b = self._extents_in_radians(x, range)
+  self.host:segment(self.id, a, b, self.lumen)
+end
+
+function Ring:_paint_list_as_segments(list)
+  local range = #list
+  for i = 1, range do
+    if list[i] then
+      self:_paint_segment(i, range)
+    end
+  end
+end
+
+function Ring:_paint_bool(val)
+  local i = 1
+  if val then
+    i = 2
+  end
+  self:_paint_segment(i, 2)
+end
+
+function Ring:pulse()
   local a, b = self._extents_in_radians(1, 1)
-  host:segment(self.id, 0, 6.283185, self.lumen)
-  host:refresh()
+  self.host:segment(self.id, 0, 6.283185, self.lumen)
+  self.host:refresh()
   self.dirty = false
+end
+
+function Ring:update()
+  self.dirty = true
 end
 
 return Ring

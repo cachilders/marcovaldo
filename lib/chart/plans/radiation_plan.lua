@@ -48,14 +48,14 @@ function RadiationPlan:emit_pulse(i, v, s)
   end
 end
 
-function RadiationPlan:_spawn_wave(x, y, velocity, envelope_time)
+function RadiationPlan:_spawn_wave(x, y, velocity, envelope_duration)
   -- TODO: a, d, s, r timing defines diffusion characteristics
   -- Push more behavior down to the symbol and reconsider the
   -- Nature of phenomena belonging to plans.
   clock.run(function ()
     local i = 1
     local radius = math.floor(PULSE_RADIUS_OPERAND * (velocity or 100))
-    local step_duration = (envelope_time or .5) / radius
+    local step_duration = (envelope_duration or .5) / radius
     local phenomena = nil
 
     while i <= radius do    
