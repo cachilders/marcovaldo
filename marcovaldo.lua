@@ -2,12 +2,13 @@
 -- a spatial sequencer with cats
 
 DEFAULT = 'default'
-MODES = {DEFAULT, SEQUENCE, STEP}
 MODE_TIMEOUT_DELAY = 5
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
 STEP = 'step'
+
+MODES = {DEFAULT, SEQUENCE, STEP}
 
 shift_depressed = false
 current_mode = nil
@@ -102,14 +103,8 @@ function init_params()
   parameters:init()
 end
 
-function enc(e, d)
-  if e == 1 and not shift then
-  elseif e == 2 and not shift then
-  elseif e == 3 and not shift then
-  elseif e == 1 and shift then
-  elseif e == 2 and shift then
-  elseif e == 3 and shift then
-  end
+function enc(e, delta)
+  arrangement:twist(e, delta)
 end
 
 function key(k, z)
@@ -165,12 +160,11 @@ function get_mode_index(mode)
 end
 
 function set_current_mode(mode)
-  if get_current_mode() == DEFAULT then
+  if mode ~= default and get_current_mode() == DEFAULT then
     default_mode_timeout_new()
   elseif mode ~= DEFAULT then
     default_mode_timeout_extend()
   end
-  print('Setting mode to '..mode)
   current_mode:set(get_mode_index(mode))
 end
 

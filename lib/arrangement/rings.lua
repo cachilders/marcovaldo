@@ -44,10 +44,10 @@ function Rings:pulse_ring(sequencer)
   self.rings[sequencer]:pulse()
 end
 
-function Rings:step_feedback(sequencer, step_value)
-  -- TEMP POC This needs to reflect the sequencer state, distinct from the input state
-  -- so a more thoughtful approach is required
-  self.rings[sequencer]:set('x', step_value)
+function Rings:step()
+  for i = 1, #self.rings do
+    self.rings[i]:update()
+  end
 end
 
 function Rings:_dirty()

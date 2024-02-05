@@ -23,7 +23,6 @@ end
 
 function Ring:set(k, v)
   self[k] = v
-  self.dirty = true
 end
 
 function Ring:get(k)
@@ -55,11 +54,23 @@ function Ring:_paint_list_as_segments(list)
   end
 end
 
+function Ring:_paint_bool(val)
+  local i = 1
+  if val then
+    i = 2
+  end
+  self:_paint_segment(i, 2)
+end
+
 function Ring:pulse()
   local a, b = self._extents_in_radians(1, 1)
   self.host:segment(self.id, 0, 6.283185, self.lumen)
   self.host:refresh()
   self.dirty = false
+end
+
+function Ring:update()
+  self.dirty = true
 end
 
 return Ring

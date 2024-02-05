@@ -9,7 +9,6 @@ local Arrangement = {
   affect_ensemble = nil,
   rings = nil,
   selected_sequence = nil,
-  selcted_step = nil,
   sequences = {}
 }
 
@@ -44,16 +43,11 @@ function Arrangement:step()
     local sequence = self.sequences[i]
     if sequence:get('active') then
       sequence:step()
-      if get_current_mode() == DEFAULT then
-        self.rings:step_feedback(i, sequence:get('current_step'))
-      end
     end
   end
+  self.rings:step()
 end
 
-function Arrangement:turn(n, delta)
-  self:_pass_input_to_sequence(n, delta)
-end
 
 function Arrangement:affect(action, index, values)
   local sequencer = self.sequences[index]
@@ -62,14 +56,41 @@ function Arrangement:affect(action, index, values)
   end
 end
 
-function Arrangement:_pass_input_to_sequence(n, delta)
-  if get_current_mode() == DEFAULT then
-    -- TODO Context needs to switch to TOUCHED sequencer
-    -- change with ENC1 turn to others. Right now we're
-    -- just testing mode change and timeout
+function Arrangement:turn(n, delta)
+  self:_ring_input_to_sequence(n, delta)
+end
+
+function Arrangement:twist(e, delta)
+  if e == 1 and not shift_depressed then
+    local mode = get_current_mode()
+    if mode == SEQUENCE then
+      self:_select_secuence(d)
+    elseif mode == STEP then
+      self:_encoder_input_to_sequence(e, delta)
+    end
+  elseif e == 1 and shift_depressed then
+    -- TBD
+  elseif e == 2 and not shift_depressed then
+    self:_ring_input_to_sequence(1, delta)
+  elseif e == 3 and not shift_depressed then
+    self:_ring_input_to_sequence(2, delta)
+  elseif e == 2 and shift_depressed then
+    self:_ring_input_to_sequence(3, delta)
+  elseif e == 3 and shift_depressed then
+    self:_ring_input_to_sequence(4, delta)
+  end
+end
+
+function Arrangement:_encoder_input_to_sequence(e, delta)
+  self.sequences[self.selected_sequence]:select(delta)
+end
+
+function Arrangement:_ring_input_to_sequence(n, delta)
+  if get_current_mode() == DEFAULT or not self.selected_sequence then
     set_current_mode(SEQUENCE)
+    self.selected_sequence = n
   else
-    self.sequences[n]:change(delta)
+    self.sequences[self.selected_sequence]:change(n, delta)
   end
 end
 
@@ -128,9 +149,9 @@ function Arrangement:_init_sequences()
 end
 
 function Arrangement:_transmit_edit_state(editor, i, values)
-  local editor_mode_index = tab.key(MODES, editor)
+  local editor_mode_index = get_mode_index(editor)
   if current_mode() ~= editor_mode_index then
-    set_current_mode(editor_mode_index)
+    set_current_mode(editor)
   end
 
   self.affect_console('edit_'..editor, i, values)

@@ -1,4 +1,11 @@
+local DEFAULT_MIN = 1
+local MIDI_MAX = 127
+local OCTAVES_MAX = 10
+local PULSE_WIDTH_MIN = 50
+local PULSE_WIDTH_MAX = 150
 local SUBDIVISION_LABELS = {'1/4', '1/8', '1/8t', '1/16'}
+local STEP_COUNT_MIN = 8
+local STEP_COUNT_MAX = 128
 
 local Sequence = {
   active = true,
@@ -8,12 +15,13 @@ local Sequence = {
   id = 1,
   notes = nil,
   octaves = 1,
-  pulse_count = 8,
+  pulse_count = STEP_COUNT_MIN,
   pulse_positions = nil,
   pulse_strengths = nil,
   pulse_widths = nil,
   scale = nil,
-  step_count = 8,
+  selected_step = nil,
+  step_count = STEP_COUNT_MIN,
   subdivision = 1,
   throttled = false,
   transmit_edit_state = nil,
@@ -55,7 +63,11 @@ function Sequence:randomize()
 end
 
 function Sequence:refresh()
+  local mode = get_current_mode()
   self:_distribute_pulses()
+  if mode ~= DEFAULT then
+    self:_gather_and_transmit_edit_state(mode)
+  end
 end
 
 function Sequence:step()
@@ -64,22 +76,22 @@ function Sequence:step()
 end
 
 function Sequence:_adjust_pulse_count(delta)
-  self.pulse_count = util.clamp(self.pulse_count + delta, 8, self.step_count)
+  self.pulse_count = util.clamp(self.pulse_count + delta, STEP_COUNT_MIN, self.step_count)
   self:_distribute_pulses()
 end
 
 function Sequence:_adjust_step_count(delta)
-  self.step_count = util.clamp(self.step_count + delta, 8, 128)
+  self.step_count = util.clamp(self.step_count + delta, STEP_COUNT_MIN, STEP_COUNT_MAX)
   self:_adjust_pulse_count(0)
 end
 
 function Sequence:_adjust_octaves(delta)
-  self.octaves = util.clamp(self.octaves + delta, 1, 10)
+  self.octaves = util.clamp(self.octaves + delta, DEFAULT_MIN, OCTAVES_MAX)
   self:_set_scale()
 end
 
 function Sequence:_adjust_subdivision(delta)
-  self.subdivision = util.clamp(self.subdivision + delta, 1, 4)
+  self.subdivision = util.clamp(self.subdivision + delta, DEFAULT_MIN, #SUBDIVISION_LABELS)
 end
 
 function Sequence:_calculate_pulse_time(step)
@@ -90,23 +102,33 @@ function Sequence:_calculate_pulse_time(step)
   return subdivided_bpm * width_modifier
 end
 
-function Sequence:_distribute_pulses()
-  self.pulse_positions = er.gen(self.pulse_count, self.step_count)
+function Sequence:change(n, delta)
+  local mode = get_current_mode()
+  if mode == SEQUENCE then
+    if n == 1 then
+      self:_adjust_step_count(delta)
+    elseif n == 2 then
+      self:_adjust_pulse_count(delta)
+    elseif n == 3 then
+      self:_adjust_octaves(delta)
+    elseif n == 4 then
+      self:_adjust_subdivision(delta)
+    end
+  elseif mode == STEP then
+    if n == 1 then
+      self:_set_step_note(delta)
+    elseif n == 2 then
+      self:_set_step_pulse_position(delta)
+    elseif n == 3 then
+      self:_set_step_pulse_strength(delta)
+    elseif n == 4 then
+      self:_set_step_pulse_width(delta)
+    end
+  end
 end
 
-
-function Sequence:change(delta)
-  -- If touched, change mode to THIS SEQUENCER
-  -- 
-  -- if not self.throttled then
-  --   self:set('x', util.wrap(self.x + delta, 1, self.range))
-  --   self.dirty = true
-  --   self.throttled = true
-  --   clock.run(function()
-  --     clock.sleep((LEDS/self.range) * .01)
-  --     self.throttled = false
-  --   end)
-  -- end
+function Sequence:_distribute_pulses()
+  self.pulse_positions = er.gen(self.pulse_count, self.step_count)
 end
 
 function Sequence:_emit_note()
@@ -116,6 +138,31 @@ function Sequence:_emit_note()
     local envelope_duration = self:_calculate_pulse_time(step)
     local quantized_note = music_util.snap_note_to_array(self.notes[step], self.scale)
     self.emitter(self.id, quantized_note, velocity, envelope_duration)
+  end
+end
+
+function Sequence:_gather_and_transmit_edit_state(mode)
+  if mode == SEQUENCE then
+    local values = {
+      step_count = self.step_count,
+      step_count_range = STEP_COUNT_MAX,
+      pulse_count = self.pulse_count,
+      pulse_count_range = self.step_count,
+      octaves = self.octaves,
+      octaves_range = OCTAVES_RANGE,
+      subdivisions = self.subdivisions,
+      subdivisions_range = #SUBDIVISION_LABELS
+    }
+    self.transmit_edit_state(SEQUENCE, self.id, values)
+  elseif mode == STEP then
+    local step = self.selcted_step
+    local values = {
+      note = self.notes[step],
+      pulse_active = self.pulse_positions[step],
+      pulse_strength = self.pulse_strengths[step],
+      pulse_width = self.pulse_widths[step]
+    }
+    self.transmit_edit_state(STEP, step, values)
   end
 end
 
@@ -141,20 +188,38 @@ function Sequence:_init_pulses()
   end
 end
 
+function Sequence:_interpret_note_position_within_scale(note)
+  local snapped_note = music_util.snap_note_to_array(note, self.scale)
+  local note_index = tab.key(snapped_note, self.scale)
+  return note_index
+end
+
+function Sequence:select(e, delta)
+  if e == 1 then
+    self._select_edit_step(delta)
+  end
+end
+
 function Sequence:_select_edit_step(delta)
   self.edit_step = util.clamp(self.edit_step + delta, 1, self.step_count)
 end
 
-function Sequence:_set_step_note(step, delta)
-  self.notes[step] = util.clamp(self.notes[step] + delta, 1, #self.scale)
+function Sequence:_set_step_note(delta)
+  local note_index_within_scale = self:_interpret_note_position_within_scale(self.notes[self.selected_step])
+  self.notes[self.selcted_step] = self.scale[util.clamp(note_index_within_scale + delta, 1, #self.scale)]
 end
 
-function Sequence:_set_step_pulse_strength(step, delta)
-  self.pulse_strengths[step] = util.clamp(self.pulse_strengths[step] + delta, 1, 127)
+function Sequence:_set_step_pulse_position(delta)
+  local pulse_binary = self.pulse_positions[self.selected_step] and 1 or 0
+  self.pulse_positions[self.selected_step] = util.clamp(pulse_binary, 0, 1) == 1
 end
 
-function Sequence:_set_step_pulse_width(step, delta)
-  self.pulse_widths[step] = util.clamp(self.pulse_widths[step] + delta, 50, 150)
+function Sequence:_set_step_pulse_strength(delta)
+  self.pulse_strengths[self.selected_step] = util.clamp(self.pulse_strengths[self.selected_step] + delta, DEFAULT_MIN, MIDI_MAX)
+end
+
+function Sequence:_set_step_pulse_width(delta)
+  self.pulse_widths[self.selected_step] = util.clamp(self.pulse_widths[self.selected_step] + delta, PULSE_WIDTH_MIN, PULSE_WIDTH_MAX)
 end
 
 function Sequence:_set_scale()
@@ -164,10 +229,6 @@ function Sequence:_set_scale()
     parameters.scale(),
     self.octaves
   )
-end
-
-function Sequence:_toggle_step_pulse_position(step)
-  -- TODO ¯\_(ツ)_/¯
 end
 
 return Sequence
