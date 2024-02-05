@@ -10,7 +10,6 @@ local STEP_COUNT_MAX = 128
 local Sequence = {
   active = true,
   current_step = 1,
-  edit_step = 1,
   emitter = nil,
   id = 1,
   notes = nil,
@@ -20,7 +19,7 @@ local Sequence = {
   pulse_strengths = nil,
   pulse_widths = nil,
   scale = nil,
-  selected_step = nil,
+  selected_step = 1,
   step_count = STEP_COUNT_MIN,
   subdivision = 1,
   throttled = false,
@@ -130,6 +129,7 @@ function Sequence:change(n, delta)
   end
 
   self:_gather_and_transmit_edit_state(mode)
+  default_mode_timeout_extend()
 end
 
 function Sequence:_distribute_pulses()
@@ -198,6 +198,7 @@ function Sequence:_init_pulses()
 end
 
 function Sequence:_interpret_note_position_within_scale(note)
+
   local snapped_note = music_util.snap_note_to_array(note, self.scale)
   local note_index = tab.key(self.scale, snapped_note)
   return note_index
@@ -205,18 +206,22 @@ end
 
 function Sequence:select(e, delta)
   if e == 1 then
-    self._select_edit_step(delta)
-    self.transmit_edit_state(STEP)
+    self:_select_edit_step(delta)
+    self._gather_and_transmit_edit_state(STEP)
   end
 end
 
 function Sequence:_select_edit_step(delta)
-  self.edit_step = util.clamp(self.edit_step + delta, 1, self.step_count)
+  self.selected_step = util.clamp(self.selected_step + delta, 1, self.step_count)
 end
 
 function Sequence:_set_step_note(delta)
-  local note_index_within_scale = self:_interpret_note_position_within_scale(self.notes[self.selected_step])
-  self.notes[self.selected_step] = self.scale[util.clamp(note_index_within_scale + delta, 1, #self.scale)]
+  local selected_note = self.notes[self.selected_step]
+  local note_index_within_scale = 1
+  if selected_note then
+    local note_index_within_scale = self:_interpret_note_position_within_scale(selected_note)
+  end
+  selected_note = self.scale[util.clamp(note_index_within_scale + delta, 1, #self.scale)]
 end
 
 function Sequence:_set_step_pulse_active(delta)

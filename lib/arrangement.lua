@@ -86,7 +86,7 @@ function Arrangement:twist(e, delta)
 end
 
 function Arrangement:_encoder_input_to_sequence(e, delta)
-  self.sequences[self.selected_sequence]:select(delta)
+  self.sequences[self.selected_sequence]:select(e, delta)
 end
 
 function Arrangement:_ring_input_to_sequence(n, delta)
