@@ -35,7 +35,11 @@ end
 
 function Arrangement:refresh()
   self.rings:refresh()
-  self:_transmit_arrangement_state()
+  -- TODO move to sequences class like rings
+  for i = 1, #self.sequences do
+    self.sequences[i]:refresh()
+  end
+  self:_transmit_sequences_state()
 end
 
 function Arrangement:step()
@@ -64,7 +68,7 @@ function Arrangement:twist(e, delta)
   if e == 1 and not shift_depressed then
     local mode = get_current_mode()
     if mode == SEQUENCE then
-      self:_select_secuence(d)
+      self:_select_sequence(delta)
     elseif mode == STEP then
       self:_encoder_input_to_sequence(e, delta)
     end
@@ -133,10 +137,11 @@ function Arrangement:_init_sequences()
   local subdivision = 1
   for i = 1, 4 do
     local sequence = Sequence:new({
-      transmit_edit_state = function(i, values) self:_transmit_edit_state(SEQUENCE, i, values) end,
+      transmit_edit_sequence = function(i, values) self:_transmit_edit_state(SEQUENCE, i, values) end,
       transmit_edit_step = function(i, values) self:_transmit_edit_state(STEP, i, values) end,
       emitter = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
       id = i,
+      selected_step = 1,
       step_count = steps,
       pulse_count = steps,
       subdivision = subdivision
@@ -148,6 +153,10 @@ function Arrangement:_init_sequences()
   end
 end
 
+function Arrangement:_select_sequence(delta)
+  self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, #self.sequences)
+end
+
 function Arrangement:_transmit_edit_state(editor, i, values)
   local editor_mode_index = get_mode_index(editor)
   if current_mode() ~= editor_mode_index then
@@ -157,7 +166,7 @@ function Arrangement:_transmit_edit_state(editor, i, values)
   self.affect_console('edit_'..editor, i, values)
 end
 
-function Arrangement:_transmit_arrangement_state()
+function Arrangement:_transmit_sequences_state()
   if get_current_mode() == DEFAULT then
     local values = {}
     for i = 1, #self.sequences do

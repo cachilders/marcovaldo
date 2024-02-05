@@ -20,6 +20,8 @@ function Screen:refresh()
     screen.text(self.name)
     screen.move(2, 20)
     for k, v in pairs(self.values) do
+      -- TODO temp
+      v = v == true and 'true' or v == false and 'false' or v
       screen.text(k..': '..v)
       i = i + 1
       screen.move(2, i * 10 + 10)

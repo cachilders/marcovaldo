@@ -24,7 +24,7 @@ local Sequence = {
   step_count = STEP_COUNT_MIN,
   subdivision = 1,
   throttled = false,
-  transmit_edit_state = nil,
+  transmit_edit_sequence = nil,
   transmit_edit_step = nil
 }
 
@@ -65,9 +65,6 @@ end
 function Sequence:refresh()
   local mode = get_current_mode()
   self:_distribute_pulses()
-  if mode ~= DEFAULT then
-    self:_gather_and_transmit_edit_state(mode)
-  end
 end
 
 function Sequence:step()
@@ -76,7 +73,7 @@ function Sequence:step()
 end
 
 function Sequence:_adjust_pulse_count(delta)
-  self.pulse_count = util.clamp(self.pulse_count + delta, STEP_COUNT_MIN, self.step_count)
+  self.pulse_count = util.clamp(self.pulse_count + delta, 0, self.step_count)
   self:_distribute_pulses()
 end
 
@@ -118,13 +115,21 @@ function Sequence:change(n, delta)
     if n == 1 then
       self:_set_step_note(delta)
     elseif n == 2 then
-      self:_set_step_pulse_position(delta)
+      -- TODO this one won't actually work
+      -- with pulses being redistributed
+      self:_set_step_pulse_active(delta)
     elseif n == 3 then
       self:_set_step_pulse_strength(delta)
     elseif n == 4 then
       self:_set_step_pulse_width(delta)
     end
   end
+
+  if self.selected_step > self.step_count or not self.selected_step then
+    self.selected_step = 1
+  end
+
+  self:_gather_and_transmit_edit_state(mode)
 end
 
 function Sequence:_distribute_pulses()
@@ -153,16 +158,20 @@ function Sequence:_gather_and_transmit_edit_state(mode)
       subdivisions = self.subdivisions,
       subdivisions_range = #SUBDIVISION_LABELS
     }
-    self.transmit_edit_state(SEQUENCE, self.id, values)
+    self.transmit_edit_sequence(self.id, values)
   elseif mode == STEP then
-    local step = self.selcted_step
+    local step = self.selected_step
     local values = {
       note = self.notes[step],
+      note_range = #self.scale,
       pulse_active = self.pulse_positions[step],
+      pulse_active_range = 2, -- TODO standin
       pulse_strength = self.pulse_strengths[step],
-      pulse_width = self.pulse_widths[step]
+      pulse_strength_range = MIDI_MAX,
+      pulse_width = self.pulse_widths[step],
+      pulse_width_range = PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
     }
-    self.transmit_edit_state(STEP, step, values)
+    self.transmit_edit_step(step, values)
   end
 end
 
@@ -190,13 +199,14 @@ end
 
 function Sequence:_interpret_note_position_within_scale(note)
   local snapped_note = music_util.snap_note_to_array(note, self.scale)
-  local note_index = tab.key(snapped_note, self.scale)
+  local note_index = tab.key(self.scale, snapped_note)
   return note_index
 end
 
 function Sequence:select(e, delta)
   if e == 1 then
     self._select_edit_step(delta)
+    self.transmit_edit_state(STEP)
   end
 end
 
@@ -206,10 +216,10 @@ end
 
 function Sequence:_set_step_note(delta)
   local note_index_within_scale = self:_interpret_note_position_within_scale(self.notes[self.selected_step])
-  self.notes[self.selcted_step] = self.scale[util.clamp(note_index_within_scale + delta, 1, #self.scale)]
+  self.notes[self.selected_step] = self.scale[util.clamp(note_index_within_scale + delta, 1, #self.scale)]
 end
 
-function Sequence:_set_step_pulse_position(delta)
+function Sequence:_set_step_pulse_active(delta)
   local pulse_binary = self.pulse_positions[self.selected_step] and 1 or 0
   self.pulse_positions[self.selected_step] = util.clamp(pulse_binary, 0, 1) == 1
 end
@@ -229,6 +239,7 @@ function Sequence:_set_scale()
     parameters.scale(),
     self.octaves
   )
+  print(self.scale, #self.scale)
 end
 
 return Sequence

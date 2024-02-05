@@ -2,7 +2,7 @@
 -- a spatial sequencer with cats
 
 DEFAULT = 'default'
-MODE_TIMEOUT_DELAY = 5
+MODE_TIMEOUT_DELAY = 15
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
@@ -108,6 +108,7 @@ function enc(e, delta)
 end
 
 function key(k, z)
+  local mode = get_current_mode()
   if k == 1 and z == 1 then
     shift_depressed = true
   elseif k == 1 and z == 0 then
@@ -115,8 +116,17 @@ function key(k, z)
   end
 
   if k == 2 and z == 0 and not shift_depressed then
+    if mode == SEQUENCE then
+      set_current_mode(DEFAULT)
+    elseif mode == STEP then
+      set_current_mode(SEQUENCE)
+    end
   elseif k == 2 and z == 0 and shift_depressed then
+    -- TBD
   elseif k == 3 and z == 0 and not shift_depressed then
+    if mode == SEQUENCE then
+      set_current_mode(STEP)
+    end
   elseif k == 3 and z == 0 and shift_depressed  then
   end
 end
