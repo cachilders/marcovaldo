@@ -167,6 +167,7 @@ function Arrangement:_transmit_edit_state(editor, i, values)
   local rings = self.rings.rings
   if editor == SEQUENCE then
     rings[1]:_paint_segment(values[1][1], values[2][1])
+    -- Big broken
     rings[2]:_paint_list_as_segments(er.gen(values[1][2], values[2][2]), values[2][2])
     rings[3]:_paint_segment(values[1][3], values[2][3])
     rings[4]:_paint_segment(values[1][4], values[2][4])

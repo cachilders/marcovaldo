@@ -22,7 +22,7 @@ local Sequence = {
   selected_step = 1,
   step_count = STEP_COUNT_MIN,
   subdivision = 1,
-  throttled = false,
+  throttles = nil,
   transmit_edit_sequence = nil,
   transmit_edit_step = nil
 }
@@ -39,6 +39,7 @@ function Sequence:init()
   self:_init_observers()
   self:_init_pulses()
   self:_set_scale()
+  self:_init_throttles()
   -- DEV TEMP
   self:randomize()
 end
@@ -71,6 +72,49 @@ function Sequence:step()
   self.current_step = util.wrap(self.current_step + 1, 1, self.step_count)
 end
 
+function Sequence:change(n, delta)
+  if not self.throttles[n] then
+    self.throttles[n] = true
+    local mode = get_current_mode()
+    if mode == SEQUENCE then
+      if n == 1 then
+        self:_adjust_step_count(delta)
+      elseif n == 2 then
+        self:_adjust_pulse_count(delta)
+      elseif n == 3 then
+        self:_adjust_octaves(delta)
+      elseif n == 4 then
+        self:_adjust_subdivision(delta)
+      end
+    elseif mode == STEP then
+      if n == 1 then
+        self:_set_step_note(delta)
+      elseif n == 2 then
+        -- TODO this one won't actually work
+        -- with pulses being redistributed
+        self:_set_step_pulse_active(delta)
+      elseif n == 3 then
+        self:_set_step_pulse_strength(delta)
+      elseif n == 4 then
+        self:_set_step_pulse_width(delta)
+      end
+    end
+  
+    if self.selected_step > self.step_count or not self.selected_step then
+      self.selected_step = 1
+    end
+  
+    self:_gather_and_transmit_edit_state(mode)
+    default_mode_timeout_extend()
+
+    clock.run(function()
+      -- TODO Scale it
+      clock.sleep(.05)
+      self.throttles[n] = false
+    end)
+  end
+end
+
 function Sequence:_adjust_pulse_count(delta)
   self.pulse_count = util.clamp(self.pulse_count + delta, 0, self.step_count)
   self:_distribute_pulses()
@@ -96,40 +140,6 @@ function Sequence:_calculate_pulse_time(step)
   local subdivided_bpm = bpm / (self.subdivision * cosmological_constant)
   local width_modifier = (self.pulse_widths[step] or 100) / 100
   return subdivided_bpm * width_modifier
-end
-
-function Sequence:change(n, delta)
-  local mode = get_current_mode()
-  if mode == SEQUENCE then
-    if n == 1 then
-      self:_adjust_step_count(delta)
-    elseif n == 2 then
-      self:_adjust_pulse_count(delta)
-    elseif n == 3 then
-      self:_adjust_octaves(delta)
-    elseif n == 4 then
-      self:_adjust_subdivision(delta)
-    end
-  elseif mode == STEP then
-    if n == 1 then
-      self:_set_step_note(delta)
-    elseif n == 2 then
-      -- TODO this one won't actually work
-      -- with pulses being redistributed
-      self:_set_step_pulse_active(delta)
-    elseif n == 3 then
-      self:_set_step_pulse_strength(delta)
-    elseif n == 4 then
-      self:_set_step_pulse_width(delta)
-    end
-  end
-
-  if self.selected_step > self.step_count or not self.selected_step then
-    self.selected_step = 1
-  end
-
-  self:_gather_and_transmit_edit_state(mode)
-  default_mode_timeout_extend()
 end
 
 function Sequence:_distribute_pulses()
@@ -199,6 +209,14 @@ function Sequence:_init_pulses()
     self.pulse_strengths[i] = 100
     self.pulse_widths[i] = 100
   end
+end
+
+function Sequence:_init_throttles()
+  throttles = {}
+  for i = 1, 4 do
+    throttles[i] = false
+  end
+  self.throttles = throttles
 end
 
 function Sequence:_interpret_note_position_within_scale(note)
