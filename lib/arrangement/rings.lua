@@ -40,6 +40,22 @@ function Rings:refresh()
   end
 end
 
+function Rings:refresh()
+  if self:_dirty() then
+    self.host:all(0)
+    for _, ring in pairs(self.rings) do
+      ring:paint(self.host)
+    end
+    self.host:refresh()
+  end
+end
+
+function Rings:force_refresh()
+  -- TODO Look away
+  self.host:refresh()
+  self.host:all(0)
+end
+
 function Rings:pulse_ring(sequencer)
   self.rings[sequencer]:pulse()
 end

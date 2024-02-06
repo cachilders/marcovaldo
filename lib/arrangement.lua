@@ -163,6 +163,22 @@ function Arrangement:_transmit_edit_state(editor, i, values)
     set_current_mode(editor)
   end
 
+  -- POC TODO MOVE DOWN
+  local rings = self.rings.rings
+  if editor == SEQUENCE then
+    rings[1]:_paint_segment(values[1][1], values[2][1])
+    rings[2]:_paint_list_as_segments(er.gen(values[1][2], values[2][2]), values[2][2])
+    rings[3]:_paint_segment(values[1][3], values[2][3])
+    rings[4]:_paint_segment(values[1][4], values[2][4])
+  elseif editor == STEP then
+    rings[1]:_paint_segment(values[1][1], values[2][1])
+    rings[2]:_paint_bool(values[1][2], values[2][2])
+    rings[3]:_paint_segment(values[1][3], values[2][3])
+    rings[4]:_paint_segment(values[1][4], values[2][4])
+  end
+  self.rings:force_refresh()
+  --
+
   self.affect_console('edit_'..editor, i, values)
 end
 
@@ -170,9 +186,12 @@ function Arrangement:_transmit_sequences_state()
   if get_current_mode() == DEFAULT then
     local values = {}
     for i = 1, #self.sequences do
-      values['Sequencer '..i..' step'] = self.sequences[i]:get('current_step')
+      local step = self.sequences[i]:get('current_step')
+      local note = self.sequences[i]:get('notes')[step]
+      local note_name = note and music_util.note_num_to_name(note) or '_'
+      table.insert(values, step..' '..note_name)
     end
-    self.affect_console(actions.transmit_edit_state, '', values)
+    self.affect_console(actions.transmit_edit_state, '', {values})
   end
 end
 

@@ -149,29 +149,33 @@ end
 function Sequence:_gather_and_transmit_edit_state(mode)
   if mode == SEQUENCE then
     local values = {
-      step_count = self.step_count,
-      step_count_range = STEP_COUNT_MAX,
-      pulse_count = self.pulse_count,
-      pulse_count_range = self.step_count,
-      octaves = self.octaves,
-      octaves_range = OCTAVES_RANGE,
-      subdivisions = self.subdivisions,
-      subdivisions_range = #SUBDIVISION_LABELS
+      self.step_count,
+      self.pulse_count,
+      self.octaves,
+      self.subdivision,
     }
-    self.transmit_edit_sequence(self.id, values)
+    local ranges = {
+      STEP_COUNT_MAX - STEP_COUNT_MIN,
+      self.step_count,
+      OCTAVES_MAX,
+      #SUBDIVISION_LABELS
+    }
+    self.transmit_edit_sequence(self.id, {values, ranges})
   elseif mode == STEP then
     local step = self.selected_step
     local values = {
-      note = self.notes[step],
-      note_range = #self.scale,
-      pulse_active = self.pulse_positions[step],
-      pulse_active_range = 2, -- TODO standin
-      pulse_strength = self.pulse_strengths[step],
-      pulse_strength_range = MIDI_MAX,
-      pulse_width = self.pulse_widths[step],
-      pulse_width_range = PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
+      self.notes[step],
+      self.pulse_positions[step],
+      self.pulse_strengths[step],
+      self.pulse_widths[step],
     }
-    self.transmit_edit_step(step, values)
+    local ranges = {
+      #self.scale,
+      2, -- TODO standin
+      MIDI_MAX,
+      PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
+    }
+    self.transmit_edit_step(step, {values, ranges})
   end
 end
 
@@ -216,17 +220,21 @@ function Sequence:_select_edit_step(delta)
 end
 
 function Sequence:_set_step_note(delta)
+    -- TODO Should be able to selct no note
+    -- Also the note index piece is basically unusable
   local selected_note = self.notes[self.selected_step]
   local note_index_within_scale = 1
   if selected_note then
     local note_index_within_scale = self:_interpret_note_position_within_scale(selected_note)
   end
   selected_note = self.scale[util.clamp(note_index_within_scale + delta, 1, #self.scale)]
+  self.notes[self.selected_step] = selected_note
 end
 
 function Sequence:_set_step_pulse_active(delta)
+  -- TODO This is overidden by the auto pulse distro and something has to change
   local pulse_binary = self.pulse_positions[self.selected_step] and 1 or 0
-  self.pulse_positions[self.selected_step] = util.clamp(pulse_binary, 0, 1) == 1
+  self.pulse_positions[self.selected_step] = util.clamp(pulse_binary + delta, 0, 1) == 1
 end
 
 function Sequence:_set_step_pulse_strength(delta)
@@ -244,7 +252,6 @@ function Sequence:_set_scale()
     parameters.scale(),
     self.octaves
   )
-  print(self.scale, #self.scale)
 end
 
 return Sequence
