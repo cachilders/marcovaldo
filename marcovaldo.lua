@@ -2,7 +2,7 @@
 -- a spatial sequencer with cats
 
 DEFAULT = 'default'
-MODE_TIMEOUT_DELAY = 15
+MODE_TIMEOUT_DELAY = 10
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'

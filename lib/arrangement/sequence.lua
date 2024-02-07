@@ -1,11 +1,15 @@
+local constants = include('lib/constants')
+
 local DEFAULT_MIN = 1
 local MIDI_MAX = 127
 local OCTAVES_MAX = 10
 local PULSE_WIDTH_MIN = 50
 local PULSE_WIDTH_MAX = 150
+local PULSE_WIDTH_RANGE = PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
 local SUBDIVISION_LABELS = {'1/4', '1/8', '1/8t', '1/16'}
 local STEP_COUNT_MIN = 8
 local STEP_COUNT_MAX = 128
+local STEP_COUNT_RANGE = STEP_COUNT_MAX - STEP_COUNT_MIN
 
 local Sequence = {
   active = true,
@@ -56,7 +60,7 @@ function Sequence:randomize()
   self.pulse_count = math.floor(self.step_count * (.1 * math.random(1, 10)))
   self:_distribute_pulses()
   for i = 1, self.step_count do
-    self.notes[i] = math.random(36, 72)
+    self.notes[i] = math.random(0, #self.scale)
     self.pulse_strengths[i] = math.random(37, 117)
     self.pulse_widths[i] = math.random(50, 150)
   end
@@ -148,15 +152,17 @@ end
 
 function Sequence:_emit_note()
   local step = self.current_step
-  if self.notes[step] and self.pulse_positions[step] then
+  local note_index = self.notes[step]
+  if note_index and self.scale[note_index] and self.pulse_positions[step] then
     local velocity = self.pulse_strengths[step] or 100
     local envelope_duration = self:_calculate_pulse_time(step)
-    local quantized_note = music_util.snap_note_to_array(self.notes[step], self.scale)
+    local quantized_note = music_util.snap_note_to_array(self.scale[note_index], self.scale)
     self.emitter(self.id, quantized_note, velocity, envelope_duration)
   end
 end
 
 function Sequence:_gather_and_transmit_edit_state(mode)
+  -- TODO Break up
   if mode == SEQUENCE then
     local values = {
       self.step_count,
@@ -166,11 +172,17 @@ function Sequence:_gather_and_transmit_edit_state(mode)
     }
     local ranges = {
       STEP_COUNT_MAX - STEP_COUNT_MIN,
-      self.step_count,
-      OCTAVES_MAX,
+      self.step_count - DEFAULT_MIN,
+      OCTAVES_MAX - DEFAULT_MIN,
       #SUBDIVISION_LABELS
     }
-    self.transmit_edit_sequence(self.id, {values, ranges})
+    local types = {
+      constants.ARRANGEMENT.TYPES.PORTION,
+      constants.ARRANGEMENT.TYPES.PORTION, -- TODO Convert to BOOL_LIST
+      constants.ARRANGEMENT.TYPES.PORTION,
+      constants.ARRANGEMENT.TYPES.POSITION
+    }
+    self.transmit_edit_sequence(self.id, {values, ranges, types})
   elseif mode == STEP then
     local step = self.selected_step
     local values = {
@@ -182,10 +194,16 @@ function Sequence:_gather_and_transmit_edit_state(mode)
     local ranges = {
       #self.scale,
       2, -- TODO standin
-      MIDI_MAX,
-      PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
+      MIDI_MAX - DEFAULT_MIN,
+      PULSE_WIDTH_MAX
     }
-    self.transmit_edit_step(step, {values, ranges})
+    local types = {
+      constants.ARRANGEMENT.TYPES.POSITION,
+      constants.ARRANGEMENT.TYPES.BOOL,
+      constants.ARRANGEMENT.TYPES.PORTION,
+      constants.ARRANGEMENT.TYPES.PORTION
+    }
+    self.transmit_edit_step(step, {values, ranges, types})
   end
 end
 
@@ -219,13 +237,6 @@ function Sequence:_init_throttles()
   self.throttles = throttles
 end
 
-function Sequence:_interpret_note_position_within_scale(note)
-
-  local snapped_note = music_util.snap_note_to_array(note, self.scale)
-  local note_index = tab.key(self.scale, snapped_note)
-  return note_index
-end
-
 function Sequence:select(e, delta)
   if e == 1 then
     self:_select_edit_step(delta)
@@ -238,15 +249,11 @@ function Sequence:_select_edit_step(delta)
 end
 
 function Sequence:_set_step_note(delta)
-    -- TODO Should be able to selct no note
-    -- Also the note index piece is basically unusable
-  local selected_note = self.notes[self.selected_step]
-  local note_index_within_scale = 1
-  if selected_note then
-    local note_index_within_scale = self:_interpret_note_position_within_scale(selected_note)
-  end
-  selected_note = self.scale[util.clamp(note_index_within_scale + delta, 1, #self.scale)]
-  self.notes[self.selected_step] = selected_note
+  -- TODO not possible to deselect note
+  -- experimented with altering the range, but it led to weird overflow at zero
+  -- need to come back to this
+  local note_index = self.notes[self.selected_step]
+  self.notes[self.selected_step] = util.clamp(note_index + delta, 1, #self.scale)
 end
 
 function Sequence:_set_step_pulse_active(delta)

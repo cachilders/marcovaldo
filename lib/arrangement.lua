@@ -166,18 +166,16 @@ function Arrangement:_transmit_edit_state(editor, i, values)
   -- POC TODO MOVE DOWN
   local rings = self.rings.rings
   if editor == SEQUENCE then
-    rings[1]:_paint_segment(values[1][1], values[2][1])
-    -- Big broken
-    rings[2]:_paint_list_as_segments(er.gen(values[1][2], values[2][2]), values[2][2])
-    rings[3]:_paint_segment(values[1][3], values[2][3])
-    rings[4]:_paint_segment(values[1][4], values[2][4])
+    rings[1]:paint_value(values[1][1], values[2][1], values[3][1])
+    rings[2]:paint_value(values[1][2], values[2][2], values[3][2])
+    rings[3]:paint_value(values[1][3], values[2][3], values[3][3])
+    rings[4]:paint_value(values[1][4], values[2][4], values[3][4])
   elseif editor == STEP then
-    rings[1]:_paint_segment(values[1][1], values[2][1])
-    rings[2]:_paint_bool(values[1][2], values[2][2])
-    rings[3]:_paint_segment(values[1][3], values[2][3])
-    rings[4]:_paint_segment(values[1][4], values[2][4])
+    rings[1]:paint_value(values[1][1], values[2][1], values[3][1])
+    rings[2]:paint_value(values[1][2], values[2][2], values[3][2])
+    rings[3]:paint_value(values[1][3], values[2][3], values[3][3])
+    rings[4]:paint_value(values[1][4], values[2][4], values[3][4])
   end
-  self.rings:force_refresh()
   --
 
   self.affect_console('edit_'..editor, i, values)
@@ -188,7 +186,8 @@ function Arrangement:_transmit_sequences_state()
     local values = {}
     for i = 1, #self.sequences do
       local step = self.sequences[i]:get('current_step')
-      local note = self.sequences[i]:get('notes')[step]
+      local note_index_at_step = self.sequences[i]:get('notes')[step]
+      local note = self.sequences[i]:get('scale')[note_index_at_step]
       local note_name = note and music_util.note_num_to_name(note) or '_'
       table.insert(values, step..' '..note_name)
     end

@@ -31,29 +31,16 @@ function Rings:add(ring)
 end
 
 function Rings:refresh()
+  local mode = get_current_mode()
   if self:_dirty() then
-    self.host:all(0)
-    for _, ring in pairs(self.rings) do
-      ring:paint(self.host)
+    if mode == DEFAULT then
+      self.host:all(0)
+      for _, ring in pairs(self.rings) do
+        ring:paint_step(self.host)
+      end
+      self.host:refresh()
     end
-    self.host:refresh()
   end
-end
-
-function Rings:refresh()
-  if self:_dirty() then
-    self.host:all(0)
-    for _, ring in pairs(self.rings) do
-      ring:paint(self.host)
-    end
-    self.host:refresh()
-  end
-end
-
-function Rings:force_refresh()
-  -- TODO Look away
-  self.host:refresh()
-  self.host:all(0)
 end
 
 function Rings:pulse_ring(sequencer)
