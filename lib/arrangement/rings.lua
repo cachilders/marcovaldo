@@ -43,6 +43,16 @@ function Rings:refresh()
   end
 end
 
+function Rings:paint_editor_state(state)
+  local rings = self.rings
+  local values = state[1]
+  local ranges = state[2]
+  local types = state[3]
+  for i = 1, #rings do
+    rings[i]:paint_value(values[i], ranges[i], types[i])
+  end
+end
+
 function Rings:pulse_ring(sequencer)
   self.rings[sequencer]:pulse()
 end

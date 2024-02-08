@@ -14,7 +14,7 @@ local STEP_COUNT_RANGE = STEP_COUNT_MAX - STEP_COUNT_MIN
 local Sequence = {
   active = true,
   current_step = 1,
-  emitter = nil,
+  emit_note = nil,
   id = 1,
   notes = nil,
   octaves = 1,
@@ -27,8 +27,7 @@ local Sequence = {
   step_count = STEP_COUNT_MIN,
   subdivision = 1,
   throttles = nil,
-  transmit_edit_sequence = nil,
-  transmit_edit_step = nil
+  transmit_editor_state = nil
 }
 
 function Sequence:new(options)
@@ -108,7 +107,7 @@ function Sequence:change(n, delta)
       self.selected_step = 1
     end
   
-    self:_gather_and_transmit_edit_state(mode)
+    self:transmit()
     default_mode_timeout_extend()
 
     clock.run(function()
@@ -118,6 +117,73 @@ function Sequence:change(n, delta)
     end)
   end
 end
+
+
+function Sequence:select(e, delta)
+  if e == 1 then
+    self:_select_edit_step(delta)
+    self:transmit()
+  end
+end
+
+function Sequence:state()
+  local values = {
+    self.step_count,
+    self.pulse_count,
+    self.octaves,
+    self.subdivision,
+  }
+  local ranges = {
+    STEP_COUNT_MAX - STEP_COUNT_MIN,
+    self.step_count - DEFAULT_MIN,
+    OCTAVES_MAX - DEFAULT_MIN,
+    #SUBDIVISION_LABELS
+  }
+  local types = {
+    constants.ARRANGEMENT.TYPES.PORTION,
+    constants.ARRANGEMENT.TYPES.PORTION, -- TODO Convert to BOOL_LIST
+    constants.ARRANGEMENT.TYPES.PORTION,
+    constants.ARRANGEMENT.TYPES.POSITION
+  }
+  return values, ranges, types
+end
+
+function Sequence:step_state()
+  local step = self.selected_step
+  local values = {
+    self.notes[step],
+    self.pulse_positions[step],
+    self.pulse_strengths[step],
+    self.pulse_widths[step],
+  }
+  local ranges = {
+    #self.scale,
+    2, -- TODO standin
+    MIDI_MAX - DEFAULT_MIN,
+    PULSE_WIDTH_MAX
+  }
+  local types = {
+    constants.ARRANGEMENT.TYPES.POSITION,
+    constants.ARRANGEMENT.TYPES.BOOL,
+    constants.ARRANGEMENT.TYPES.PORTION,
+    constants.ARRANGEMENT.TYPES.PORTION
+  }
+  return values, ranges, types
+end
+
+function Sequence:transmit()
+  local mode = get_current_mode()
+  if mode ~= DEFAULT then
+    local values, ranges, types
+    if mode == SEQUENCE then
+      values, ranges, types = self:state()
+    elseif mode == STEP then
+      values, ranges, types = self:step_state()
+    end
+    self.transmit_editor_state(mode, self.id, {values, ranges, types})
+  end
+end
+
 
 function Sequence:_adjust_pulse_count(delta)
   self.pulse_count = util.clamp(self.pulse_count + delta, 0, self.step_count)
@@ -157,53 +223,7 @@ function Sequence:_emit_note()
     local velocity = self.pulse_strengths[step] or 100
     local envelope_duration = self:_calculate_pulse_time(step)
     local quantized_note = music_util.snap_note_to_array(self.scale[note_index], self.scale)
-    self.emitter(self.id, quantized_note, velocity, envelope_duration)
-  end
-end
-
-function Sequence:_gather_and_transmit_edit_state(mode)
-  -- TODO Break up
-  if mode == SEQUENCE then
-    local values = {
-      self.step_count,
-      self.pulse_count,
-      self.octaves,
-      self.subdivision,
-    }
-    local ranges = {
-      STEP_COUNT_MAX - STEP_COUNT_MIN,
-      self.step_count - DEFAULT_MIN,
-      OCTAVES_MAX - DEFAULT_MIN,
-      #SUBDIVISION_LABELS
-    }
-    local types = {
-      constants.ARRANGEMENT.TYPES.PORTION,
-      constants.ARRANGEMENT.TYPES.PORTION, -- TODO Convert to BOOL_LIST
-      constants.ARRANGEMENT.TYPES.PORTION,
-      constants.ARRANGEMENT.TYPES.POSITION
-    }
-    self.transmit_edit_sequence(self.id, {values, ranges, types})
-  elseif mode == STEP then
-    local step = self.selected_step
-    local values = {
-      self.notes[step],
-      self.pulse_positions[step],
-      self.pulse_strengths[step],
-      self.pulse_widths[step],
-    }
-    local ranges = {
-      #self.scale,
-      2, -- TODO standin
-      MIDI_MAX - DEFAULT_MIN,
-      PULSE_WIDTH_MAX
-    }
-    local types = {
-      constants.ARRANGEMENT.TYPES.POSITION,
-      constants.ARRANGEMENT.TYPES.BOOL,
-      constants.ARRANGEMENT.TYPES.PORTION,
-      constants.ARRANGEMENT.TYPES.PORTION
-    }
-    self.transmit_edit_step(step, {values, ranges, types})
+    self.emit_note(self.id, quantized_note, velocity, envelope_duration)
   end
 end
 
@@ -235,13 +255,6 @@ function Sequence:_init_throttles()
     throttles[i] = false
   end
   self.throttles = throttles
-end
-
-function Sequence:select(e, delta)
-  if e == 1 then
-    self:_select_edit_step(delta)
-    self._gather_and_transmit_edit_state(STEP)
-  end
 end
 
 function Sequence:_select_edit_step(delta)

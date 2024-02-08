@@ -137,14 +137,13 @@ function Arrangement:_init_sequences()
   local subdivision = 1
   for i = 1, 4 do
     local sequence = Sequence:new({
-      transmit_edit_sequence = function(i, values) self:_transmit_edit_state(SEQUENCE, i, values) end,
-      transmit_edit_step = function(i, values) self:_transmit_edit_state(STEP, i, values) end,
-      emitter = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
+      emit_note = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
       id = i,
       selected_step = 1,
       step_count = steps,
       pulse_count = steps,
-      subdivision = subdivision
+      subdivision = subdivision,
+      transmit_editor_state = function(editor, i, values) self:_transmit_editor_state(editor, i, values) end
     })
     sequence:init()
     table.insert(self.sequences, sequence)
@@ -157,34 +156,21 @@ function Arrangement:_select_sequence(delta)
   self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, #self.sequences)
 end
 
-function Arrangement:_transmit_edit_state(editor, i, values)
+function Arrangement:_transmit_editor_state(editor, i, state)
   local editor_mode_index = get_mode_index(editor)
   if current_mode() ~= editor_mode_index then
     set_current_mode(editor)
   end
 
-  -- POC TODO MOVE DOWN
-  local rings = self.rings.rings
-  if editor == SEQUENCE then
-    rings[1]:paint_value(values[1][1], values[2][1], values[3][1])
-    rings[2]:paint_value(values[1][2], values[2][2], values[3][2])
-    rings[3]:paint_value(values[1][3], values[2][3], values[3][3])
-    rings[4]:paint_value(values[1][4], values[2][4], values[3][4])
-  elseif editor == STEP then
-    rings[1]:paint_value(values[1][1], values[2][1], values[3][1])
-    rings[2]:paint_value(values[1][2], values[2][2], values[3][2])
-    rings[3]:paint_value(values[1][3], values[2][3], values[3][3])
-    rings[4]:paint_value(values[1][4], values[2][4], values[3][4])
-  end
-  --
-
-  self.affect_console('edit_'..editor, i, values)
+  self.rings:paint_editor_state(state)
+  self.affect_console('edit_'..editor, i, state)
 end
 
 function Arrangement:_transmit_sequences_state()
   if get_current_mode() == DEFAULT then
     local values = {}
     for i = 1, #self.sequences do
+      local sequence_state = self.sequencers[i]:state()
       local step = self.sequences[i]:get('current_step')
       local note_index_at_step = self.sequences[i]:get('notes')[step]
       local note = self.sequences[i]:get('scale')[note_index_at_step]
