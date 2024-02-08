@@ -125,7 +125,7 @@ function key(k, z)
     -- TBD
   elseif k == 3 and z == 0 and not shift_depressed then
     if mode == SEQUENCE then
-      set_current_mode(STEP)
+      arrangement:press(k, z)
     end
   elseif k == 3 and z == 0 and shift_depressed  then
   end

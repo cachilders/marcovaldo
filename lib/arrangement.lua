@@ -60,6 +60,16 @@ function Arrangement:affect(action, index, values)
   end
 end
 
+function Arrangement:press(k, z)
+  local mode = get_current_mode()
+
+  if k == 3 and z == 0 and not shift_depressed then
+    if mode == SEQUENCE then
+      self.sequences[self.selected_sequence]:enter_step_mode()
+    end
+  end
+end
+
 function Arrangement:turn(n, delta)
   self:_ring_input_to_sequence(n, delta)
 end
@@ -154,6 +164,7 @@ end
 
 function Arrangement:_select_sequence(delta)
   self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, #self.sequences)
+  self.sequences[self.selected_sequence]:transmit()
 end
 
 function Arrangement:_transmit_editor_state(editor, i, state)

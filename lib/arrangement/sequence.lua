@@ -108,7 +108,6 @@ function Sequence:change(n, delta)
     end
   
     self:transmit()
-    default_mode_timeout_extend()
 
     clock.run(function()
       -- TODO Scale it
@@ -118,11 +117,16 @@ function Sequence:change(n, delta)
   end
 end
 
+function Sequence:enter_step_mode()
+  self:transmit()
+  set_current_mode(STEP)
+end
 
 function Sequence:select(e, delta)
   if e == 1 then
     self:_select_edit_step(delta)
     self:transmit()
+    default_mode_timeout_extend()
   end
 end
 
@@ -172,18 +176,20 @@ function Sequence:step_state()
 end
 
 function Sequence:transmit()
+  local id = self.id
   local mode = get_current_mode()
+  default_mode_timeout_extend()
   if mode ~= DEFAULT then
     local values, ranges, types
     if mode == SEQUENCE then
       values, ranges, types = self:state()
     elseif mode == STEP then
+      id = self.selected_step
       values, ranges, types = self:step_state()
     end
-    self.transmit_editor_state(mode, self.id, {values, ranges, types})
+    self.transmit_editor_state(mode, id, {values, ranges, types})
   end
 end
-
 
 function Sequence:_adjust_pulse_count(delta)
   self.pulse_count = util.clamp(self.pulse_count + delta, 0, self.step_count)

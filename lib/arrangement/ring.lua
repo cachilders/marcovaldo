@@ -11,12 +11,14 @@ local Ring = {
 }
 
 function Ring._extents_in_radians(i, range)
+  i = i or 0
   local segment_radians = MAX_RADIANS / range
   local start = i == 1 and 0 or (i - 1) * segment_radians
   return start, i * segment_radians
 end
 
 function Ring._percent_in_radians(i, range)
+  i = i or 0
   i = i == 1 and 0 or i - 1
   return util.clamp((MAX_RADIANS / range) * i, 0, MAX_RADIANS)
 end
@@ -83,6 +85,7 @@ end
 
 function Ring:_paint_list_as_segments(list)
   -- todo. no good
+  local list = {true, false, false, true, false, true, true, false}
   local range = #list
   for i = 1, range do
     if list[i] then
