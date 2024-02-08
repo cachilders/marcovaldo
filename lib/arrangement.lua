@@ -170,7 +170,6 @@ function Arrangement:_transmit_sequences_state()
   if get_current_mode() == DEFAULT then
     local values = {}
     for i = 1, #self.sequences do
-      local sequence_state = self.sequencers[i]:state()
       local step = self.sequences[i]:get('current_step')
       local note_index_at_step = self.sequences[i]:get('notes')[step]
       local note = self.sequences[i]:get('scale')[note_index_at_step]

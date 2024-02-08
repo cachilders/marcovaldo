@@ -170,7 +170,7 @@ function get_mode_index(mode)
 end
 
 function set_current_mode(mode)
-  if mode ~= default and get_current_mode() == DEFAULT then
+  if mode ~= DEFAULT and get_current_mode() == DEFAULT then
     default_mode_timeout_new()
   elseif mode ~= DEFAULT then
     default_mode_timeout_extend()
