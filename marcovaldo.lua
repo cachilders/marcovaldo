@@ -118,15 +118,13 @@ function key(k, z)
   if k == 2 and z == 0 and not shift_depressed then
     if mode == SEQUENCE then
       set_current_mode(DEFAULT)
-    elseif mode == STEP then
-      set_current_mode(SEQUENCE)
+    else
+      arrangement:press(k, z)
     end
   elseif k == 2 and z == 0 and shift_depressed then
     -- TBD
   elseif k == 3 and z == 0 and not shift_depressed then
-    if mode == SEQUENCE then
-      arrangement:press(k, z)
-    end
+    arrangement:press(k, z)
   elseif k == 3 and z == 0 and shift_depressed  then
   end
 end

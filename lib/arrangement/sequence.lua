@@ -20,6 +20,7 @@ local Sequence = {
   octaves = 1,
   pulse_count = STEP_COUNT_MIN,
   pulse_positions = nil,
+  pulse_position_overrides = nil,
   pulse_strengths = nil,
   pulse_widths = nil,
   scale = nil,
@@ -118,8 +119,12 @@ function Sequence:change(n, delta)
 end
 
 function Sequence:enter_step_mode()
-  self:transmit()
   set_current_mode(STEP)
+  self:transmit()
+end
+
+function Sequence:reset_selected_step()
+  self.selected_step = 1
 end
 
 function Sequence:select(e, delta)
@@ -156,7 +161,7 @@ function Sequence:step_state()
   local step = self.selected_step
   local values = {
     self.notes[step],
-    self.pulse_positions[step],
+    self:_determine_pulse_bool(step),
     self.pulse_strengths[step],
     self.pulse_widths[step],
   }
@@ -225,12 +230,25 @@ end
 function Sequence:_emit_note()
   local step = self.current_step
   local note_index = self.notes[step]
-  if note_index and self.scale[note_index] and self.pulse_positions[step] then
+  local pulse_bool = self:_determine_pulse_bool(step)
+  if note_index and self.scale[note_index] and pulse_bool then
     local velocity = self.pulse_strengths[step] or 100
     local envelope_duration = self:_calculate_pulse_time(step)
     local quantized_note = music_util.snap_note_to_array(self.scale[note_index], self.scale)
     self.emit_note(self.id, quantized_note, velocity, envelope_duration)
   end
+end
+
+function Sequence:_determine_pulse_bool(step)
+  local pulse_bool = nil
+  local natural_pulse_bool = self.pulse_positions[step]
+  local user_pulse_bool = self.pulse_position_overrides[step]
+  if user_pulse_bool == nil then
+    pulse_bool = natural_pulse_bool
+  else
+    pulse_bool = user_pulse_bool
+  end
+  return pulse_bool
 end
 
 function Sequence:_init_notes()
@@ -247,9 +265,11 @@ end
 
 function Sequence:_init_pulses()
   self:_distribute_pulses()
+  self.pulse_position_overrides = {}
   self.pulse_strengths = {}
   self.pulse_widths = {}
   for i = 1, self.step_count do
+    self.pulse_position_overrides[i] = nil
     self.pulse_strengths[i] = 100
     self.pulse_widths[i] = 100
   end
@@ -261,6 +281,12 @@ function Sequence:_init_throttles()
     throttles[i] = false
   end
   self.throttles = throttles
+end
+
+function Sequence:_reset_pulse_position_overrides()
+  for i = 1, self.step_count do
+    self.pulse_position_overrides = nil
+  end
 end
 
 function Sequence:_select_edit_step(delta)
@@ -276,9 +302,10 @@ function Sequence:_set_step_note(delta)
 end
 
 function Sequence:_set_step_pulse_active(delta)
-  -- TODO This is overidden by the auto pulse distro and something has to change
-  local pulse_binary = self.pulse_positions[self.selected_step] and 1 or 0
-  self.pulse_positions[self.selected_step] = util.clamp(pulse_binary + delta, 0, 1) == 1
+  local step = self.selected_step
+  local pulse_bool = self:_determine_pulse_bool(step)
+  local pulse_binary = pulse_bool and 1 or 0
+  self.pulse_position_overrides[step] = util.clamp(pulse_binary + delta, 0, 1) == 1
 end
 
 function Sequence:_set_step_pulse_strength(delta)
