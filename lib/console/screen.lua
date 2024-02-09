@@ -16,15 +16,13 @@ end
 function Screen:refresh()
   screen.move(2, 5)
   if self.values then
-    local i = 1
     screen.text(self.name)
     screen.move(2, 20)
-    for k, v in pairs(self.values) do
+    for i, v in ipairs(self.values[1]) do
       -- TODO temp
       v = v == true and 'true' or v == false and 'false' or v
-      screen.text(k..': '..v)
-      i = i + 1
-      screen.move(2, i * 10 + 10)
+      screen.text(i..': '..v)
+      screen.move(2, i * 10 + 20)
     end
   else
     screen.text(ERROR)

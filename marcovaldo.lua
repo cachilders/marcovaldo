@@ -2,7 +2,7 @@
 -- a spatial sequencer with cats
 
 DEFAULT = 'default'
-MODE_TIMEOUT_DELAY = 15
+MODE_TIMEOUT_DELAY = 10
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
@@ -118,15 +118,13 @@ function key(k, z)
   if k == 2 and z == 0 and not shift_depressed then
     if mode == SEQUENCE then
       set_current_mode(DEFAULT)
-    elseif mode == STEP then
-      set_current_mode(SEQUENCE)
+    else
+      arrangement:press(k, z)
     end
   elseif k == 2 and z == 0 and shift_depressed then
     -- TBD
   elseif k == 3 and z == 0 and not shift_depressed then
-    if mode == SEQUENCE then
-      set_current_mode(STEP)
-    end
+    arrangement:press(k, z)
   elseif k == 3 and z == 0 and shift_depressed  then
   end
 end
@@ -170,7 +168,7 @@ function get_mode_index(mode)
 end
 
 function set_current_mode(mode)
-  if mode ~= default and get_current_mode() == DEFAULT then
+  if mode ~= DEFAULT and get_current_mode() == DEFAULT then
     default_mode_timeout_new()
   elseif mode ~= DEFAULT then
     default_mode_timeout_extend()

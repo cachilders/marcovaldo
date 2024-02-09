@@ -62,7 +62,7 @@ function Console:refresh()
       self.screens[STEP]:refresh()
     end
     screen.update()
-    self:_toggle_dirty()
+    self:_scuff()
   end
 end
 
@@ -73,7 +73,7 @@ function Console:step()
       DEFAULT_CONSOLE_MODES[self.default_mode] ~= INFO and 
       count == KEY_FRAME then
       self:_advance_sprite_frame()
-      self:_toggle_dirty()
+      self:_scuff()
     end
   end
 end
@@ -87,7 +87,7 @@ function Console:affect(action, index, values)
     self.screens[STEP]:update(index, values)
   end
 
-  self:_toggle_dirty()
+  self.dirty = true
 end
 
 function Console:_advance_sprite_frame()
@@ -108,7 +108,15 @@ function Console:_init_screens()
   }
 end
 
+function Console:_polish()
+  self.dirty = false
+end
+
 function Console:_switch_mode()
+  self.dirty = true
+end
+
+function Console:_scuff()
   self.dirty = true
 end
 
@@ -120,11 +128,7 @@ function Console:_toggle_default_mode()
   end
 
   default_mode_timeout_cancel()
-  self:_toggle_dirty()
-end
-
-function Console:_toggle_dirty()
-  self.dirty = not self.dirty
+  self:_scuff()
 end
 
 return Console

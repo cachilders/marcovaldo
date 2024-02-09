@@ -8,7 +8,7 @@ local Arrangement = {
   affect_console = nil,
   affect_ensemble = nil,
   rings = nil,
-  selected_sequence = nil,
+  selected_sequence = 1,
   sequences = {}
 }
 
@@ -60,6 +60,24 @@ function Arrangement:affect(action, index, values)
   end
 end
 
+function Arrangement:press(k, z)
+  local mode = get_current_mode()
+  local sequence = self.sequences[self.selected_sequence]
+  if k == 2 and z == 0 then
+    if mode == STEP then
+      set_current_mode(SEQUENCE)
+    end
+  elseif k == 3 and z == 0 and not shift_depressed then
+    if mode == DEFAULT then
+      set_current_mode(SEQUENCE)
+      sequence:transmit()
+    elseif mode == SEQUENCE then
+      sequence:reset_selected_step()
+      sequence:enter_step_mode()
+    end
+  end
+end
+
 function Arrangement:turn(n, delta)
   self:_ring_input_to_sequence(n, delta)
 end
@@ -87,15 +105,6 @@ end
 
 function Arrangement:_encoder_input_to_sequence(e, delta)
   self.sequences[self.selected_sequence]:select(e, delta)
-end
-
-function Arrangement:_ring_input_to_sequence(n, delta)
-  if get_current_mode() == DEFAULT or not self.selected_sequence then
-    set_current_mode(SEQUENCE)
-    self.selected_sequence = n
-  else
-    self.sequences[self.selected_sequence]:change(n, delta)
-  end
 end
 
 function Arrangement:_emit_note(sequencer, note, velocity, envelope_duration)
@@ -137,14 +146,13 @@ function Arrangement:_init_sequences()
   local subdivision = 1
   for i = 1, 4 do
     local sequence = Sequence:new({
-      transmit_edit_sequence = function(i, values) self:_transmit_edit_state(SEQUENCE, i, values) end,
-      transmit_edit_step = function(i, values) self:_transmit_edit_state(STEP, i, values) end,
-      emitter = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
+      emit_note = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
       id = i,
       selected_step = 1,
       step_count = steps,
       pulse_count = steps,
-      subdivision = subdivision
+      subdivision = subdivision,
+      transmit_editor_state = function(editor, i, values) self:_transmit_editor_state(editor, i, values) end
     })
     sequence:init()
     table.insert(self.sequences, sequence)
@@ -153,26 +161,43 @@ function Arrangement:_init_sequences()
   end
 end
 
-function Arrangement:_select_sequence(delta)
-  self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, #self.sequences)
+function Arrangement:_ring_input_to_sequence(n, delta)
+  local sequence = self.selected_sequence
+  if get_current_mode() == DEFAULT or not sequence then
+    set_current_mode(SEQUENCE)
+    self.sequences[n]:transmit()
+    sequence = n
+  end
+  self.sequences[sequence]:change(n, delta)
 end
 
-function Arrangement:_transmit_edit_state(editor, i, values)
+
+function Arrangement:_select_sequence(delta)
+  self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, #self.sequences)
+  self.sequences[self.selected_sequence]:transmit()
+end
+
+function Arrangement:_transmit_editor_state(editor, i, state)
   local editor_mode_index = get_mode_index(editor)
   if current_mode() ~= editor_mode_index then
     set_current_mode(editor)
   end
 
-  self.affect_console('edit_'..editor, i, values)
+  self.rings:paint_editor_state(state)
+  self.affect_console('edit_'..editor, i, state)
 end
 
 function Arrangement:_transmit_sequences_state()
   if get_current_mode() == DEFAULT then
     local values = {}
     for i = 1, #self.sequences do
-      values['Sequencer '..i..' step'] = self.sequences[i]:get('current_step')
+      local step = self.sequences[i]:get('current_step')
+      local note_index_at_step = self.sequences[i]:get('notes')[step]
+      local note = self.sequences[i]:get('scale')[note_index_at_step]
+      local note_name = note and music_util.note_num_to_name(note) or '_'
+      table.insert(values, step..' '..note_name)
     end
-    self.affect_console(actions.transmit_edit_state, '', values)
+    -- self.affect_console(actions.transmit_edit_state, '', {values})
   end
 end
 
