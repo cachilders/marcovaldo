@@ -2,6 +2,7 @@ local actions = include('lib/actions')
 local Ring = include('lib/arrangement/ring')
 local Rings = include('lib/arrangement/rings')
 local Sequence = include('lib/arrangement/sequence')
+local Sequences = include('lib/arrangement/sequences')
 
 local Arrangement = {
   affect_chart = nil,
@@ -146,6 +147,7 @@ function Arrangement:_init_sequences()
   local subdivision = 1
   for i = 1, 4 do
     local sequence = Sequence:new({
+      active = false,
       emit_note = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
       id = i,
       selected_step = 1,

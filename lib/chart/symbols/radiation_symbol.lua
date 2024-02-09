@@ -1,7 +1,7 @@
 local Symbol = include('lib/chart/symbol')
 
 local RadiationSymbol = {
-  active = true,
+  active = false,
   id = 1
 }
 

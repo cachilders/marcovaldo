@@ -1,8 +1,9 @@
 local actions = include('lib/actions')
 local Screen = include('lib/console/screen')
 
-local MUSHROOM = 'mushroom' -- ANIMATION SCENES
-local DEFAULT_CONSOLE_MODES = {MUSHROOM, INFO}
+local MUSHROOMS = 'mushrooms' -- ANIMATION SCENES
+local WASPS = 'wasps'
+local DEFAULT_CONSOLE_MODES = {MUSHROOMS, WASPS, INFO}
 local CONSOLE_HEIGHT = 64
 local CONSOLE_WIDTH = 128
 local INFO = 'info'

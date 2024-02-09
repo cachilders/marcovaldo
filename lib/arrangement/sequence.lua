@@ -1,4 +1,5 @@
 local constants = include('lib/constants')
+local Step = include('lib/arrangement/step')
 
 local DEFAULT_MIN = 1
 local MIDI_MAX = 127
@@ -149,10 +150,10 @@ function Sequence:state()
     #SUBDIVISION_LABELS
   }
   local types = {
-    constants.ARRANGEMENT.TYPES.PORTION,
-    constants.ARRANGEMENT.TYPES.PORTION, -- TODO Convert to BOOL_LIST
-    constants.ARRANGEMENT.TYPES.PORTION,
-    constants.ARRANGEMENT.TYPES.POSITION
+  constants.ARRANGEMENT.TYPES.PORTION,
+  constants.ARRANGEMENT.TYPES.PORTION, -- TODO Convert to BOOL_LIST
+  constants.ARRANGEMENT.TYPES.PORTION,
+  constants.ARRANGEMENT.TYPES.POSITION
   }
   return values, ranges, types
 end
