@@ -1,11 +1,16 @@
 local actions = include('lib/actions')
 local Screen = include('lib/console/screen')
+local InfoScreen = include('lib/console/info_screen')
+local SequenceScreen = include('lib/console/sequence_screen')
+local StepScreen = include('lib/console/step_screen')
 
 local MUSHROOMS = 'mushrooms' -- ANIMATION SCENES
 local WASPS = 'wasps'
 local DEFAULT_CONSOLE_MODES = {MUSHROOMS, WASPS, INFO}
 local CONSOLE_HEIGHT = 64
 local CONSOLE_WIDTH = 128
+local FONT_FACE = 1
+local FONT_SIZE = 8
 local INFO = 'info'
 local KEY_FRAME = 15
 local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/sprites/'
@@ -33,6 +38,8 @@ end
 
 function Console:init()
   self.sprite_frames = 9 -- TODO Calculate
+  screen.font_face(FONT_FACE)
+  screen.font_size(FONT_SIZE)
   self:_init_observers()
   self:_init_screens()
 end
@@ -55,12 +62,12 @@ function Console:refresh()
         local filepath = SPRITE_PATH..default_console_mode..'/'..self.sprite_frame..'.png'
         screen.display_png(filepath, 0, 0)
       else
-        self.screens[INFO]:refresh()
+        self.screens[INFO]:draw()
       end
     elseif console_mode == SEQUENCE then
-      self.screens[SEQUENCE]:refresh()
+      self.screens[SEQUENCE]:draw()
     elseif console_mode == STEP then
-      self.screens[STEP]:refresh()
+      self.screens[STEP]:draw()
     end
     screen.update()
     self:_scuff()
@@ -104,7 +111,7 @@ function Console:_init_screens()
   -- TODO move animation to a Screen
   self.screens = {
     [INFO] = Screen:new({type = INFO}),
-    [SEQUENCE] = Screen:new({type = SEQUENCE}),
+    [SEQUENCE] = SequenceScreen:new(),
     [STEP] = Screen:new({type = STEP})
   }
 end

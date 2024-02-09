@@ -67,6 +67,7 @@ function Arrangement:press(k, z)
   if k == 2 and z == 0 then
     if mode == STEP then
       set_current_mode(SEQUENCE)
+      sequence:transmit()
     end
   elseif k == 3 and z == 0 and not shift_depressed then
     if mode == DEFAULT then
@@ -159,7 +160,7 @@ function Arrangement:_init_sequences()
     sequence:init()
     table.insert(self.sequences, sequence)
     steps = steps * 2
-    subdivision = subdivision * 2
+    subdivision = subdivision + 1
   end
 end
 
@@ -199,7 +200,7 @@ function Arrangement:_transmit_sequences_state()
       local note_name = note and music_util.note_num_to_name(note) or '_'
       table.insert(values, step..' '..note_name)
     end
-    -- self.affect_console(actions.transmit_edit_state, '', {values})
+    self.affect_console(actions.transmit_edit_state, '', {values})
   end
 end
 

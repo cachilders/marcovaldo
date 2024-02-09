@@ -7,7 +7,6 @@ local OCTAVES_MAX = 10
 local PULSE_WIDTH_MIN = 50
 local PULSE_WIDTH_MAX = 150
 local PULSE_WIDTH_RANGE = PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
-local SUBDIVISION_LABELS = {'1/4', '1/8', '1/8t', '1/16'}
 local STEP_COUNT_MIN = 8
 local STEP_COUNT_MAX = 128
 local STEP_COUNT_RANGE = STEP_COUNT_MAX - STEP_COUNT_MIN
@@ -139,7 +138,7 @@ end
 function Sequence:state()
   local values = {
     self.step_count,
-    self.pulse_count,
+    self:_determine_modified_pulse_positions(),
     self.octaves,
     self.subdivision,
   }
@@ -147,11 +146,11 @@ function Sequence:state()
     STEP_COUNT_MAX - STEP_COUNT_MIN,
     self.step_count - DEFAULT_MIN,
     OCTAVES_MAX - DEFAULT_MIN,
-    #SUBDIVISION_LABELS
+    #constants.LABELS.SUBDIVISION
   }
   local types = {
   constants.ARRANGEMENT.TYPES.PORTION,
-  constants.ARRANGEMENT.TYPES.PORTION, -- TODO Convert to BOOL_LIST
+  constants.ARRANGEMENT.TYPES.BOOL_LIST,
   constants.ARRANGEMENT.TYPES.PORTION,
   constants.ARRANGEMENT.TYPES.POSITION
   }
@@ -213,7 +212,7 @@ function Sequence:_adjust_octaves(delta)
 end
 
 function Sequence:_adjust_subdivision(delta)
-  self.subdivision = util.clamp(self.subdivision + delta, DEFAULT_MIN, #SUBDIVISION_LABELS)
+  self.subdivision = util.clamp(self.subdivision + delta, DEFAULT_MIN, #constants.LABELS.SUBDIVISION)
 end
 
 function Sequence:_calculate_pulse_time(step)
@@ -238,6 +237,14 @@ function Sequence:_emit_note()
     local quantized_note = music_util.snap_note_to_array(self.scale[note_index], self.scale)
     self.emit_note(self.id, quantized_note, velocity, envelope_duration)
   end
+end
+
+function Sequence:_determine_modified_pulse_positions()
+  local pulse_positions = {}
+  for i = 1, self.step_count do
+    pulse_positions[i] = self:_determine_pulse_bool(i)
+  end
+  return pulse_positions
 end
 
 function Sequence:_determine_pulse_bool(step)
