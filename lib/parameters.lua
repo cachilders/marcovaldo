@@ -28,13 +28,17 @@ function Parameters:_init_observables()
 end
 
 function Parameters:_init_params()
-  params:add_group('marcovaldo', 'MARCOVALDO', 4)
-  -- Load State From File
-  -- Save State To File
-  --
-  -- Randomize State
-  -- Reset State
-  -- 
+  params:add_group('marcovaldo', 'MARCOVALDO', 10)
+  params:add_trigger('marco_load', 'Load a Prior State')
+  params:set_action('marco_load', function() print('TODO: Load') end)
+  params:add_trigger('marco_save', 'Save Current State')
+  params:set_action('marco_save', function() print('TODO: Save') end)
+  params:add_trigger('marco_random', 'Randomize All Sequences')
+  params:set_action('marco_random', function() print('TODO: Randomize') end)
+  params:add_trigger('marco_reset', 'Clear All Sequences')
+  params:set_action('marco_reset', function() print('TODO: Reset') end)
+  params:add_separator('marco_global_actions_foot', '')
+  params:add_separator('marco_global_settings', 'GLOBAL SETTINGS')
   params:add_option('marco_animations', 'Animations', ENABLED_STATES, 1)
   params:set_action('marco_animations', function(i) parameters.animations_enabled:set(i == 1) end)
   params:add_option('marco_scale', 'Scale Type', parameters.scale_names, 1)
@@ -42,6 +46,21 @@ function Parameters:_init_params()
   params:add_number('marco_root', 'Root Note', 0, 127, 48, function(param) return music_util.note_num_to_name(param:get(), true) end)
   params:set_action('marco_root', function(i) parameters.root:set(i) end)
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
+
+  for i = 1, 4 do
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > '..i, 8)
+    params:add_trigger('marco_seq_random_'..i, 'Randomize Sequence '..i)
+    params:set_action('marco_seq_random_'..i, function() print('TODO: Randomize') end)
+    params:add_trigger('marco_seq_reset_'..i, 'Clear All Sequences')
+    params:set_action('marco_seq_reset_'..i, function() print('TODO: Reset') end)
+    params:add_separator('marco_seq_actions_foot_'..i, '')
+    params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
+    -- TODO: These need to be able to correlate in terms of max where cannot exceed 100% in total
+    params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of pulse' end)
+    params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
+    params:add_number('marco_sustain_'..i, 'Release', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
+    params:add_number('marco_release_'..i, 'Sustain', 0, 100, 35, function(param) return ''..param:get()..'% of pulse' end)
+  end
 end
 
 function Parameters:_autoload_state()

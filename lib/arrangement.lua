@@ -148,6 +148,7 @@ function Arrangement:_init_rings()
 end
 
 function Arrangement:_init_sequences()
+  local octaves = 1
   local steps = 16
   local subdivision = 1
   for i = 1, 4 do
@@ -155,6 +156,7 @@ function Arrangement:_init_sequences()
       active = false,
       emit_note = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
       id = i,
+      octaves = octaves,
       selected_step = 1,
       step_count = steps,
       pulse_count = steps,
@@ -165,6 +167,7 @@ function Arrangement:_init_sequences()
     table.insert(self.sequences, sequence)
     steps = steps * 2
     subdivision = subdivision + 1
+    octaves = octaves + 1
   end
 end
 

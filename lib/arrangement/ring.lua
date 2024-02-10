@@ -53,7 +53,8 @@ function Ring:paint_value(value, range, value_type)
   if value_type == constants.ARRANGEMENT.TYPES.BOOL then
     self:_paint_bool(value)
   elseif value_type == constants.ARRANGEMENT.TYPES.BOOL_LIST then
-    self:_paint_list_as_segments(value)
+    -- self:_paint_list_as_segments(value) -- TODO Make this actually work
+    self:_paint_list_as_portion(value, range)
   elseif value_type == constants.ARRANGEMENT.TYPES.POSITION then
     self:_paint_segment(value, range, true)
   elseif value_type == constants.ARRANGEMENT.TYPES.PORTION then
@@ -82,6 +83,16 @@ function Ring:_paint_bool(value)
     a = 1.57
   end
   self.host:segment(self.id, a, a + 3.14, self.lumen)
+end
+
+function Ring:_paint_list_as_portion(list, range)
+  local count = 0
+  for i = 1, range do
+    if list[i] then
+      count = count + 1
+    end
+  end
+  self:_paint_portion(count, range)
 end
 
 function Ring:_paint_list_as_segments(list)
