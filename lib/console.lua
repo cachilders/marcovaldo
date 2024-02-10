@@ -7,10 +7,6 @@ local StepScreen = include('lib/console/step_screen')
 local MUSHROOMS = 'mushrooms' -- ANIMATION SCENES
 local WASPS = 'wasps'
 local DEFAULT_CONSOLE_MODES = {MUSHROOMS, WASPS, INFO}
-local CONSOLE_HEIGHT = 64
-local CONSOLE_WIDTH = 128
-local FONT_FACE = 1
-local FONT_SIZE = 8
 local INFO = 'info'
 local KEY_FRAME = 15
 local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/sprites/'
@@ -38,8 +34,6 @@ end
 
 function Console:init()
   self.sprite_frames = 9 -- TODO Calculate
-  screen.font_face(FONT_FACE)
-  screen.font_size(FONT_SIZE)
   self:_init_observers()
   self:_init_screens()
 end
@@ -69,6 +63,7 @@ function Console:refresh()
     elseif console_mode == STEP then
       self.screens[STEP]:draw()
     end
+    screen.stroke()
     screen.update()
     self:_scuff()
   end
@@ -112,7 +107,7 @@ function Console:_init_screens()
   self.screens = {
     [INFO] = Screen:new({type = INFO}),
     [SEQUENCE] = SequenceScreen:new(),
-    [STEP] = Screen:new({type = STEP})
+    [STEP] = StepScreen:new()
   }
 end
 

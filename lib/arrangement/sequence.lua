@@ -10,6 +10,7 @@ local PULSE_WIDTH_RANGE = PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
 local STEP_COUNT_MIN = 8
 local STEP_COUNT_MAX = 128
 local STEP_COUNT_RANGE = STEP_COUNT_MAX - STEP_COUNT_MIN
+local SUBDIVISIONS = 4
 
 local Sequence = {
   active = true,
@@ -94,8 +95,6 @@ function Sequence:change(n, delta)
       if n == 1 then
         self:_set_step_note(delta)
       elseif n == 2 then
-        -- TODO this one won't actually work
-        -- with pulses being redistributed
         self:_set_step_pulse_active(delta)
       elseif n == 3 then
         self:_set_step_pulse_strength(delta)
@@ -112,7 +111,7 @@ function Sequence:change(n, delta)
 
     clock.run(function()
       -- TODO Scale it
-      clock.sleep(.05)
+      clock.sleep(.1)
       self.throttles[n] = false
     end)
   end
@@ -131,7 +130,6 @@ function Sequence:select(e, delta)
   if e == 1 then
     self:_select_edit_step(delta)
     self:transmit()
-    default_mode_timeout_extend()
   end
 end
 
@@ -146,7 +144,7 @@ function Sequence:state()
     STEP_COUNT_MAX - STEP_COUNT_MIN,
     self.step_count - DEFAULT_MIN,
     OCTAVES_MAX - DEFAULT_MIN,
-    #constants.LABELS.SUBDIVISION
+    SUBDIVISIONS
   }
   local types = {
   constants.ARRANGEMENT.TYPES.PORTION,
@@ -166,7 +164,7 @@ function Sequence:step_state()
     self.pulse_widths[step],
   }
   local ranges = {
-    #self.scale,
+    self.scale, -- TODO this is a cheat
     2, -- TODO standin
     MIDI_MAX - DEFAULT_MIN,
     PULSE_WIDTH_MAX
@@ -212,7 +210,7 @@ function Sequence:_adjust_octaves(delta)
 end
 
 function Sequence:_adjust_subdivision(delta)
-  self.subdivision = util.clamp(self.subdivision + delta, DEFAULT_MIN, #constants.LABELS.SUBDIVISION)
+  self.subdivision = util.clamp(self.subdivision + delta, DEFAULT_MIN, SUBDIVISIONS)
 end
 
 function Sequence:_calculate_pulse_time(step)

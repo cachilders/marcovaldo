@@ -49,6 +49,7 @@ function Ring:paint_step()
 end
 
 function Ring:paint_value(value, range, value_type)
+  range = type(range) == 'number' and range or #range
   if value_type == constants.ARRANGEMENT.TYPES.BOOL then
     self:_paint_bool(value)
   elseif value_type == constants.ARRANGEMENT.TYPES.BOOL_LIST then

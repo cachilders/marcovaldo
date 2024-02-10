@@ -1,4 +1,5 @@
-local constants = include('lib/constants')
+local console_constants = include('lib/console/constants')
+local console_constants = include('lib/console/constants')
 local ERROR = 'ERROR: NO DATA'
 
 local Screen = {
@@ -9,7 +10,7 @@ local Screen = {
 
 
 function Screen._enclose_field(string)
-  return constants.GLYPHS.DIV_L..' '..string..' '..constants.GLYPHS.DIV_R
+  return console_constants.GLYPHS.DIV_L..' '..string..' '..console_constants.GLYPHS.DIV_R
 end
 
 function Screen:new(options)
@@ -20,6 +21,8 @@ function Screen:new(options)
 end
 
 function Screen:draw()
+  screen.font_face(console_constants.FONTS.BASIC.FACE)
+  screen.font_size(console_constants.FONTS.BASIC.SIZE)
   screen.move(2, 5)
   if self.values then
     screen.text(self.type..' '..self.source)
@@ -37,6 +40,13 @@ end
 function Screen:update(i, values)
   self.source = i
   self.values = values
+end
+
+function Screen:_draw_title()
+  screen.font_face(console_constants.FONTS.BASIC.FACE)
+  screen.font_size(console_constants.FONTS.BASIC.SIZE)
+  local title = self.type..' '..self.source
+  screen.text_rotate(2, 10, title, 90)
 end
 
 return Screen
