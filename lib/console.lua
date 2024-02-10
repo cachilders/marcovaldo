@@ -6,11 +6,12 @@ local StepScreen = include('lib/console/step_screen')
 local ANIMATION = 'animation'
 local MUSHROOMS = 'mushrooms'
 local WASPS = 'wasps'
+local WOODCOCK = 'woodcock'
 local INFO = 'info'
-local ANIMATION_SCENES = {MUSHROOMS, WASPS}
+local ANIMATION_SCENES = {MUSHROOMS, WASPS, WOODCOCK}
 local DEFAULT_CONSOLE_MODES = {ANIMATION, INFO}
 local KEY_FRAME = 15
-local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/sprites/'
+local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/cells/'
 
 local count = 1
 
@@ -122,7 +123,9 @@ function Console:_polish()
 end
 
 function Console:_switch_mode()
-  self:_step_animation_scene()
+  if get_current_mode() == DEFAULT then
+    self:_step_animation_scene()
+  end
   self.dirty = true
 end
 
