@@ -2,6 +2,23 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(2/9/2024)**
+Basically feature complete, if buggy. Now it's all params, bugfixes, and nice to haves.
+
+**(2/9/2024)**
+Settling in for the home stretch. Everything left is going to be a journey of discovery. Found many sloppy errors last night, and I suspect it's time to wrap things up. I let the scope get way out of hand on this project, and as cool as proud as I am of where it's gone, the biggest lesson of Marcovaldo (the app) is to strive for simplicity.
+- Cleaning up the console UI to make things shiny
+- A few more animations and the machinery for rotating them
+- File params (we'll see)
+- Clear and randomize
+- Bugfixes (slow tempo bug in path, etc)
+- Cleanup sequencer and maybe rework some state (file ops above)
+- --- Initial Release Line ---
+- Random at Sequencer level
+- ADSR Enhancements (Additional seq or step page)
+- Nota Bene integration with voice per sequencer 
+- cosleepers (next project) integration
+
 **(2/4/2024)**
 Oof. Spent too many hours on this, yesterday, and my brain went to mush when it came time to revisit the input and feedback model for the arc. Think I've cleaned up the relationships of things for the better, but there are some edges yet to be teased out. Hoisted some behavior, pushed other bits down. Feel like I want to move some of the new global context stuff (for switching between viewer and editor modes) someplace more contained, but I'll come to that once everything is on the page.
 

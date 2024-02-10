@@ -1,4 +1,5 @@
 local constants = include('lib/constants')
+local Step = include('lib/arrangement/step')
 
 local DEFAULT_MIN = 1
 local MIDI_MAX = 127
@@ -6,10 +7,10 @@ local OCTAVES_MAX = 10
 local PULSE_WIDTH_MIN = 50
 local PULSE_WIDTH_MAX = 150
 local PULSE_WIDTH_RANGE = PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
-local SUBDIVISION_LABELS = {'1/4', '1/8', '1/8t', '1/16'}
 local STEP_COUNT_MIN = 8
 local STEP_COUNT_MAX = 128
 local STEP_COUNT_RANGE = STEP_COUNT_MAX - STEP_COUNT_MIN
+local SUBDIVISIONS = 4
 
 local Sequence = {
   active = true,
@@ -94,8 +95,6 @@ function Sequence:change(n, delta)
       if n == 1 then
         self:_set_step_note(delta)
       elseif n == 2 then
-        -- TODO this one won't actually work
-        -- with pulses being redistributed
         self:_set_step_pulse_active(delta)
       elseif n == 3 then
         self:_set_step_pulse_strength(delta)
@@ -112,7 +111,7 @@ function Sequence:change(n, delta)
 
     clock.run(function()
       -- TODO Scale it
-      clock.sleep(.05)
+      clock.sleep(.1)
       self.throttles[n] = false
     end)
   end
@@ -131,14 +130,13 @@ function Sequence:select(e, delta)
   if e == 1 then
     self:_select_edit_step(delta)
     self:transmit()
-    default_mode_timeout_extend()
   end
 end
 
 function Sequence:state()
   local values = {
     self.step_count,
-    self.pulse_count,
+    self:_determine_modified_pulse_positions(),
     self.octaves,
     self.subdivision,
   }
@@ -146,13 +144,13 @@ function Sequence:state()
     STEP_COUNT_MAX - STEP_COUNT_MIN,
     self.step_count - DEFAULT_MIN,
     OCTAVES_MAX - DEFAULT_MIN,
-    #SUBDIVISION_LABELS
+    SUBDIVISIONS
   }
   local types = {
-    constants.ARRANGEMENT.TYPES.PORTION,
-    constants.ARRANGEMENT.TYPES.PORTION, -- TODO Convert to BOOL_LIST
-    constants.ARRANGEMENT.TYPES.PORTION,
-    constants.ARRANGEMENT.TYPES.POSITION
+  constants.ARRANGEMENT.TYPES.PORTION,
+  constants.ARRANGEMENT.TYPES.BOOL_LIST,
+  constants.ARRANGEMENT.TYPES.PORTION,
+  constants.ARRANGEMENT.TYPES.POSITION
   }
   return values, ranges, types
 end
@@ -166,7 +164,7 @@ function Sequence:step_state()
     self.pulse_widths[step],
   }
   local ranges = {
-    #self.scale,
+    self.scale, -- TODO this is a cheat
     2, -- TODO standin
     MIDI_MAX - DEFAULT_MIN,
     PULSE_WIDTH_MAX
@@ -212,7 +210,7 @@ function Sequence:_adjust_octaves(delta)
 end
 
 function Sequence:_adjust_subdivision(delta)
-  self.subdivision = util.clamp(self.subdivision + delta, DEFAULT_MIN, #SUBDIVISION_LABELS)
+  self.subdivision = util.clamp(self.subdivision + delta, DEFAULT_MIN, SUBDIVISIONS)
 end
 
 function Sequence:_calculate_pulse_time(step)
@@ -237,6 +235,14 @@ function Sequence:_emit_note()
     local quantized_note = music_util.snap_note_to_array(self.scale[note_index], self.scale)
     self.emit_note(self.id, quantized_note, velocity, envelope_duration)
   end
+end
+
+function Sequence:_determine_modified_pulse_positions()
+  local pulse_positions = {}
+  for i = 1, self.step_count do
+    pulse_positions[i] = self:_determine_pulse_bool(i)
+  end
+  return pulse_positions
 end
 
 function Sequence:_determine_pulse_bool(step)

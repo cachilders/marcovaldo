@@ -67,8 +67,12 @@ function Chart:affect(action, index, values)
     local sequencer = index
     local velocity = values.velocity
     local envelope_duration = values.envelope_duration
+    local radiation_plan
     -- TODO - cleanup: this is brittle
-    self.plans[3]:emit_pulse(sequencer, velocity, envelope_duration)
+    -- Case and point, just broke this. Don't want to loop in this
+    -- method and want to avoid adding state here, but what we
+    -- have is suboptimal
+    self.plans[1]:emit_pulse(sequencer, velocity, envelope_duration)
   end
 end
 
@@ -125,6 +129,12 @@ function Chart:_init_plans()
 
   local panes = {}
   local plans = {
+    RadiationPlan:new({
+      led = led,
+      name = RADIATION_PLAN,
+      affect_arrangement = self.affect_arrangement,
+      affect_ensemble = self.affect_ensemble
+    }),
     PathPlan:new({
       led = led,
       name = PATH_PLAN,
@@ -133,12 +143,6 @@ function Chart:_init_plans()
     CatPlan:new({
       led = led,
       name = CAT_PLAN,
-      affect_ensemble = self.affect_ensemble
-    }),
-    RadiationPlan:new({
-      led = led,
-      name = RADIATION_PLAN,
-      affect_arrangement = self.affect_arrangement,
       affect_ensemble = self.affect_ensemble
     }),
     ReliefPlan:new({

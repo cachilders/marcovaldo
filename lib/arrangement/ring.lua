@@ -49,6 +49,7 @@ function Ring:paint_step()
 end
 
 function Ring:paint_value(value, range, value_type)
+  range = type(range) == 'number' and range or #range
   if value_type == constants.ARRANGEMENT.TYPES.BOOL then
     self:_paint_bool(value)
   elseif value_type == constants.ARRANGEMENT.TYPES.BOOL_LIST then
@@ -84,8 +85,6 @@ function Ring:_paint_bool(value)
 end
 
 function Ring:_paint_list_as_segments(list)
-  -- todo. no good
-  local list = {true, false, false, true, false, true, true, false}
   local range = #list
   for i = 1, range do
     if list[i] then
@@ -101,11 +100,10 @@ end
 
 function Ring:_paint_segment(x, range, nullable)
   local a, b = self._extents_in_radians(x, range)
-  local lumen = self.lumen
   if nullable and x == 0 then
     lumen = 0
   end
-  self.host:segment(self.id, a, b, lumen)
+  self.host:segment(self.id, a, b, self.lumen)
 end
 
 
