@@ -53,7 +53,7 @@ function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
   atomic_time = metro.init(refresh_peripherals, 1 / 60)
   podium_time = metro.init(step_arrangement, bpm / 3)
-  screen_time = metro.init(step_console, 1 / 30) -- TODO TBD
+  screen_time = metro.init(step_console, 1 / 24)
   world_time = metro.init(step_chart, bpm / 2)
   atomic_time:start()
   podium_time:start()
@@ -104,7 +104,11 @@ function init_params()
 end
 
 function enc(e, delta)
-  arrangement:twist(e, delta)
+  if e == 1 and not shift_depressed and get_current_mode() == DEFAULT then
+    console:twist(e, delta)
+  else
+    arrangement:twist(e, delta)
+  end
 end
 
 function key(k, z)

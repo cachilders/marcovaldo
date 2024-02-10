@@ -1,13 +1,14 @@
 local actions = include('lib/actions')
-local Screen = include('lib/console/screen')
 local InfoScreen = include('lib/console/info_screen')
 local SequenceScreen = include('lib/console/sequence_screen')
 local StepScreen = include('lib/console/step_screen')
 
-local MUSHROOMS = 'mushrooms' -- ANIMATION SCENES
+local ANIMATION = 'animation'
+local MUSHROOMS = 'mushrooms'
 local WASPS = 'wasps'
-local DEFAULT_CONSOLE_MODES = {MUSHROOMS, WASPS, INFO}
 local INFO = 'info'
+local ANIMATION_SCENES = {MUSHROOMS, WASPS}
+local DEFAULT_CONSOLE_MODES = {ANIMATION, INFO}
 local KEY_FRAME = 15
 local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/sprites/'
 
@@ -17,12 +18,12 @@ local Console = {
   affect_arrangement = nil,
   affect_chart = nil,
   affect_ensemble = nil,
+  animation_scene = 1,
   default_mode = 1,
   dirty = true,
   screens = nil,
   sprite_frame = 1,
-  sprite_frames = 1,
-  sprite_sheet = nil
+  sprite_frames = 1
 }
 
 function Console:new(options)
@@ -48,19 +49,19 @@ end
 
 function Console:refresh()
   if self.dirty then
-    local console_mode = MODES[current_mode()]
+    local mode = MODES[current_mode()]
     screen.clear()
-    if console_mode == DEFAULT then
+    if mode == DEFAULT then
       local default_console_mode = DEFAULT_CONSOLE_MODES[self.default_mode]
-      if parameters.animations_enabled() and default_console_mode ~= INFO then
-        local filepath = SPRITE_PATH..default_console_mode..'/'..self.sprite_frame..'.png'
+      if parameters.animations_enabled() and default_console_mode == ANIMATION then
+        local filepath = SPRITE_PATH..ANIMATION_SCENES[self.animation_scene]..'/'..self.sprite_frame..'.png'
         screen.display_png(filepath, 0, 0)
       else
         self.screens[INFO]:draw()
       end
-    elseif console_mode == SEQUENCE then
+    elseif mode == SEQUENCE then
       self.screens[SEQUENCE]:draw()
-    elseif console_mode == STEP then
+    elseif mode == STEP then
       self.screens[STEP]:draw()
     end
     screen.stroke()
@@ -82,7 +83,7 @@ function Console:step()
 end
 
 function Console:affect(action, index, values)
-  if action == actions.transmit_edit_state then
+  if action == actions.display_note then
     self.screens[INFO]:update(index, values)
   elseif action == actions.edit_sequence then
     self.screens[SEQUENCE]:update(index, values)
@@ -93,19 +94,24 @@ function Console:affect(action, index, values)
   self.dirty = true
 end
 
+function Console:twist(e, delta)
+  if e == 1 and not shift_depressed then
+    self:_scroll_default_mode(delta)
+  end
+end
+
 function Console:_advance_sprite_frame()
   self.sprite_frame = util.wrap(self.sprite_frame + 1, 1, self.sprite_frames)
 end
 
 function Console:_init_observers()
   current_mode:register('console', function() self:_switch_mode() end)
-  parameters.animations_enabled:register('console', function() self:_toggle_default_mode() end)
+  parameters.animations_enabled:register('console', function() self:_update_default_mode() end)
 end
 
 function Console:_init_screens()
-  -- TODO move animation to a Screen
   self.screens = {
-    [INFO] = Screen:new({type = INFO}),
+    [INFO] = InfoScreen:new(),
     [SEQUENCE] = SequenceScreen:new(),
     [STEP] = StepScreen:new()
   }
@@ -116,6 +122,7 @@ function Console:_polish()
 end
 
 function Console:_switch_mode()
+  self:_step_animation_scene()
   self.dirty = true
 end
 
@@ -123,9 +130,17 @@ function Console:_scuff()
   self.dirty = true
 end
 
-function Console:_toggle_default_mode()
+function Console:_scroll_default_mode(delta)
+  self.default_mode = util.clamp(self.default_mode + delta, 1, #DEFAULT_CONSOLE_MODES)
+end
+
+function Console:_step_animation_scene()
+  self.animation_scene = util.wrap(self.animation_scene + 1, 1, #ANIMATION_SCENES)
+end
+
+function Console:_update_default_mode()
   if animations_enabled then
-    self.default_mode = util.wrap(self.default_mode + 1, 1, #DEFAULT_CONSOLE_MODES)
+    self.default_mode = tab.key(DEFAULT_CONSOLE_MODES, ANIMATION)
   else
     self.default_mode = tab.key(DEFAULT_CONSOLE_MODES, INFO)
   end

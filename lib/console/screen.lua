@@ -8,7 +8,6 @@ local Screen = {
   values = nil
 }
 
-
 function Screen._enclose_field(string)
   return console_constants.GLYPHS.DIV_L..' '..string..' '..console_constants.GLYPHS.DIV_R
 end

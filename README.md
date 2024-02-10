@@ -3,6 +3,9 @@ a spatial sequencer with cats
 
 ## Dev Notes
 **(2/9/2024)**
+Basically feature complete, if buggy. Now it's all params, bugfixes, and nice to haves.
+
+**(2/9/2024)**
 Settling in for the home stretch. Everything left is going to be a journey of discovery. Found many sloppy errors last night, and I suspect it's time to wrap things up. I let the scope get way out of hand on this project, and as cool as proud as I am of where it's gone, the biggest lesson of Marcovaldo (the app) is to strive for simplicity.
 - Cleaning up the console UI to make things shiny
 - A few more animations and the machinery for rotating them

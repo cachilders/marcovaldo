@@ -40,7 +40,6 @@ function Arrangement:refresh()
   for i = 1, #self.sequences do
     self.sequences[i]:refresh()
   end
-  self:_transmit_sequences_state()
 end
 
 function Arrangement:step()
@@ -122,6 +121,11 @@ function Arrangement:_emit_note(sequencer, note, velocity, envelope_duration)
   })
   if get_current_mode() == DEFAULT then
     self.rings:pulse_ring(sequencer)
+    self.affect_console(actions.display_note, sequencer, {
+      note = music_util.note_num_to_name(note),
+      velocity = velocity,
+      envelope_duration = envelope_duration
+    })
   end
 end
 
@@ -188,20 +192,6 @@ function Arrangement:_transmit_editor_state(editor, i, state)
 
   self.rings:paint_editor_state(state)
   self.affect_console('edit_'..editor, i, state)
-end
-
-function Arrangement:_transmit_sequences_state()
-  if get_current_mode() == DEFAULT then
-    local values = {}
-    for i = 1, #self.sequences do
-      local step = self.sequences[i]:get('current_step')
-      local note_index_at_step = self.sequences[i]:get('notes')[step]
-      local note = self.sequences[i]:get('scale')[note_index_at_step]
-      local note_name = note and music_util.note_num_to_name(note) or '_'
-      table.insert(values, step..' '..note_name)
-    end
-    self.affect_console(actions.transmit_edit_state, '', {values})
-  end
 end
 
 return Arrangement

@@ -1,10 +1,10 @@
 local CONSTANTS = {
-  CONSOLE_HEIGHT = 64,
-  CONSOLE_WIDTH = 128,
   FIELD_START_X = 16,
   FIELD_START_Y = 20,
   LABEL_START_Y = 10,
   PULSE_COLUMN_START = 65,
+  SCREEN_HEIGHT = 64,
+  SCREEN_WIDTH = 128,
   FONTS = {
     BASIC = {
       FACE = 1,
@@ -17,6 +17,10 @@ local CONSTANTS = {
     CRAMPED = {
       FACE = 25,
       SIZE = 6
+    },
+    MED = {
+      FACE = 21,
+      SIZE = 18
     }
   },
   GLYPHS = {
