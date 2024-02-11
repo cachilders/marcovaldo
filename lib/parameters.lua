@@ -1,4 +1,7 @@
+local textentry = require('textentry')
+local fileselect = require('fileselect')
 local ENABLED_STATES = {'Enabled', 'Disabled'}
+local ERROR_BAD_FILE = 'ERROR: Bad state file'
 
 local Parameters = {
   animations_enabled = nil,
@@ -6,6 +9,23 @@ local Parameters = {
   scale = nil,
   scale_names = nil
 }
+
+function Parameters._load_state_from_file(filepath)
+  local pset_path, match_count = string.gsub(filepath, '.state', '.pset')
+  if match_count > 0 then
+    state_load(filepath)
+    params:read(pset_path)
+    params:bang()
+  else
+    print(ERROR_BAD_FILE)
+  end
+end
+
+function Parameters._save_state_to_file(filename)
+  local filepath = norns.state.data..filename
+  params:write(filepath..'.pset')
+  state_save(filepath..'.state')
+end
 
 function Parameters:new(options)
   local instance = options or {}
@@ -29,14 +49,14 @@ end
 
 function Parameters:_init_params()
   params:add_group('marcovaldo', 'MARCOVALDO', 10)
-  params:add_trigger('marco_load', 'Load a Prior State')
-  params:set_action('marco_load', function() print('TODO: Load') end)
+  params:add_trigger('marco_load', 'Load State File')
+  params:set_action('marco_load', function() fileselect.enter(norns.state.data, self._load_state_from_file) end)
   params:add_trigger('marco_save', 'Save Current State')
-  params:set_action('marco_save', function() print('TODO: Save') end)
+  params:set_action('marco_save', function() textentry.enter(self._save_state_to_file) end)
   params:add_trigger('marco_random', 'Randomize All Sequences')
-  params:set_action('marco_random', function() print('TODO: Randomize') end)
+  params:set_action('marco_random', function() arrangement:randomize() end)
   params:add_trigger('marco_reset', 'Clear All Sequences')
-  params:set_action('marco_reset', function() print('TODO: Reset') end)
+  params:set_action('marco_reset', function() arrangement:reset() end)
   params:add_separator('marco_global_actions_foot', '')
   params:add_separator('marco_global_settings', 'GLOBAL SETTINGS')
   params:add_option('marco_animations', 'Animations', ENABLED_STATES, 1)
@@ -50,41 +70,16 @@ function Parameters:_init_params()
   for i = 1, 4 do
     params:add_group('marco_seq_'..i, 'MARCOVALDO > '..i, 8)
     params:add_trigger('marco_seq_random_'..i, 'Randomize Sequence '..i)
-    params:set_action('marco_seq_random_'..i, function() print('TODO: Randomize') end)
-    params:add_trigger('marco_seq_reset_'..i, 'Clear All Sequences')
-    params:set_action('marco_seq_reset_'..i, function() print('TODO: Reset') end)
+    params:set_action('marco_seq_random_'..i, function() arrangement:randomize(i) end)
+    params:add_trigger('marco_seq_reset_'..i, 'Clear Sequence '..i)
+    params:set_action('marco_seq_reset_'..i, function() arrangement:reset(i) end)
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
-    -- TODO: These need to be able to correlate in terms of max where cannot exceed 100% in total
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_sustain_'..i, 'Release', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_release_'..i, 'Sustain', 0, 100, 35, function(param) return ''..param:get()..'% of pulse' end)
   end
-end
-
-function Parameters:_autoload_state()
-  -- Load last state by default
-end
-
-function Parameters:_autosave_state()
-  -- TODO
-end
-
-function Parameters:_load_state_from_file()
-  -- TODO
-end
-
-function Parameters:_randomize_state()
-  -- Maybe not
-end
-
-function Parameters:_reset_state()
-  -- Back to one
-end
-
-function Parameters:_save_state_to_file()
-  -- This one
 end
 
 return Parameters

@@ -45,8 +45,6 @@ function Sequence:init()
   self:_init_pulses()
   self:_set_scale()
   self:_init_throttles()
-  -- DEV TEMP
-  self:randomize()
 end
 
 function Sequence:get(k)
@@ -271,6 +269,7 @@ end
 
 function Sequence:_init_pulses()
   self:_distribute_pulses()
+  self.pulse_count = 0
   self.pulse_position_overrides = {}
   self.pulse_strengths = {}
   self.pulse_widths = {}
@@ -323,7 +322,6 @@ function Sequence:_set_step_pulse_width(delta)
 end
 
 function Sequence:_set_scale()
-  -- TODO TRANSPOSE
   self.scale = music_util.generate_scale(
     parameters.root(),
     parameters.scale(),

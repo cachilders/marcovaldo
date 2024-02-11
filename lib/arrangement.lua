@@ -10,7 +10,7 @@ local Arrangement = {
   affect_ensemble = nil,
   rings = nil,
   selected_sequence = 1,
-  sequences = {}
+  sequences = nil
 }
 
 function Arrangement:new(options)
@@ -34,47 +34,53 @@ function Arrangement:set(k, v)
   self[k] = v
 end
 
+function Arrangement:randomize(sequence)
+  if sequence then
+    self.sequences:randomize_sequence(sequence)
+  else
+    self.sequences:randomize_all()
+  end
+end
+
 function Arrangement:refresh()
   self.rings:refresh()
-  -- TODO move to sequences class like rings
-  for i = 1, #self.sequences do
-    self.sequences[i]:refresh()
+  self.sequences:refresh()
+end
+
+function Arrangement:reset(sequence)
+  if sequence then
+    self.sequences:reset_sequence(sequence)
+  else
+    self.sequences:reset_all()
   end
 end
 
 function Arrangement:step()
-  for i = 1, #self.sequences do
-    local sequence = self.sequences[i]
-    if sequence:get('active') then
-      sequence:step()
-    end
-  end
+  self.sequences:step()
   self.rings:step()
 end
 
 
 function Arrangement:affect(action, index, values)
-  local sequencer = self.sequences[index]
   if action == actions.toggle_sequence then
-    sequencer:set('active', not sequencer:get('active'))
+    self.sequences:toggle_sequence(index)
   end
 end
 
 function Arrangement:press(k, z)
   local mode = get_current_mode()
-  local sequence = self.sequences[self.selected_sequence]
   if k == 2 and z == 0 then
     if mode == STEP then
       set_current_mode(SEQUENCE)
-      sequence:transmit()
+      self.sequences:transmit(self.selected_sequence)
     end
   elseif k == 3 and z == 0 and not shift_depressed then
     if mode == DEFAULT then
       set_current_mode(SEQUENCE)
-      sequence:transmit()
+      self.sequences:transmit(self.selected_sequence)
     elseif mode == SEQUENCE then
-      sequence:reset_selected_step()
-      sequence:enter_step_mode()
+      self.sequences:reset_selected_step(self.selected_sequence)
+      self.sequences:enter_step_mode(self.selected_sequence)
     end
   end
 end
@@ -105,23 +111,23 @@ function Arrangement:twist(e, delta)
 end
 
 function Arrangement:_encoder_input_to_sequence(e, delta)
-  self.sequences[self.selected_sequence]:select(e, delta)
+  self.sequences:pass_selecion(self.selected_sequence, e, delta)
 end
 
-function Arrangement:_emit_note(sequencer, note, velocity, envelope_duration)
+function Arrangement:_emit_note(sequence, note, velocity, envelope_duration)
   local velocity = 100
-  self.affect_chart(actions.emit_pulse, sequencer, {
+  self.affect_chart(actions.emit_pulse, sequence, {
     velocity = velocity,
     envelope_duration = envelope_duration
   })
-  self.affect_ensemble(actions.play_note, sequencer, {
+  self.affect_ensemble(actions.play_note, sequence, {
     note = note,
     velocity = velocity,
     envelope_duration = envelope_duration
   })
   if get_current_mode() == DEFAULT then
-    self.rings:pulse_ring(sequencer)
-    self.affect_console(actions.display_note, sequencer, {
+    self.rings:pulse_ring(sequence)
+    self.affect_console(actions.display_note, sequence, {
       note = music_util.note_num_to_name(note),
       velocity = velocity,
       envelope_duration = envelope_duration
@@ -135,8 +141,8 @@ end
 
 function Arrangement:_init_rings()
   local rings = Rings:new()
-  for i = 1, #self.sequences do
-    local sequence = self.sequences[i]
+  for i = 1, self.sequences:size() do
+    local sequence = self.sequences:get_sequence(i)
     rings:add(Ring:new({
       id = i,
       context = sequence
@@ -148,43 +154,30 @@ function Arrangement:_init_rings()
 end
 
 function Arrangement:_init_sequences()
-  local octaves = 1
-  local steps = 16
-  local subdivision = 1
-  for i = 1, 4 do
-    local sequence = Sequence:new({
-      active = false,
-      emit_note = function(i, note, velocity, envelope_duration) self:_emit_note(i, note, velocity, envelope_duration) end,
-      id = i,
-      octaves = octaves,
-      selected_step = 1,
-      step_count = steps,
-      pulse_count = steps,
-      subdivision = subdivision,
-      transmit_editor_state = function(editor, i, values) self:_transmit_editor_state(editor, i, values) end
-    })
-    sequence:init()
-    table.insert(self.sequences, sequence)
-    steps = steps * 2
-    subdivision = subdivision + 1
-    octaves = octaves + 1
+  local function emit_note(i, note, velocity, envelope_duration)
+    self:_emit_note(i, note, velocity, envelope_duration)
   end
+  local function transmit_editor_state(editor, i, values)
+    self:_transmit_editor_state(editor, i, values) 
+  end
+  local sequences = Sequences:new()
+  sequences:init(emit_note, transmit_editor_state)
+  self.sequences = sequences
 end
 
 function Arrangement:_ring_input_to_sequence(n, delta)
   local sequence = self.selected_sequence
   if get_current_mode() == DEFAULT or not sequence then
     set_current_mode(SEQUENCE)
-    self.sequences[n]:transmit()
+    self.sequences:transmit(n)
     sequence = n
   end
-  self.sequences[sequence]:change(n, delta)
+  self.sequences:pass_change(sequence, n, delta)
 end
 
-
 function Arrangement:_select_sequence(delta)
-  self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, #self.sequences)
-  self.sequences[self.selected_sequence]:transmit()
+  self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, self.sequences:size())
+  self.sequences:transmit(self.selected_sequence)
 end
 
 function Arrangement:_transmit_editor_state(editor, i, state)

@@ -180,6 +180,29 @@ function set_current_mode(mode)
   current_mode:set(get_mode_index(mode))
 end
 
+function state_load(path)
+  -- TODO: Does not work
+  -- Each metaphor needs a dedicated exporter and loader
+  local state = tab.load(path)
+  arrangement = state.arrangement
+  chart = state.chart
+  console = state.console
+  ensemble = state.ensemble
+  parameters = state.parameters
+end
+
+function state_save(path)
+  -- TODO: Does not work
+  local state = {
+    arrangement = arrangement,
+    chart = chart,
+    console = console,
+    ensemble = ensemble,
+    parameters = parameters
+  }
+  tab.save(state, path)
+end
+
 function step_arrangement()
   arrangement:step()
 end

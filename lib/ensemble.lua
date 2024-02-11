@@ -25,6 +25,7 @@ end
 function Ensemble:init()
   local mxsynths_ = include('mx.synths/lib/mx.synths')
   mxsynths = mxsynths_:new()
+  params:set('mxsynths_synth', 7)
 end
 
 function Ensemble:get(k)
