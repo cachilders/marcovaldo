@@ -18,6 +18,25 @@ function PathPlan:new(options)
   return instance
 end
 
+function PathPlan:hydrate(plan)
+  local head = plan.head
+  self.head = nil
+  self.step_symbol = nil
+  self.steps_to_active = {}
+  self.tail = nil
+  self.features, self.phenomena = self._gesso()
+  if head then
+    local next = head.next
+    self:_add(head.x, head.y)
+    while next ~= nil do
+      local x = next.x
+      local y = next.y
+      self:_add(x, y)
+      next = next.next
+    end
+  end
+end
+
 function PathPlan:init()
   self.features, self.phenomena = self._gesso()
   self.head = nil

@@ -35,6 +35,12 @@ function Parameters:new(options)
   return instance
 end
 
+function Parameters:hydrate(parameters)
+  self.animations_enabled:set(parameters.animations_enabled._value)
+  self.root:set(parameters.root._value)
+  self.scale:set(parameters.scale._value)
+end
+
 function Parameters:init()
   self:_init_observables()
   self:_init_params()
@@ -48,7 +54,13 @@ function Parameters:_init_observables()
 end
 
 function Parameters:_init_params()
-  params:add_group('marcovaldo', 'MARCOVALDO', 10)
+  params:add_group('marcovaldo', 'MARCOVALDO', 13)
+  params:add_trigger('marco_start', 'Start All Sequences')
+  params:set_action('marco_start', function() arrangement:start() end)
+  params:add_trigger('marco_pause', 'Pause All Sequences')
+  params:set_action('marco_pause', function() arrangement:pause() end)
+  params:add_trigger('marco_stop', 'Stop All Sequences')
+  params:set_action('marco_stop', function() arrangement:stop() end)
   params:add_trigger('marco_load', 'Load State File')
   params:set_action('marco_load', function() fileselect.enter(norns.state.data, self._load_state_from_file) end)
   params:add_trigger('marco_save', 'Save Current State')
@@ -68,7 +80,13 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > '..i, 8)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > '..i, 11)
+    params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
+    params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
+    params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
+    params:set_action('marco_seq_pause'..i, function() arrangement:pause(i) end)
+    params:add_trigger('marco_seq_stop'..i, 'Stop Sequence '..i)
+    params:set_action('marco_seq_stop'..i, function() arrangement:stop(i) end)
     params:add_trigger('marco_seq_random_'..i, 'Randomize Sequence '..i)
     params:set_action('marco_seq_random_'..i, function() arrangement:randomize(i) end)
     params:add_trigger('marco_seq_reset_'..i, 'Clear Sequence '..i)

@@ -30,6 +30,18 @@ function Chart:new(options)
   return instance
 end
 
+function Chart:hydrate(chart)
+  local named_plans = {}
+  for _, plan in pairs(chart.plans) do
+    named_plans[plan.name] = plan
+  end
+  for i = 1, #self.plans do
+    local plan = self.plans[i]
+    plan:hydrate(named_plans[plan.name])
+  end
+  self:_layer_phenomena()
+end
+
 function Chart:init(n)
   self.host = grid.connect(n)
   self:_init_plans()
@@ -64,7 +76,7 @@ end
 
 function Chart:affect(action, index, values)
   if action == actions.emit_pulse then
-    local sequencer = index
+    local sequence = index
     local velocity = values.velocity
     local envelope_duration = values.envelope_duration
     local radiation_plan
@@ -72,7 +84,7 @@ function Chart:affect(action, index, values)
     -- Case and point, just broke this. Don't want to loop in this
     -- method and want to avoid adding state here, but what we
     -- have is suboptimal
-    self.plans[1]:emit_pulse(sequencer, velocity, envelope_duration)
+    self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
   end
 end
 
@@ -127,7 +139,6 @@ function Chart:_init_plans()
     self.host:led(x, y, l)
   end
 
-  local panes = {}
   local plans = {
     RadiationPlan:new({
       led = led,

@@ -181,18 +181,17 @@ function set_current_mode(mode)
 end
 
 function state_load(path)
-  -- TODO: Does not work
-  -- Each metaphor needs a dedicated exporter and loader
   local state = tab.load(path)
-  arrangement = state.arrangement
-  chart = state.chart
-  console = state.console
-  ensemble = state.ensemble
-  parameters = state.parameters
+  if state then
+    arrangement:hydrate(state.arrangement)
+    chart:hydrate(state.chart)
+    console:hydrate(state.console)
+    ensemble:hydrate(state.ensemble)
+    parameters:hydrate(state.parameters)
+  end
 end
 
 function state_save(path)
-  -- TODO: Does not work
   local state = {
     arrangement = arrangement,
     chart = chart,

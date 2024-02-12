@@ -19,6 +19,13 @@ function Sequences:enter_step_mode(sequence)
   self.sequences[sequence]:enter_step_mode()
 end
 
+function Sequences:hydrate(sequences)
+  local sequences = sequences.sequences
+  for i = 1, #sequences do
+    self.sequences[i]:hydrate(sequences[i])
+  end
+end
+
 function Sequences:get_sequence(sequence)
   return self.sequences[sequence]
 end
@@ -29,6 +36,16 @@ end
 
 function Sequences:pass_selecion(sequence, e, delta)
   self.sequences[sequence]:select(e, delta)
+end
+
+function Sequences:pause_all()
+  for i = 1, #self.sequences do
+    self:pause_sequence(i)
+  end 
+end
+
+function Sequences:pause_sequence(sequence)
+  self.sequences[sequence]:pause()
 end
 
 function Sequences:randomize_all()
@@ -61,6 +78,10 @@ function Sequences:reset_selected_step(sequence)
   self.sequences[sequence]:reset_selected_step()
 end
 
+function Sequences:size()
+  return #self.sequences
+end
+
 function Sequences:step()
   for i = 1, #self.sequences do
     local sequence = self.sequences[i]
@@ -70,8 +91,24 @@ function Sequences:step()
   end
 end
 
-function Sequences:size()
-  return #self.sequences
+function Sequences:start_all()
+  for i = 1, #self.sequences do
+    self:start_sequence(i)
+  end 
+end
+
+function Sequences:start_sequence(sequence)
+  self.sequences[sequence]:start()
+end
+
+function Sequences:stop_all()
+  for i = 1, #self.sequences do
+    self:stop_sequence(i)
+  end 
+end
+
+function Sequences:stop_sequence(sequence)
+  self.sequences[sequence]:stop()
 end
 
 function Sequences:toggle_sequence(sequence)

@@ -20,6 +20,11 @@ function Arrangement:new(options)
   return instance
 end
 
+function Arrangement:hydrate(state)
+  self.selected_sequence = state.selected_sequence
+  self.sequences:hydrate(state.sequences)
+end
+
 function Arrangement:init()
   self:_init_observers()
   self:_init_sequences()
@@ -32,6 +37,20 @@ end
 
 function Arrangement:set(k, v)
   self[k] = v
+end
+
+function Arrangement:affect(action, index, values)
+  if action == actions.toggle_sequence then
+    self.sequences:toggle_sequence(index)
+  end
+end
+
+function Arrangement:pause(sequence)
+  if sequence then
+    self.sequences:pause_sequence(sequence)
+  else
+    self.sequences:pause_all()
+  end
 end
 
 function Arrangement:randomize(sequence)
@@ -55,15 +74,24 @@ function Arrangement:reset(sequence)
   end
 end
 
+function Arrangement:start(sequence)
+  if sequence then
+    self.sequences:start_sequence(sequence)
+  else
+    self.sequences:start_all()
+  end
+end
+
 function Arrangement:step()
   self.sequences:step()
   self.rings:step()
 end
 
-
-function Arrangement:affect(action, index, values)
-  if action == actions.toggle_sequence then
-    self.sequences:toggle_sequence(index)
+function Arrangement:stop(sequence)
+  if sequence then
+    self.sequences:stop_sequence(sequence)
+  else
+    self.sequences:stop_all()
   end
 end
 

@@ -19,6 +19,11 @@ function RadiationPlan:new(options)
   return instance
 end
 
+function RadiationPlan:hydrate(plan)
+  self.emitters = plan.emitters
+  self:init()
+end
+
 function RadiationPlan:init()
   self.features, self.phenomena = self._gesso()
   self.affect_ensemble(actions.set_source_positions, nil, self.emitters)
@@ -43,7 +48,7 @@ function RadiationPlan:emit_pulse(i, v, s)
   local x = self.emitters[i][1]
   local y = self.emitters[i][2]
 
-  if self.features[x][y] and self.features[x][y]:get('active') then
+  if self.features[x][y] then
     self:_spawn_wave(x, y, v, s)
   end
 end
@@ -94,7 +99,6 @@ end
 
 function RadiationPlan:_toggle_active(x, y)
   local symbol = self.features[x][y]
-  symbol:set('active', not symbol:get('active'))
   self.affect_arrangement(actions.toggle_sequence, symbol:get('id'))
 end
 

@@ -22,6 +22,11 @@ function Ensemble:new(options)
   return instance
 end
 
+function Ensemble:hydrate(ensemble)
+  self.observer_position = ensemble.observer_position
+  self.source_positions = ensemble.source_positions
+end
+
 function Ensemble:init()
   local mxsynths_ = include('mx.synths/lib/mx.synths')
   mxsynths = mxsynths_:new()

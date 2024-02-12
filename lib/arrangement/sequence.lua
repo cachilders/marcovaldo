@@ -1,5 +1,4 @@
 local constants = include('lib/constants')
-local Step = include('lib/arrangement/step')
 
 local DEFAULT_MIN = 1
 local MIDI_MAX = 127
@@ -39,6 +38,14 @@ function Sequence:new(options)
   return instance
 end
 
+function Sequence:hydrate(sequence)
+  for k, v in pairs(sequence) do
+    if k ~= 'emit_note' and k ~= transmit_editor_state then
+      self[k] = sequence[k]
+    end
+  end
+end
+
 function Sequence:init()
   self:_init_notes()
   self:_init_observers()
@@ -53,6 +60,10 @@ end
 
 function Sequence:set(k, v)
   self[k] = v
+end
+
+function Sequence:pause()
+  self.active = false
 end
 
 function Sequence:randomize()
@@ -73,6 +84,15 @@ end
 function Sequence:step()
   self:_emit_note()
   self.current_step = util.wrap(self.current_step + 1, 1, self.step_count)
+end
+
+function Sequence:start()
+  self.active = true
+end
+
+function Sequence:stop()
+  self.active = false
+  self.current_step = 1
 end
 
 function Sequence:change(n, delta)

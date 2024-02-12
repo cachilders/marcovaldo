@@ -34,6 +34,10 @@ function Console:new(options)
   return instance
 end
 
+function Console:hydrate(console)
+  self.default_mode = console.default_mode
+end
+
 function Console:init()
   self.animation_cells = 9 -- TODO Calculate
   self:_init_observers()
