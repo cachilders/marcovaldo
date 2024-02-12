@@ -278,7 +278,7 @@ end
 function Sequence:_init_notes()
   self.notes = {}
   for i = 1, self.step_count do
-    self.notes[i] = nil
+    self.notes[i] = 1
   end
 end
 
@@ -321,8 +321,8 @@ end
 function Sequence:_set_step_note(delta)
   -- TODO not possible to deselect note
   -- experimented with altering the range, but it led to weird overflow at zero
-  -- need to come back to this
-  local note_index = self.notes[self.selected_step]
+  -- need to come back to this. Going to default to root to avvoid confusion
+  local note_index = self.notes[self.selected_step] or 1
   self.notes[self.selected_step] = util.clamp(note_index + delta, 1, #self.scale)
 end
 

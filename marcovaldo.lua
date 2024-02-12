@@ -176,6 +176,8 @@ function set_current_mode(mode)
     default_mode_timeout_new()
   elseif mode ~= DEFAULT then
     default_mode_timeout_extend()
+  elseif mode == DEFAULT then
+    clock.cancel(default_mode_timeout)
   end
   current_mode:set(get_mode_index(mode))
 end
