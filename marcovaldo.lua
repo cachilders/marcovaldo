@@ -176,8 +176,32 @@ function set_current_mode(mode)
     default_mode_timeout_new()
   elseif mode ~= DEFAULT then
     default_mode_timeout_extend()
+  elseif mode == DEFAULT then
+    clock.cancel(default_mode_timeout)
   end
   current_mode:set(get_mode_index(mode))
+end
+
+function state_load(path)
+  local state = tab.load(path)
+  if state then
+    arrangement:hydrate(state.arrangement)
+    chart:hydrate(state.chart)
+    console:hydrate(state.console)
+    ensemble:hydrate(state.ensemble)
+    parameters:hydrate(state.parameters)
+  end
+end
+
+function state_save(path)
+  local state = {
+    arrangement = arrangement,
+    chart = chart,
+    console = console,
+    ensemble = ensemble,
+    parameters = parameters
+  }
+  tab.save(state, path)
 end
 
 function step_arrangement()

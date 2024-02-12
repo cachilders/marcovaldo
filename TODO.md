@@ -1,2 +1,7 @@
-- Device detection and alerts for absence of grid
-- Update clocks on tempo shift
+Move to group classes, maybe:
+- Pages
+- Panes
+- Plans
+
+Move down to classes, maybe:
+- Steps (Step)

@@ -14,6 +14,10 @@ function ReliefPlan:new(options)
   return instance
 end
 
+function ReliefPlan:hydrate(plan)
+  self:init()
+end
+
 function ReliefPlan:refresh()
   self:_ingest_ephemera()
   self:_refresh_all_symbols()

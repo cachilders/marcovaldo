@@ -6,11 +6,12 @@ local StepScreen = include('lib/console/step_screen')
 local ANIMATION = 'animation'
 local MUSHROOMS = 'mushrooms'
 local WASPS = 'wasps'
+local WOODCOCK = 'woodcock'
 local INFO = 'info'
-local ANIMATION_SCENES = {MUSHROOMS, WASPS}
+local ANIMATION_SCENES = {MUSHROOMS, WASPS, WOODCOCK}
 local DEFAULT_CONSOLE_MODES = {ANIMATION, INFO}
 local KEY_FRAME = 15
-local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/sprites/'
+local SPRITE_PATH = '/home/we/dust/code/marcovaldo/assets/cells/'
 
 local count = 1
 
@@ -18,12 +19,12 @@ local Console = {
   affect_arrangement = nil,
   affect_chart = nil,
   affect_ensemble = nil,
+  animation_cell = 1,
+  animation_cells = 1,
   animation_scene = 1,
   default_mode = 1,
   dirty = true,
-  screens = nil,
-  sprite_frame = 1,
-  sprite_frames = 1
+  screens = nil
 }
 
 function Console:new(options)
@@ -33,8 +34,12 @@ function Console:new(options)
   return instance
 end
 
+function Console:hydrate(console)
+  self.default_mode = console.default_mode
+end
+
 function Console:init()
-  self.sprite_frames = 9 -- TODO Calculate
+  self.animation_cells = 9 -- TODO Calculate
   self:_init_observers()
   self:_init_screens()
 end
@@ -54,7 +59,7 @@ function Console:refresh()
     if mode == DEFAULT then
       local default_console_mode = DEFAULT_CONSOLE_MODES[self.default_mode]
       if parameters.animations_enabled() and default_console_mode == ANIMATION then
-        local filepath = SPRITE_PATH..ANIMATION_SCENES[self.animation_scene]..'/'..self.sprite_frame..'.png'
+        local filepath = SPRITE_PATH..ANIMATION_SCENES[self.animation_scene]..'/'..self.animation_cell..'.png'
         screen.display_png(filepath, 0, 0)
       else
         self.screens[INFO]:draw()
@@ -76,7 +81,7 @@ function Console:step()
     if get_current_mode() == DEFAULT and
       DEFAULT_CONSOLE_MODES[self.default_mode] ~= INFO and 
       count == KEY_FRAME then
-      self:_advance_sprite_frame()
+      self:_advance_animation_cell()
       self:_scuff()
     end
   end
@@ -100,8 +105,8 @@ function Console:twist(e, delta)
   end
 end
 
-function Console:_advance_sprite_frame()
-  self.sprite_frame = util.wrap(self.sprite_frame + 1, 1, self.sprite_frames)
+function Console:_advance_animation_cell()
+  self.animation_cell = util.wrap(self.animation_cell + 1, 1, self.animation_cells)
 end
 
 function Console:_init_observers()
@@ -122,7 +127,9 @@ function Console:_polish()
 end
 
 function Console:_switch_mode()
-  self:_step_animation_scene()
+  if get_current_mode() == DEFAULT then
+    self:_step_animation_scene()
+  end
   self.dirty = true
 end
 

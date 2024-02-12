@@ -19,6 +19,19 @@ function Plan:new(options)
   return instance
 end
 
+function Plan:hydrate(plan)
+  self:init()
+  for c = 1, PANE_EDGE_LENGTH do
+    self.features[c] = {}
+    for r = 1, PANE_EDGE_LENGTH do
+      local symbol = plan.features[c][r]
+        if symbol then
+          self:_add(symbol.x, symbol.y)
+        end
+    end
+  end
+end
+
 function Plan:init()
   self.features, self.phenomena = self._gesso()
 end

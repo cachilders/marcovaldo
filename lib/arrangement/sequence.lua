@@ -1,5 +1,4 @@
 local constants = include('lib/constants')
-local Step = include('lib/arrangement/step')
 
 local DEFAULT_MIN = 1
 local MIDI_MAX = 127
@@ -39,14 +38,20 @@ function Sequence:new(options)
   return instance
 end
 
+function Sequence:hydrate(sequence)
+  for k, v in pairs(sequence) do
+    if k ~= 'emit_note' and k ~= transmit_editor_state then
+      self[k] = sequence[k]
+    end
+  end
+end
+
 function Sequence:init()
   self:_init_notes()
   self:_init_observers()
   self:_init_pulses()
   self:_set_scale()
   self:_init_throttles()
-  -- DEV TEMP
-  self:randomize()
 end
 
 function Sequence:get(k)
@@ -55,6 +60,10 @@ end
 
 function Sequence:set(k, v)
   self[k] = v
+end
+
+function Sequence:pause()
+  self.active = false
 end
 
 function Sequence:randomize()
@@ -75,6 +84,15 @@ end
 function Sequence:step()
   self:_emit_note()
   self.current_step = util.wrap(self.current_step + 1, 1, self.step_count)
+end
+
+function Sequence:start()
+  self.active = true
+end
+
+function Sequence:stop()
+  self.active = false
+  self.current_step = 1
 end
 
 function Sequence:change(n, delta)
@@ -260,7 +278,7 @@ end
 function Sequence:_init_notes()
   self.notes = {}
   for i = 1, self.step_count do
-    self.notes[i] = nil
+    self.notes[i] = 1
   end
 end
 
@@ -271,6 +289,7 @@ end
 
 function Sequence:_init_pulses()
   self:_distribute_pulses()
+  self.pulse_count = 0
   self.pulse_position_overrides = {}
   self.pulse_strengths = {}
   self.pulse_widths = {}
@@ -302,8 +321,8 @@ end
 function Sequence:_set_step_note(delta)
   -- TODO not possible to deselect note
   -- experimented with altering the range, but it led to weird overflow at zero
-  -- need to come back to this
-  local note_index = self.notes[self.selected_step]
+  -- need to come back to this. Going to default to root to avvoid confusion
+  local note_index = self.notes[self.selected_step] or 1
   self.notes[self.selected_step] = util.clamp(note_index + delta, 1, #self.scale)
 end
 
@@ -323,7 +342,6 @@ function Sequence:_set_step_pulse_width(delta)
 end
 
 function Sequence:_set_scale()
-  -- TODO TRANSPOSE
   self.scale = music_util.generate_scale(
     parameters.root(),
     parameters.scale(),
