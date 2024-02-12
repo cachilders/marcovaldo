@@ -80,7 +80,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > '..i, 11)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 11)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
