@@ -2,6 +2,9 @@
 a spatial sequencer with cats
 
 ## Dev Notes
+**(2/11/2024)**
+Wrapped initial development today with a bunch of param actions and some bugfixes. A little over a month, all-in. Still needs docs, but [I made a demo video yesterday](https://youtu.be/riol61rH76A?si=Ci7GM_jfeH_xNC8z), and it explains the functionality pretty well. I went a little crazy on this one, and for all of the code cleanup and extension I'd like to do, I think it's no rush. I want to focus on another canvas for a minute. I'll pick up whatever bugs come by. We'll see what happens.
+
 **(2/9/2024)**
 Basically feature complete, if buggy. Now it's all params, bugfixes, and nice to haves.
 
