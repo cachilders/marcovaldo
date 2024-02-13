@@ -134,11 +134,11 @@ function key(k, z)
   end
 end
 
-function arc.delta(n, delta)
+function arc_delta(n, delta)
   arrangement:turn(n, delta)
 end
 
-function grid.key(x, y, z)
+function grid_key(x, y, z)
   chart:press(x, y, z)
 end
 

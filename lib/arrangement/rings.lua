@@ -13,6 +13,7 @@ end
 
 function Rings:init(n)
   self.host = arc.connect(n)
+  self.host.delta = arc_delta
   for _, ring in pairs(self.rings) do
     ring:set('host', self.host)
   end

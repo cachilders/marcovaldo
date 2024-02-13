@@ -58,6 +58,7 @@ end
 
 function Chart:set_grid(n)
   self.host = grid.connect(n)
+  self.host.key = grid_key
   if self.host.cols == 0 then
     set_current_mode(ERROR)
     self.affect_console(actions.toggle_error_takeover, 1)
