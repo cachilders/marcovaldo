@@ -136,22 +136,6 @@ function key(k, z)
   end
 end
 
-function arc_delta(n, delta)
-  arrangement:turn(n, delta)
-end
-
-function grid_key(x, y, z)
-  chart:press(x, y, z)
-end
-
-function grid.add(added)
-  chart:set_grid(added.port)
-end
-
-function grid.remove(removed)
-  chart:set_grid()
-end
-
 function default_mode_timeout_cancel()
   if default_mode_timeout then
     clock.cancel(default_mode_timeout)
@@ -235,4 +219,12 @@ end
 
 function refresh()
   console:refresh()
+end
+
+function grid.add(added)
+  chart:set_grid(added.port)
+end
+
+function grid.remove(removed)
+  chart:set_grid()
 end
