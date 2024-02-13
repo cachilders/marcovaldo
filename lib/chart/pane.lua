@@ -10,10 +10,11 @@ function Pane:new(options)
   return instance
 end
 
-function Pane:init(panes_per_page)
+function Pane:init(panes_per_page, led)
   if not self.plan:get('features') then
     self.plan:init()
   end
+  self.plan:set('led', led)
   self:update_offsets(panes_per_page)
 end
 
