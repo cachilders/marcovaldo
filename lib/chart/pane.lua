@@ -11,7 +11,9 @@ function Pane:new(options)
 end
 
 function Pane:init(panes_per_page)
-  self.plan:init()
+  if not self.plan:get('features') then
+    self.plan:init()
+  end
   self:update_offsets(panes_per_page)
 end
 

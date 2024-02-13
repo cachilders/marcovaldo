@@ -19,8 +19,8 @@ local Chart = {
   host = nil,
   lumen = 5,
   page = 1,
-  pages = {},
-  plans = {}
+  pages = nil,
+  plans = nil
 }
 
 function Chart:new(options)
@@ -59,10 +59,15 @@ end
 function Chart:set_grid(n)
   self.host = grid.connect(n)
   self.host.key = grid_key
-  if self.host.cols == 0 then
-    set_current_mode(ERROR)
-    self.affect_console(actions.toggle_error_takeover, 1)
+  if self.plans then
+    self:_init_pages()
   end
+  -- if self.host.cols == 0 then
+  --   set_current_mode(ERROR)
+  --   self.affect_console(actions.set_error_message, 1)
+  -- elseif get_current_mode() == ERROR then
+  --   set_current_mode(DEFAULT)
+  -- end
 end
 
 function Chart:press(x, y, z)
@@ -96,17 +101,11 @@ function Chart:affect(action, index, values)
   end
 end
 
-function Chart:refresh_pages()
-  -- TODO validate that we actually instantiated a new grid
-  for i = 1, #self.panels do
-    self.panels[i].led = '' -- Finish
-  end
-  self:_init_pages()
-end
-
 function Chart:_init_pages()
-  local chart_height = self.host.rows or PANE_EDGE_LENGTH
-  local chart_width = self.host.cols or PANE_EDGE_LENGTH
+  local rows = self.host.rows
+  local cols = self.host.cols
+  local chart_height = rows ~= 0 and rows or PANE_EDGE_LENGTH
+  local chart_width = cols ~= 0 and cols or PANE_EDGE_LENGTH
   local page_count = 1
   local pages = {}
   local panes_per_page = 4

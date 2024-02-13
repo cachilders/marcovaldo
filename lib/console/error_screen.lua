@@ -20,6 +20,8 @@ function ErrorScreen:new(options)
 end
 
 function ErrorScreen:draw()
+  screen.font_face(console_constants.FONTS.BASIC.FACE)
+  screen.font_size(console_constants.FONTS.BASIC.SIZE)
   screen.move(X_RULE, Y_RULE)
   screen.text_center(ERRORS[self.error_index])
 end

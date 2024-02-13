@@ -123,6 +123,8 @@ function key(k, z)
   if k == 2 and z == 0 and not shift_depressed then
     if mode == SEQUENCE then
       set_current_mode(DEFAULT)
+    elseif mode == ERROR then
+      set_current_mode(DEFAULT)
     else
       arrangement:press(k, z)
     end
@@ -143,19 +145,11 @@ function grid_key(x, y, z)
 end
 
 function grid.add(added)
-  if self.host.cols == 0 then
-    chart:set_grid(added.port)
-    chart:refresh_pages()
-    set_current_mode(DEFAULT)
-  end
+  chart:set_grid(added.port)
 end
 
 function grid.remove(removed)
-  if self.host.port == removed.port then
-    chart:set_grid()
-    set_current_mode(ERROR)
-    self.affect_console(actions.toggle_error_takeover, 1)
-  end
+  chart:set_grid()
 end
 
 function default_mode_timeout_cancel()

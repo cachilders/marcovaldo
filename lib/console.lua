@@ -97,7 +97,7 @@ function Console:affect(action, index, values)
     self.screens[SEQUENCE]:update(index, values)
   elseif action == actions.edit_step then
     self.screens[STEP]:update(index, values)
-  elseif action == actions.toggle_error_takeover then
+  elseif action == actions.set_error_message then
     self.screens[ERROR]:update(index)
   end
 
