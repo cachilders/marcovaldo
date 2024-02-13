@@ -1,6 +1,5 @@
 local Rings = {
   context = nil,
-  delta = nil,
   host = nil,
   rings = {}
 }
@@ -14,7 +13,7 @@ end
 
 function Rings:init(n)
   self.host = arc.connect(n)
-  self.host.delta = self.delta
+  self.host.delta = arc_delta
   for _, ring in pairs(self.rings) do
     ring:set('host', self.host)
   end

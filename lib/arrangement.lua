@@ -113,6 +113,10 @@ function Arrangement:press(k, z)
   end
 end
 
+function Arrangement:turn(n, delta)
+  self:_ring_input_to_sequence(n, delta)
+end
+
 function Arrangement:twist(e, delta)
   if e == 1 and not shift_depressed then
     local mode = get_current_mode()
@@ -164,9 +168,7 @@ function Arrangement:_init_observers()
 end
 
 function Arrangement:_init_rings()
-  local rings = Rings:new({
-    delta = function(n, delta) self:_ring_input_to_sequence(n, delta) end
-  })
+  local rings = Rings:new()
   for i = 1, self.sequences:size() do
     local sequence = self.sequences:get_sequence(i)
     rings:add(Ring:new({

@@ -58,12 +58,16 @@ end
 
 function Chart:set_grid(n)
   self.host = grid.connect(n)
-  self.host.key = function(x, y, z) chart:press(x, y, z) end
-  print(self.host, self.host.cols, self.host.rows)
+  self.host.key = grid_key
   if self.plans then
-    print('INIT OPAGES', self.plans, #self.plans)
     self:_init_pages()
   end
+  -- if self.host.cols == 0 then
+  --   set_current_mode(ERROR)
+  --   self.affect_console(actions.set_error_message, 1)
+  -- elseif get_current_mode() == ERROR then
+  --   set_current_mode(DEFAULT)
+  -- end
 end
 
 function Chart:press(x, y, z)
@@ -105,13 +109,6 @@ function Chart:_init_pages()
   local page_count = 1
   local pages = {}
   local panes_per_page = 4
-  local function led(x, y, l)
-    if self.host.cols == PANE_EDGE_LENGTH then
-      -- Monobrite for 64s
-      l = 15
-    end
-    self.host:led(x, y, l)
-  end
   
   if chart_height == PANE_EDGE_LENGTH then
     if chart_width == PANE_EDGE_LENGTH then
@@ -136,7 +133,7 @@ function Chart:_init_pages()
         offset = i - 1
       end
       local pane = Pane:new({pane = j, plan = self.plans[j + offset]})
-      pane:init(panes_per_page, led)
+      pane:init(panes_per_page)
       table.insert(panes, pane)
     end
     
@@ -149,21 +146,33 @@ function Chart:_init_pages()
 end
 
 function Chart:_init_plans()
+  local function led(x, y, l)
+    if self.host.cols == PANE_EDGE_LENGTH then
+      -- Monobrite for 64s
+      l = 15
+    end
+    self.host:led(x, y, l)
+  end
+
   local plans = {
     RadiationPlan:new({
+      led = led,
       name = RADIATION_PLAN,
       affect_arrangement = self.affect_arrangement,
       affect_ensemble = self.affect_ensemble
     }),
     PathPlan:new({
+      led = led,
       name = PATH_PLAN,
       affect_ensemble = self.affect_ensemble
     }),
     CatPlan:new({
+      led = led,
       name = CAT_PLAN,
       affect_ensemble = self.affect_ensemble
     }),
     ReliefPlan:new({
+      led = led,
       name = RELIEF_PLAN
     })
   }
