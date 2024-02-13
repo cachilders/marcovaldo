@@ -1,4 +1,5 @@
 local actions = include('lib/actions')
+local ErrorScreen = include('lib/console/error_screen')
 local InfoScreen = include('lib/console/info_screen')
 local SequenceScreen = include('lib/console/sequence_screen')
 local StepScreen = include('lib/console/step_screen')
@@ -56,7 +57,9 @@ function Console:refresh()
   if self.dirty then
     local mode = MODES[current_mode()]
     screen.clear()
-    if mode == DEFAULT then
+    if mode == ERROR then
+      self.screens[ERROR]:draw()
+    elseif mode == DEFAULT then
       local default_console_mode = DEFAULT_CONSOLE_MODES[self.default_mode]
       if parameters.animations_enabled() and default_console_mode == ANIMATION then
         local filepath = SPRITE_PATH..ANIMATION_SCENES[self.animation_scene]..'/'..self.animation_cell..'.png'
@@ -94,6 +97,8 @@ function Console:affect(action, index, values)
     self.screens[SEQUENCE]:update(index, values)
   elseif action == actions.edit_step then
     self.screens[STEP]:update(index, values)
+  elseif action == actions.toggle_error_takeover then
+    self.screens[ERROR]:update(index)
   end
 
   self.dirty = true
@@ -116,6 +121,7 @@ end
 
 function Console:_init_screens()
   self.screens = {
+    [ERROR] = ErrorScreen:new(),
     [INFO] = InfoScreen:new(),
     [SEQUENCE] = SequenceScreen:new(),
     [STEP] = StepScreen:new()

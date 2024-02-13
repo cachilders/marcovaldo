@@ -2,13 +2,14 @@
 -- a spatial sequencer with cats
 
 DEFAULT = 'default'
+ERROR = 'error'
 MODE_TIMEOUT_DELAY = 10
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
 STEP = 'step'
 
-MODES = {DEFAULT, SEQUENCE, STEP}
+MODES = {DEFAULT, ERROR, SEQUENCE, STEP}
 
 shift_depressed = false
 current_mode = nil
@@ -93,8 +94,8 @@ end
 
 function init_metaphors()
   arrangement:init()
-  chart:init()
   console:init()
+  chart:init()
   ensemble:init()
 end
 
@@ -141,6 +142,22 @@ function grid.key(x, y, z)
   chart:press(x, y, z)
 end
 
+function grid.add(added)
+  if self.host.cols == 0 then
+    chart:set_grid(added.port)
+    chart:refresh_pages()
+    set_current_mode(DEFAULT)
+  end
+end
+
+function grid.remove(removed)
+  if self.host.port == removed.port then
+    chart:set_grid()
+    set_current_mode(ERROR)
+    self.affect_console(actions.toggle_error_takeover, 1)
+  end
+end
+
 function default_mode_timeout_cancel()
   if default_mode_timeout then
     clock.cancel(default_mode_timeout)
@@ -172,9 +189,10 @@ function get_mode_index(mode)
 end
 
 function set_current_mode(mode)
-  if mode ~= DEFAULT and get_current_mode() == DEFAULT then
+  local edit_mode = mode ~= DEFAULT and mode ~= ERROR
+  if edit_mode and get_current_mode() == DEFAULT then
     default_mode_timeout_new()
-  elseif mode ~= DEFAULT then
+  elseif edit_mode then
     default_mode_timeout_extend()
   elseif mode == DEFAULT then
     clock.cancel(default_mode_timeout)

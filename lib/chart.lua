@@ -43,7 +43,7 @@ function Chart:hydrate(chart)
 end
 
 function Chart:init(n)
-  self.host = grid.connect(n)
+  self:set_grid(n)
   self:_init_plans()
   self:_init_pages()
 end
@@ -54,6 +54,14 @@ end
 
 function Chart:set(k, v)
   self[k] = v
+end
+
+function Chart:set_grid(n)
+  self.host = grid.connect(n)
+  if self.host.cols == 0 then
+    set_current_mode(ERROR)
+    self.affect_console(actions.toggle_error_takeover, 1)
+  end
 end
 
 function Chart:press(x, y, z)
@@ -73,7 +81,6 @@ function Chart:step()
   self:_step_count()
 end
 
-
 function Chart:affect(action, index, values)
   if action == actions.emit_pulse then
     local sequence = index
@@ -88,9 +95,17 @@ function Chart:affect(action, index, values)
   end
 end
 
+function Chart:refresh_pages()
+  -- TODO validate that we actually instantiated a new grid
+  for i = 1, #self.panels do
+    self.panels[i].led = '' -- Finish
+  end
+  self:_init_pages()
+end
+
 function Chart:_init_pages()
-  local chart_height = self.host.rows
-  local chart_width = self.host.cols
+  local chart_height = self.host.rows or PANE_EDGE_LENGTH
+  local chart_width = self.host.cols or PANE_EDGE_LENGTH
   local page_count = 1
   local pages = {}
   local panes_per_page = 4
