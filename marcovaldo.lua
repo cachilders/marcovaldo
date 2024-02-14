@@ -2,13 +2,14 @@
 -- a spatial sequencer with cats
 
 DEFAULT = 'default'
+ERROR = 'error'
 MODE_TIMEOUT_DELAY = 10
 PLAN_COUNT = 4
 PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
 STEP = 'step'
 
-MODES = {DEFAULT, SEQUENCE, STEP}
+MODES = {DEFAULT, ERROR, SEQUENCE, STEP}
 
 shift_depressed = false
 current_mode = nil
@@ -93,8 +94,8 @@ end
 
 function init_metaphors()
   arrangement:init()
-  chart:init()
   console:init()
+  chart:init()
   ensemble:init()
 end
 
@@ -122,6 +123,8 @@ function key(k, z)
   if k == 2 and z == 0 and not shift_depressed then
     if mode == SEQUENCE then
       set_current_mode(DEFAULT)
+    elseif mode == ERROR then
+      set_current_mode(DEFAULT)
     else
       arrangement:press(k, z)
     end
@@ -131,14 +134,6 @@ function key(k, z)
     arrangement:press(k, z)
   elseif k == 3 and z == 0 and shift_depressed  then
   end
-end
-
-function arc.delta(n, delta)
-  arrangement:turn(n, delta)
-end
-
-function grid.key(x, y, z)
-  chart:press(x, y, z)
 end
 
 function default_mode_timeout_cancel()
@@ -172,9 +167,10 @@ function get_mode_index(mode)
 end
 
 function set_current_mode(mode)
-  if mode ~= DEFAULT and get_current_mode() == DEFAULT then
+  local edit_mode = mode ~= DEFAULT and mode ~= ERROR
+  if edit_mode and get_current_mode() == DEFAULT then
     default_mode_timeout_new()
-  elseif mode ~= DEFAULT then
+  elseif edit_mode then
     default_mode_timeout_extend()
   elseif mode == DEFAULT then
     clock.cancel(default_mode_timeout)
@@ -223,4 +219,12 @@ end
 
 function refresh()
   console:refresh()
+end
+
+function grid.add(added)
+  chart:set_grid(added.port)
+end
+  
+function grid.remove(removed)
+  chart:set_grid()
 end

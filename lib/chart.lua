@@ -19,8 +19,8 @@ local Chart = {
   host = nil,
   lumen = 5,
   page = 1,
-  pages = {},
-  plans = {}
+  pages = nil,
+  plans = nil
 }
 
 function Chart:new(options)
@@ -43,7 +43,7 @@ function Chart:hydrate(chart)
 end
 
 function Chart:init(n)
-  self.host = grid.connect(n)
+  self:set_grid(n)
   self:_init_plans()
   self:_init_pages()
 end
@@ -54,6 +54,14 @@ end
 
 function Chart:set(k, v)
   self[k] = v
+end
+
+function Chart:set_grid(n)
+  self.host = grid.connect(n)
+  self.host.key = function(x, y, z) chart:press(x, y, z) end
+  if self.plans then
+    self:_init_pages()
+  end
 end
 
 function Chart:press(x, y, z)
@@ -73,7 +81,6 @@ function Chart:step()
   self:_step_count()
 end
 
-
 function Chart:affect(action, index, values)
   if action == actions.emit_pulse then
     local sequence = index
@@ -89,11 +96,21 @@ function Chart:affect(action, index, values)
 end
 
 function Chart:_init_pages()
-  local chart_height = self.host.rows
-  local chart_width = self.host.cols
+  self.page = 1
+  local rows = self.host.rows
+  local cols = self.host.cols
+  local chart_height = rows ~= 0 and rows or PANE_EDGE_LENGTH
+  local chart_width = cols ~= 0 and cols or PANE_EDGE_LENGTH
   local page_count = 1
   local pages = {}
   local panes_per_page = 4
+  local function led(x, y, l)
+    if self.host.cols == PANE_EDGE_LENGTH then
+      -- Monobrite for 64s
+      l = 15
+    end
+    self.host:led(x, y, l)
+  end
   
   if chart_height == PANE_EDGE_LENGTH then
     if chart_width == PANE_EDGE_LENGTH then
@@ -118,7 +135,7 @@ function Chart:_init_pages()
         offset = i - 1
       end
       local pane = Pane:new({pane = j, plan = self.plans[j + offset]})
-      pane:init(panes_per_page)
+      pane:init(panes_per_page, led)
       table.insert(panes, pane)
     end
     
@@ -131,33 +148,21 @@ function Chart:_init_pages()
 end
 
 function Chart:_init_plans()
-  local function led(x, y, l)
-    if self.host.cols == PANE_EDGE_LENGTH then
-      -- Monobrite for 64s
-      l = 15
-    end
-    self.host:led(x, y, l)
-  end
-
   local plans = {
     RadiationPlan:new({
-      led = led,
       name = RADIATION_PLAN,
       affect_arrangement = self.affect_arrangement,
       affect_ensemble = self.affect_ensemble
     }),
     PathPlan:new({
-      led = led,
       name = PATH_PLAN,
       affect_ensemble = self.affect_ensemble
     }),
     CatPlan:new({
-      led = led,
       name = CAT_PLAN,
       affect_ensemble = self.affect_ensemble
     }),
     ReliefPlan:new({
-      led = led,
       name = RELIEF_PLAN
     })
   }

@@ -10,8 +10,11 @@ function Pane:new(options)
   return instance
 end
 
-function Pane:init(panes_per_page)
-  self.plan:init()
+function Pane:init(panes_per_page, led)
+  if not self.plan:get('features') then
+    self.plan:init()
+  end
+  self.plan:set('led', led)
   self:update_offsets(panes_per_page)
 end
 
@@ -37,6 +40,7 @@ function Pane:update_offsets(panes_per_page)
   local x_offset, y_offset = self:_determine_offsets(panes_per_page)
   self.plan:set('x_offset', x_offset)
   self.plan:set('y_offset', y_offset)
+  self.plan:update_symbol_offsets()
 end
 
 function Pane:get_offsets()
