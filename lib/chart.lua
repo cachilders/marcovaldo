@@ -59,9 +59,7 @@ end
 function Chart:set_grid(n)
   self.host = grid.connect(n)
   self.host.key = function(x, y, z) chart:press(x, y, z) end
-  print(self.host, self.host.cols, self.host.rows)
   if self.plans then
-    print('INIT OPAGES', self.plans, #self.plans)
     self:_init_pages()
   end
 end
@@ -98,6 +96,7 @@ function Chart:affect(action, index, values)
 end
 
 function Chart:_init_pages()
+  self.page = 1
   local rows = self.host.rows
   local cols = self.host.cols
   local chart_height = rows ~= 0 and rows or PANE_EDGE_LENGTH

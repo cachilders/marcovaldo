@@ -224,7 +224,7 @@ end
 function grid.add(added)
   chart:set_grid(added.port)
 end
-
+  
 function grid.remove(removed)
   chart:set_grid()
 end

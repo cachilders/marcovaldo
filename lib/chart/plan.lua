@@ -68,6 +68,18 @@ function Plan:reset()
   self:init()
 end
 
+function Plan:update_symbol_offsets()
+  for c = 1, PANE_EDGE_LENGTH do
+    for r = 1, PANE_EDGE_LENGTH do
+      local feature = self.features[c][r]
+      if feature then
+        feature:set('x_offset', self.x_offset)
+        feature:set('y_offset', self.y_offset)
+      end
+    end
+  end
+end
+
 function Plan:_add(x, y)
   local symbol = {
     led = self.led,

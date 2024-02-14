@@ -40,6 +40,7 @@ function Pane:update_offsets(panes_per_page)
   local x_offset, y_offset = self:_determine_offsets(panes_per_page)
   self.plan:set('x_offset', x_offset)
   self.plan:set('y_offset', y_offset)
+  self.plan:update_symbol_offsets()
 end
 
 function Pane:get_offsets()
