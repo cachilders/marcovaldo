@@ -98,7 +98,9 @@ function Console:affect(action, index, values)
   elseif action == actions.edit_step then
     self.screens[STEP]:update(index, values)
   elseif action == actions.set_error_message then
-    self.screens[ERROR]:update(index)
+    if DEFAULT_CONSOLE_MODES[self.default_mode] == INFO then
+      self.screens[ERROR]:update(index)
+    end
   end
 
   self.dirty = true
