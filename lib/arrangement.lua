@@ -193,7 +193,7 @@ end
 
 function Arrangement:_ring_input_to_sequence(n, delta)
   local sequence = self.selected_sequence
-  if get_current_mode() == DEFAULT or sequence ~= n then
+  if get_current_mode() == DEFAULT or not sequence then
     set_current_mode(SEQUENCE)
     self.sequences:transmit(n)
     sequence = n
@@ -204,10 +204,6 @@ end
 function Arrangement:_select_sequence(delta)
   self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, self.sequences:size())
   self.sequences:transmit(self.selected_sequence)
-end
-
-function Arrangement:_switch_mode()
-  -- noop
 end
 
 function Arrangement:_transmit_editor_state(editor, i, state)
