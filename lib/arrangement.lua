@@ -192,13 +192,12 @@ function Arrangement:_init_sequences()
 end
 
 function Arrangement:_ring_input_to_sequence(n, delta)
-  local sequence = self.selected_sequence
-  if get_current_mode() == DEFAULT or not sequence then
+  if get_current_mode() == DEFAULT then
     set_current_mode(SEQUENCE)
     self.sequences:transmit(n)
-    sequence = n
+    self.selected_sequence = n
   end
-  self.sequences:pass_change(sequence, n, delta)
+  self.sequences:pass_change(self.selected_sequence, n, delta)
 end
 
 function Arrangement:_select_sequence(delta)
