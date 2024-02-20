@@ -93,10 +93,10 @@ function Parameters:_init_params()
     params:set_action('marco_seq_reset_'..i, function() arrangement:reset(i) end)
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
-    params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of pulse' end)
-    params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
-    params:add_number('marco_release_'..i, 'Sustain', 0, 100, 35, function(param) return ''..param:get()..'% of pulse' end)
-    params:add_number('marco_sustain_'..i, 'Release', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
+    params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
+    params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
+    params:add_number('marco_sustain_'..i, 'Sustain', 0, 100, 90, function(param) return ''..param:get()..'% of strength' end)
+    params:add_number('marco_release_'..i, 'Release', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
   end
 end
 

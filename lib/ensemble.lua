@@ -107,8 +107,8 @@ function Ensemble:_play_note(voice, note, velocity, envelope_duration)
     velocity = vel,
     attack = envelope_duration * (params:get('marco_attack_'..voice) / 100),
     decay = envelope_duration * (params:get('marco_decay_'..voice) / 100),
-    sustain = envelope_duration * (params:get('marco_release_'..voice) / 100),
-    release = envelope_duration * (params:get('marco_sustain_'..voice) / 100)
+    sustain = params:get('marco_sustain_'..voice) / 100,
+    release = envelope_duration * (params:get('marco_release_'..voice) / 100)
   })
 end
 
