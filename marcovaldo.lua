@@ -10,6 +10,8 @@ SEQUENCE = 'sequence'
 STEP = 'step'
 
 MODES = {DEFAULT, ERROR, SEQUENCE, STEP}
+--TODO move
+nb = require('marcovaldo/lib/nb/lib/nb')
 
 shift_depressed = false
 current_mode = nil
@@ -31,6 +33,7 @@ music_util = require('musicutil')
 include('lib/utils')
 
 function init()
+  nb:init()
   math.randomseed(os.time())
   run_tests()
   init_params()

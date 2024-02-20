@@ -110,6 +110,12 @@ function Ensemble:_play_note(voice, note, velocity, envelope_duration)
     sustain = envelope_duration * (params:get('marco_release_'..voice) / 100),
     release = envelope_duration * (params:get('marco_sustain_'..voice) / 100)
   })
+  -- TODO very temp
+  local player_param = params:lookup_param('marco_voice_'..voice)
+  if player_param then
+    local player = player_param:get_player()
+    player:play_note(note, velocity, envelope_duration)
+  end
 end
 
 return Ensemble

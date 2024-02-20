@@ -2,6 +2,9 @@ local textentry = require('textentry')
 local fileselect = require('fileselect')
 local ENABLED_STATES = {'Enabled', 'Disabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
+local MX = 'mx.synths'
+local NB = 'n.b.'
+local VOICES = {MX, NB}
 
 local Parameters = {
   animations_enabled = nil,
@@ -80,7 +83,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 11)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 14)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -93,11 +96,26 @@ function Parameters:_init_params()
     params:set_action('marco_seq_reset_'..i, function() arrangement:reset(i) end)
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
+    params:add_option('marco_voice_'..i, 'Voice', VOICES, 1)
+    nb:add_param('nb_voice_'..i, 'n.b. Voice '..i)
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_release_'..i, 'Sustain', 0, 100, 35, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_sustain_'..i, 'Release', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
   end
+
+  nb:add_player_params()
+
+  -- params:bang()
+end
+
+function Parameters._refresh_params()
+  for i = 1, 4 do
+    if params:string('marco_voice_'..i) ~= NB then
+      params:hide('nb_voice_'..i)
+    end
+  end
+  _menu.rebuild_params()
 end
 
 return Parameters
