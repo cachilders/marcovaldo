@@ -5,6 +5,7 @@ local ERROR_BAD_FILE = 'ERROR: Bad state file'
 
 local Parameters = {
   animations_enabled = nil,
+  available_performers = nil,
   root = nil,
   scale = nil,
   scale_names = nil
@@ -36,8 +37,8 @@ function Parameters:new(options)
 end
 
 function Parameters:hydrate(parameters)
-  self.animations_enabled:set(parameters.animations_enabled._value)
-  self.root:set(parameters.root._value)
+  self.animations_enabled:set(self.animations_enabled._value)
+  self.root:set(self.root._value)
   self.scale:set(parameters.scale._value)
 end
 
@@ -49,9 +50,9 @@ function Parameters:init()
 end
 
 function Parameters:_init_observables()
-  parameters.animations_enabled = observable.new(true)
-  parameters.root = observable.new(48)
-  parameters.scale = observable.new('')
+  self.animations_enabled = observable.new(true)
+  self.root = observable.new(48)
+  self.scale = observable.new('')
 end
 
 function Parameters:_init_performers()
@@ -106,6 +107,11 @@ function Parameters:_init_params()
     params:add_number('marco_sustain_'..i, 'Sustain', 0, 100, 90, function(param) return ''..param:get()..'% of strength' end)
     params:add_number('marco_release_'..i, 'Release', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
   end
+end
+
+function Parameters:get_performer(sequence)
+  local performer_index = params:get('marco_performer_'..sequence)
+  return self.available_performers[performer_index]
 end
 
 return Parameters

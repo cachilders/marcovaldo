@@ -3,8 +3,8 @@ engine.name='MxSynths'
 local Performer = include('lib/performer')
 
 local MxSynthsPerformer = {
-  name = 'MxSynths',
-  synths = nil
+  mx = nil,
+  name = 'MxSynths'
 }
 
 setmetatable(MxSynthsPerformer, { __index = Performer })
@@ -17,15 +17,14 @@ function MxSynthsPerformer:new(options)
 end
 
 function MxSynthsPerformer:init()
-  local mxsynths_ = include('mx.synths/lib/mx.synths')
-  self.synths = mxsynths_:new()
+  local mxsynths = include('mx.synths/lib/mx.synths')
+  self.mx = mxsynths:new()
   params:set('mxsynths_synth', 7)
 end
 
 function MxSynthsPerformer:play_note(voice, note, velocity, envelope_duration)
-  local selected_voice = params:get('marco_voice_'..voice)
-  local synth = self.synths.synths[selected_voice]
-  self.synths:play({
+  local synth = self.mx.synths[params:get('mxsynths_synth')]
+  self.mx:play({
     synth = synth,
     note = note,
     velocity = velocity,
