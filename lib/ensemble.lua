@@ -1,4 +1,6 @@
 local actions = include('lib/actions')
+local MxSynthsPerformer = include('lib/performers/mx_synths')
+local MidiPerformer = include('lib/performers/midi')
 local AMPLITUDE_OPERAND = 1/127
 local MAX_DISTANCE_OPERAND = .1
 
@@ -27,16 +29,8 @@ function Ensemble:hydrate(ensemble)
 end
 
 function Ensemble:init()
-  -- Initialize performers
-  -- Add MxSynths performer
-  local MxSynthsPerformer = include('lib/performers/mx_synths')
   self:add_performer(MxSynthsPerformer:new())
-  
-  -- Add MIDI performer
-  local MidiPerformer = include('lib/performers/midi')
   self:add_performer(MidiPerformer:new())
-  
-  -- Initialize all performers
   self:init_performers()
 end
 

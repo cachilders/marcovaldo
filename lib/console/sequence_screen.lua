@@ -21,7 +21,6 @@ function SequenceScreen:draw()
   self:_draw_fields()
   self:_draw_pulses()
   self:_draw_title()
-  self:_draw_voice()
 end
 
 function SequenceScreen:_draw_fields()
@@ -79,26 +78,6 @@ function SequenceScreen:_draw_pulses()
       pulse_string = ''
     end
   end  
-end
-
-function SequenceScreen:_draw_voice()
-  local voice = params:get('marco_voice_'..self.sequence)
-  local voice_names = {
-    [1] = 'MxSynth 1',
-    [2] = 'MxSynth 2',
-    [3] = 'MxSynth 3',
-    [4] = 'MxSynth 4',
-    [5] = 'MxSynth 5',
-    [6] = 'MxSynth 6',
-    [7] = 'MxSynth 7',
-    [8] = 'MxSynth 8'
-  }
-  local voice_name = voice_names[voice]
-  screen.font_face(console_constants.FONTS.SMALL.FACE)
-  screen.font_size(console_constants.FONTS.SMALL.SIZE)
-  screen.move(console_constants.PULSE_COLUMN_START, 45)
-  screen.text('Voice: '..voice_name)
-  screen.stroke()
 end
 
 return SequenceScreen

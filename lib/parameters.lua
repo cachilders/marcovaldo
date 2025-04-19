@@ -55,9 +55,7 @@ function Parameters:_init_observables()
 end
 
 function Parameters:_init_performers()
-  -- Initialize available performers list
-  local available_performers = {'MxSynths', 'MIDI', 'Crow', 'Disting EX'}
-  -- Sort the list alphabetically
+  local available_performers = {'MxSynths'} -- 'MIDI', 'Crow', 'Disting EX', 'ER-301', `W/`, 'Ansible'
   table.sort(available_performers)
   self.available_performers = available_performers
 end

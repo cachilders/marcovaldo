@@ -1,3 +1,5 @@
+engine.name='MxSynths'
+
 local Performer = include('lib/performer')
 
 local MxSynthsPerformer = {
