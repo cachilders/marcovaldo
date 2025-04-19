@@ -1,17 +1,15 @@
 local actions = include('lib/actions')
 local AMPLITUDE_OPERAND = 1/127
 local MAX_DISTANCE_OPERAND = .1
-local PANE_KEY_MIDPOINT = 32
 
 local Ensemble = {
   affect_arrangement = nil,
   affect_chart = nil,
   affect_console = nil,
   observer_position = nil,
+  performers = {},
   source_positions = nil
 }
-
-engine.name='MxSynths'
 
 function Ensemble:new(options)
   local instance = options or {}
@@ -19,6 +17,7 @@ function Ensemble:new(options)
   self.__index = self
   self.observer_position = {0, 0}
   self.source_positions = {}
+  self.performers = {}
   return instance
 end
 
@@ -28,9 +27,17 @@ function Ensemble:hydrate(ensemble)
 end
 
 function Ensemble:init()
-  local mxsynths_ = include('mx.synths/lib/mx.synths')
-  mxsynths = mxsynths_:new()
-  params:set('mxsynths_synth', 7)
+  -- Initialize performers
+  -- Add MxSynths performer
+  local MxSynthsPerformer = include('lib/performers/mx_synths')
+  self:add_performer(MxSynthsPerformer:new())
+  
+  -- Add MIDI performer
+  local MidiPerformer = include('lib/performers/midi')
+  self:add_performer(MidiPerformer:new())
+  
+  -- Initialize all performers
+  self:init_performers()
 end
 
 function Ensemble:get(k)
@@ -39,6 +46,16 @@ end
 
 function Ensemble:set(k, v)
   self[k] = v
+end
+
+function Ensemble:add_performer(performer)
+  self.performers[performer.name] = performer
+end
+
+function Ensemble:init_performers()
+  for _, performer in pairs(self.performers) do
+    performer:init()
+  end
 end
 
 function Ensemble:affect(action, index, values)
@@ -74,18 +91,11 @@ function Ensemble:_get_distance_operand(voice)
 end
 
 function Ensemble:_apply_effect(index, data)
-  -- TEMP: This is really specific to mx.synths, and not the plan. Expand and migrate this down
-  local mod_reset_value = params:get('mxsynths_mod'..index)
-  local beat_time = 60 / params:get('clock_tempo')
-  local mod_new_value = (1/PANE_KEY_MIDPOINT) * ((data[1] * data[2]) - PANE_KEY_MIDPOINT)
-  clock.run(
-    -- This is going to get messy
-    function()
-      engine.mx_set('mod'..index, mod_new_value)
-      clock.sleep(beat_time)
-      engine.mx_set('mod'..index, mod_reset_value)
-    end
-  )
+  local performer_name = params:get('marco_performer_'..index)
+  local performer = self.performers[performer_name]
+  if performer then
+    performer:apply_effect(index, data)
+  end
 end
 
 function Ensemble:_calculate_adjusted_velocity(voice, velocity)
@@ -100,16 +110,11 @@ end
 
 function Ensemble:_play_note(voice, note, velocity, envelope_duration)
   local vel = math.floor(self:_calculate_adjusted_velocity(voice, velocity))
-  local synth = mxsynths.synths[params:get('mxsynths_synth')]
-  mxsynths:play({
-    synth = synth,
-    note = note,
-    velocity = vel,
-    attack = envelope_duration * (params:get('marco_attack_'..voice) / 100),
-    decay = envelope_duration * (params:get('marco_decay_'..voice) / 100),
-    sustain = params:get('marco_sustain_'..voice) / 100,
-    release = envelope_duration * (params:get('marco_release_'..voice) / 100)
-  })
+  local performer_name = params:get('marco_performer_'..voice)
+  local performer = self.performers[performer_name]
+  if performer then
+    performer:play_note(voice, note, vel, envelope_duration)
+  end
 end
 
 return Ensemble
