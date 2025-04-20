@@ -17,7 +17,7 @@ function WDelayPerformer:init()
   -- Initialize W/
 end
 
-function WDelayPerformer:play_note(voice, note, velocity, envelope_duration)
+function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to W/
 end
 

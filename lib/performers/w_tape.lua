@@ -17,7 +17,7 @@ function WTapePerformer:init()
   -- Initialize W/
 end
 
-function WTapePerformer:play_note(voice, note, velocity, envelope_duration)
+function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to W/
 end
 

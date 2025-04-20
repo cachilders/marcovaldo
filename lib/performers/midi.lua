@@ -17,7 +17,7 @@ function MidiPerformer:init()
   -- Initialize MIDI
 end
 
-function MidiPerformer:play_note(voice, note, velocity, envelope_duration)
+function MidiPerformer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to MIDI device
 end
 

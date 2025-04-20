@@ -17,7 +17,7 @@ function AnsiblePerformer:init()
   -- Initialize Ansible
 end
 
-function AnsiblePerformer:play_note(voice, note, velocity, envelope_duration)
+function AnsiblePerformer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to Ansible
 end
 

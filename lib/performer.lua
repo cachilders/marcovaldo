@@ -14,7 +14,7 @@ function Performer:init()
   -- To be implemented by subclasses
 end
 
-function Performer:play_note(voice, note, velocity, envelope_duration)
+function Performer:play_note(sequence, note, velocity, envelope_duration)
   -- To be implemented by subclasses
 end
 

@@ -17,7 +17,7 @@ function ER301Performer:init()
   -- Initialize ER-301
 end
 
-function ER301Performer:play_note(voice, note, velocity, envelope_duration)
+function ER301Performer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to ER-301
 end
 

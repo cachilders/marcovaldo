@@ -17,7 +17,7 @@ function DistingEXPerformer:init()
   -- Initialize Disting EX
 end
 
-function DistingEXPerformer:play_note(voice, note, velocity, envelope_duration)
+function DistingEXPerformer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to Disting EX
 end
 

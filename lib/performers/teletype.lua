@@ -17,7 +17,7 @@ function TeletypePerformer:init()
   -- Initialize Teletype
 end
 
-function TeletypePerformer:play_note(voice, note, velocity, envelope_duration)
+function TeletypePerformer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to Teletype
 end
 

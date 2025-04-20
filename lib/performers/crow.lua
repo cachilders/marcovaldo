@@ -17,7 +17,7 @@ function CrowPerformer:init()
   -- Initialize Crow
 end
 
-function CrowPerformer:play_note(voice, note, velocity, envelope_duration)
+function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to Crow
 end
 

@@ -35,7 +35,7 @@ function MxSynthsPerformer:apply_effect(index, data)
   )
 end
 
-function MxSynthsPerformer:play_note(voice, note, velocity, envelope_duration)
+function MxSynthsPerformer:play_note(sequence, note, velocity, envelope_duration)
   local synth = self.mx.synths[params:get('mxsynths_synth')]
   self.mx:play({
     synth = synth,

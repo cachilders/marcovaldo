@@ -17,7 +17,7 @@ function JustFriendsPerformer:init()
   -- Initialize Just Friends
 end
 
-function JustFriendsPerformer:play_note(voice, note, velocity, envelope_duration)
+function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to Just Friends
 end
 
