@@ -22,19 +22,6 @@ function MxSynthsPerformer:init()
   params:set('mxsynths_synth', 7)
 end
 
-function MxSynthsPerformer:play_note(voice, note, velocity, envelope_duration)
-  local synth = self.mx.synths[params:get('mxsynths_synth')]
-  self.mx:play({
-    synth = synth,
-    note = note,
-    velocity = velocity,
-    attack = envelope_duration * (params:get('marco_attack_'..voice) / 100),
-    decay = envelope_duration * (params:get('marco_decay_'..voice) / 100),
-    sustain = params:get('marco_sustain_'..voice) / 100,
-    release = envelope_duration * (params:get('marco_release_'..voice) / 100)
-  })
-end
-
 function MxSynthsPerformer:apply_effect(index, data)
   local mod_reset_value = params:get('mxsynths_mod'..index)
   local beat_time = 60 / params:get('clock_tempo')
@@ -46,6 +33,19 @@ function MxSynthsPerformer:apply_effect(index, data)
       engine.mx_set('mod'..index, mod_reset_value)
     end
   )
+end
+
+function MxSynthsPerformer:play_note(voice, note, velocity, envelope_duration)
+  local synth = self.mx.synths[params:get('mxsynths_synth')]
+  self.mx:play({
+    synth = synth,
+    note = note,
+    velocity = velocity,
+    attack = envelope_duration * (params:get('marco_attack_'..voice) / 100),
+    decay = envelope_duration * (params:get('marco_decay_'..voice) / 100),
+    sustain = params:get('marco_sustain_'..voice) / 100,
+    release = envelope_duration * (params:get('marco_release_'..voice) / 100)
+  })
 end
 
 return MxSynthsPerformer 

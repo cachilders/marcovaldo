@@ -2,6 +2,7 @@ local textentry = require('textentry')
 local fileselect = require('fileselect')
 local ENABLED_STATES = {'Enabled', 'Disabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
+local I2C_PERFORMERS = {'Ansible', 'Crow', 'ER-301', 'Disting EX', 'Teletype', 'W/'}
 
 local Parameters = {
   animations_enabled = nil,
@@ -55,10 +56,28 @@ function Parameters:_init_observables()
   self.scale = observable.new('')
 end
 
+
+
 function Parameters:_init_performers()
-  local available_performers = {'MxSynths'} -- 'MIDI', 'Crow', 'Disting EX', 'ER-301', `W/`, 'Ansible'
-  table.sort(available_performers)
+  local available_performers = {'MxSynths', 'MIDI'}
+  if norns.crow.dev then
+    for _, device in ipairs(I2C_PERFORMERS) do
+      table.insert(available_performers, device)
+    end
+  end
   self.available_performers = available_performers
+end
+
+function Parameters:_refresh_midi_devices()
+  local devices = {}
+  
+  for i = 1, #midi.vports do
+    if midi.vports[i].name ~= 'none' then
+      devices[i] = midi.vports[i].name
+    end
+  end
+
+  parameters.midi_device_identifiers = devices
 end
 
 function Parameters:_init_params()
@@ -102,6 +121,14 @@ function Parameters:_init_params()
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
+    -- Add conditional renders for any given performer
+    -- Midi: Device (select from available devices (default to first)), channel (omni - 16 with 1 as default)
+    -- ER-301: select ports between ANY and 1-100
+    -- Ansible: Outputs 1-4
+    -- Crow: Device ID (nil (default) - n+1 (4 for me)); outs 1/2 or 3/4; 1 is trig, 2 is cv and so on
+    -- Teletype: Trigger inputs or outputs; Outputs 1-4 or Inputs 1/2, 3/4, 5/6, 7/8
+    -- Disting EX: TBD
+    -- W/: Device ID (nil (default) - n+1 (3 for me)), Algo (syn, tape, loop)
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_sustain_'..i, 'Sustain', 0, 100, 90, function(param) return ''..param:get()..'% of strength' end)
