@@ -1,9 +1,21 @@
 local textentry = require('textentry')
 local fileselect = require('fileselect')
 
+local ANS = 'Ansible'
+local CROW = 'Crow'
+local SC = 'ER-301'
+local DIST = 'Disting EX'
+local JF = 'Just Friends'
+local TT = 'Teletype'
+local WD = 'W/Delay'
+local WS = 'W/Synth'
+local WT = 'W/Tape'
+local MIDI = 'Midi'
+local MX = 'Mx. Synths'
+
 local ENABLED_STATES = {'Enabled', 'Disabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
-local I2C_PERFORMERS = {'Ansible', 'Crow', 'ER-301', 'Disting EX', 'Just Friends', 'Teletype', 'W/Delay', 'W/Synth', 'W/Tape'}
+local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, TT, WD, WS, WT}
 local CROW_OUTPUTS = {'1/2', '3/4'}
 local TELETYPE_SEND_OPTIONS = {'Inputs', 'Outputs'}
 local TELETYPE_INPUT_OPTIONS = {'1/2', '3/4', '5/6', '7/8'}
@@ -66,7 +78,7 @@ end
 
 
 function Parameters:_init_performers()
-  local available_performers = {'MxSynths', 'MIDI'}
+  local available_performers = {MX, MIDI}
   if norns.crow.dev then
     for _, device in ipairs(I2C_PERFORMERS) do
       table.insert(available_performers, device)
@@ -128,7 +140,10 @@ function Parameters:_init_params()
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
-    params:set_action('marco_performer', function() self:refresh_params() end)
+    params:set_action('marco_performer', function(j) self:_refresh_performer_params(i, j) end)
+
+    -- Disting EX options: TBD
+    -- JF options: TBD
 
     params:add_option('marco_performer_midi_device'..i, 'Midi Device', self.midi_device_identifiers, 1)
     params:add_number('marco_performer_midi_channel'..i, 'Midi Channel', 0, 16, 1)
@@ -141,17 +156,10 @@ function Parameters:_init_params()
     params:add_number('marco_performer_ansible_output'..i, 'Ansible', 1, 100, 1)
 
     params:add_option('marco_performer_teletype_send'..i, 'Teletype Destination', TELETYPE_SEND_OPTIONS, 2)
-    params:set_action('marco_performer_teletype_send', function() self:refresh_params() end)
     params:add_option('marco_performer_teletype_inputs'..i, 'Teletype Input Target', TELETYPE_INPUT_OPTIONS, 1)
     params:add_number('marco_performer_teletype_outputs'..i, 'Teletype Output Target', 1, 4, 1)
 
-    params:add_option('marco_performer_midi_device'..i, 'Midi Device', self.midi_device_identifiers, 1)
-    params:add_option('marco_performer_midi_device'..i, 'Midi Device', self.midi_device_identifiers, 1)
-
-    -- Disting EX Options: TBD
-
     params:add_number('marco_performer_w_device'..i, 'Which W/', 1, 12, 1)
-    params:add_option('marco_performer_w_outputs'..i, 'W/ Algo', W_ALGO_OPTIONS, 1)
 
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
@@ -160,8 +168,45 @@ function Parameters:_init_params()
   end
 end
 
-function Parameters:_refresh_params()
-  --conditional render logic for all voice params
+function Parameters:_refresh_performer_params(seq, val)
+  local active_performer = self.available_performers[val]
+  for i = 1, 4 do
+    params:hide('marco_performer_midi_device'..i)
+    params:hide('marco_performer_midi_channel'..i)
+    params:hide('marco_performer_crow_device'..i)
+    params:hide('marco_performer_crow_outputs'..i)
+    params:hide('marco_performer_er_301_port'..i)
+    params:hide('marco_performer_ansible_output'..i)
+    params:hide('marco_performer_teletype_send'..i)
+    params:hide('marco_performer_teletype_inputs'..i)
+    params:hide('marco_performer_teletype_outputs'..i)
+    params:hide('marco_performer_w_device'..i)
+    if seq == i then 
+      if active_performer == MX then
+        -- noop
+      else if active_performer == DIST then
+        -- noop
+      else if active_performer == JF then
+        -- noop
+      else if active_performer == MIDI then
+        params:show('marco_performer_midi_device'..i)
+        params:show('marco_performer_midi_channel'..i)
+      else if active_performer == CROW then
+        params:show('marco_performer_crow_device'..i)
+        params:show('marco_performer_crow_outputs'..i)
+      else if active_performer == SC then
+        params:show('marco_performer_er_301_port'..i)
+      else if active_performer == ANS then
+        params:show('marco_performer_ansible_output'..i)
+      else if active_performer == TT then
+        params:show('marco_performer_teletype_send'..i)
+        params:show('marco_performer_teletype_inputs'..i)
+        params:show('marco_performer_teletype_outputs'..i)
+      else
+        params:show('marco_performer_w_device'..i)
+      end
+    end
+  end
 end
 
 function Parameters:get_performer(sequence)

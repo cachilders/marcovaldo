@@ -4,7 +4,7 @@ local Performer = include('lib/performer')
 
 local MxSynthsPerformer = {
   mx = nil,
-  name = 'MxSynths'
+  name = 'Mx. Synths'
 }
 
 setmetatable(MxSynthsPerformer, { __index = Performer })
