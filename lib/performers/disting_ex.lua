@@ -1,4 +1,4 @@
-local Performer = require 'lib/performer'
+local Performer = include('lib/performer')
 
 local DistingEXPerformer = {
   name = 'Disting EX'

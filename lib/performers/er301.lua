@@ -1,4 +1,4 @@
-local Performer = require 'lib/performer'
+local Performer = include('lib/performer')
 
 local ER301Performer = {
   name = 'ER-301'

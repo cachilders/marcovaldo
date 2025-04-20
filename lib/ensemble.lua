@@ -1,12 +1,15 @@
 local actions = include('lib/actions')
-local AnsiblePerformer = require 'lib/performers/ansible'
-local CrowPerformer = require 'lib/performers/crow'
-local DistingEXPerformer = require 'lib/performers/disting_ex'
-local ER301Performer = require 'lib/performers/er301'
-local MidiPerformer = require 'lib/performers/midi'
+local AnsiblePerformer = include('lib/performers/ansible')
+local CrowPerformer = include('lib/performers/crow')
+local DistingEXPerformer = include('lib/performers/disting_ex')
+local ER301Performer = include('lib/performers/er301')
+local JustFriendsPerformer = include('lib/performers/just_friends')
+local MidiPerformer = include('lib/performers/midi')
 local MxSynthsPerformer = include('lib/performers/mx_synths')
-local TeletypePerformer = require 'lib/performers/teletype'
-local WPerformer = require 'lib/performers/w'
+local TeletypePerformer = include('lib/performers/teletype')
+local WDelayPerformer = include('lib/performers/w_delay')
+local WSynthPerformer = include('lib/performers/w_synth')
+local WTapePerformer = include('lib/performers/w_tape')
 
 local AMPLITUDE_OPERAND = 1/127
 local MAX_DISTANCE_OPERAND = .1
@@ -39,10 +42,14 @@ function Ensemble:init()
   self:add_performer(MidiPerformer:new())
   self:add_performer(AnsiblePerformer:new())
   self:add_performer(CrowPerformer:new())
-  self:add_performer(ER301Performer:new())
   self:add_performer(DistingEXPerformer:new())
+  self:add_performer(ER301Performer:new())
+  self:add_performer(MxSynthsPerformer:new())
+  self:add_performer(JustFriendsPerformer:new())
   self:add_performer(TeletypePerformer:new())
-  self:add_performer(WPerformer:new())
+  self:add_performer(WDelayPerformer:new())
+  self:add_performer(WSynthPerformer:new())
+  self:add_performer(WTapePerformer:new())
   self:init_performers()
 end
 

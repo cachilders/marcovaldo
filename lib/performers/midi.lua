@@ -1,4 +1,4 @@
-local Performer = require 'lib/performer'
+local Performer = include('lib/performer')
 
 local MidiPerformer = {
   name = 'MIDI'

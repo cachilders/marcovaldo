@@ -1,8 +1,13 @@
 local textentry = require('textentry')
 local fileselect = require('fileselect')
+
 local ENABLED_STATES = {'Enabled', 'Disabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
-local I2C_PERFORMERS = {'Ansible', 'Crow', 'ER-301', 'Disting EX', 'Teletype', 'W/'}
+local I2C_PERFORMERS = {'Ansible', 'Crow', 'ER-301', 'Disting EX', 'Just Friends', 'Teletype', 'W/Delay', 'W/Synth', 'W/Tape'}
+local CROW_OUTPUTS = {'1/2', '3/4'}
+local TELETYPE_SEND_OPTIONS = {'Inputs', 'Outputs'}
+local TELETYPE_INPUT_OPTIONS = {'1/2', '3/4', '5/6', '7/8'}
+local W_ALGO_OPTIONS = {'Delay', 'Loop', 'Synth'}
 
 local Parameters = {
   animations_enabled = nil,
@@ -46,7 +51,9 @@ end
 function Parameters:init()
   self:_init_observables()
   self:_init_performers()
+  self:_init_midi_devices()
   self:_init_params()
+  self:_refresh_params()
   params:bang()
 end
 
@@ -68,7 +75,7 @@ function Parameters:_init_performers()
   self.available_performers = available_performers
 end
 
-function Parameters:_refresh_midi_devices()
+function Parameters:_init_midi_devices()
   local devices = {}
   
   for i = 1, #midi.vports do
@@ -77,7 +84,7 @@ function Parameters:_refresh_midi_devices()
     end
   end
 
-  parameters.midi_device_identifiers = devices
+  self.parameters.midi_device_identifiers = devices
 end
 
 function Parameters:_init_params()
@@ -121,19 +128,40 @@ function Parameters:_init_params()
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
-    -- Add conditional renders for any given performer
-    -- Midi: Device (select from available devices (default to first)), channel (omni - 16 with 1 as default)
-    -- ER-301: select ports between ANY and 1-100
-    -- Ansible: Outputs 1-4
-    -- Crow: Device ID (nil (default) - n+1 (4 for me)); outs 1/2 or 3/4; 1 is trig, 2 is cv and so on
-    -- Teletype: Trigger inputs or outputs; Outputs 1-4 or Inputs 1/2, 3/4, 5/6, 7/8
-    -- Disting EX: TBD
-    -- W/: Device ID (nil (default) - n+1 (3 for me)), Algo (syn, tape, loop)
+    params:set_action('marco_performer', function() self:refresh_params() end)
+
+    params:add_option('marco_performer_midi_device'..i, 'Midi Device', self.midi_device_identifiers, 1)
+    params:add_number('marco_performer_midi_channel'..i, 'Midi Channel', 0, 16, 1)
+
+    params:add_number('marco_performer_crow_device'..i, 'Which Crow', 1, 12, 1)
+    params:add_option('marco_performer_crow_outputs'..i, 'Crow Outputs', CROW_OUTPUTS, 1)
+
+    params:add_number('marco_performer_er_301_port'..i, 'ER-301 Port', 1, 100, 1)
+
+    params:add_number('marco_performer_ansible_output'..i, 'Ansible', 1, 100, 1)
+
+    params:add_option('marco_performer_teletype_send'..i, 'Teletype Destination', TELETYPE_SEND_OPTIONS, 2)
+    params:set_action('marco_performer_teletype_send', function() self:refresh_params() end)
+    params:add_option('marco_performer_teletype_inputs'..i, 'Teletype Input Target', TELETYPE_INPUT_OPTIONS, 1)
+    params:add_number('marco_performer_teletype_outputs'..i, 'Teletype Output Target', 1, 4, 1)
+
+    params:add_option('marco_performer_midi_device'..i, 'Midi Device', self.midi_device_identifiers, 1)
+    params:add_option('marco_performer_midi_device'..i, 'Midi Device', self.midi_device_identifiers, 1)
+
+    -- Disting EX Options: TBD
+
+    params:add_number('marco_performer_w_device'..i, 'Which W/', 1, 12, 1)
+    params:add_option('marco_performer_w_outputs'..i, 'W/ Algo', W_ALGO_OPTIONS, 1)
+
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_sustain_'..i, 'Sustain', 0, 100, 90, function(param) return ''..param:get()..'% of strength' end)
     params:add_number('marco_release_'..i, 'Release', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
   end
+end
+
+function Parameters:_refresh_params()
+  --conditional render logic for all voice params
 end
 
 function Parameters:get_performer(sequence)
