@@ -1,3 +1,4 @@
+include('lib/utils')
 local textentry = require('textentry')
 local fileselect = require('fileselect')
 
@@ -24,6 +25,7 @@ local W_ALGO_OPTIONS = {'Delay', 'Loop', 'Synth'}
 local Parameters = {
   animations_enabled = nil,
   available_performers = nil,
+  midi_device_identifiers = nil,
   root = nil,
   scale = nil,
   scale_names = nil
@@ -65,7 +67,7 @@ function Parameters:init()
   self:_init_performers()
   self:_init_midi_devices()
   self:_init_params()
-  self:_refresh_params()
+  self:_refresh_performer_params()
   params:bang()
 end
 
@@ -92,11 +94,11 @@ function Parameters:_init_midi_devices()
   
   for i = 1, #midi.vports do
     if midi.vports[i].name ~= 'none' then
-      devices[i] = midi.vports[i].name
+      devices[i] = truncate_string(midi.vports[i].name, 16)
     end
   end
 
-  self.parameters.midi_device_identifiers = devices
+  self.midi_device_identifiers = devices
 end
 
 function Parameters:_init_params()
@@ -126,7 +128,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 12)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 22)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -140,7 +142,7 @@ function Parameters:_init_params()
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
-    params:set_action('marco_performer', function(j) self:_refresh_performer_params(i, j) end)
+    params:set_action('marco_performer_'..i, function(j) self:_refresh_performer_params(i, j) end)
 
     -- Disting EX options: TBD
     -- JF options: TBD
@@ -153,7 +155,7 @@ function Parameters:_init_params()
 
     params:add_number('marco_performer_er_301_port'..i, 'ER-301 Port', 1, 100, 1)
 
-    params:add_number('marco_performer_ansible_output'..i, 'Ansible', 1, 100, 1)
+    params:add_number('marco_performer_ansible_output'..i, 'Ansible Output', 1, 4, 1)
 
     params:add_option('marco_performer_teletype_send'..i, 'Teletype Destination', TELETYPE_SEND_OPTIONS, 2)
     params:add_option('marco_performer_teletype_inputs'..i, 'Teletype Input Target', TELETYPE_INPUT_OPTIONS, 1)
@@ -184,21 +186,21 @@ function Parameters:_refresh_performer_params(seq, val)
     if seq == i then 
       if active_performer == MX then
         -- noop
-      else if active_performer == DIST then
+      elseif active_performer == DIST then
         -- noop
-      else if active_performer == JF then
+      elseif active_performer == JF then
         -- noop
-      else if active_performer == MIDI then
+      elseif active_performer == MIDI then
         params:show('marco_performer_midi_device'..i)
         params:show('marco_performer_midi_channel'..i)
-      else if active_performer == CROW then
+      elseif active_performer == CROW then
         params:show('marco_performer_crow_device'..i)
         params:show('marco_performer_crow_outputs'..i)
-      else if active_performer == SC then
+      elseif active_performer == SC then
         params:show('marco_performer_er_301_port'..i)
-      else if active_performer == ANS then
+      elseif active_performer == ANS then
         params:show('marco_performer_ansible_output'..i)
-      else if active_performer == TT then
+      elseif active_performer == TT then
         params:show('marco_performer_teletype_send'..i)
         params:show('marco_performer_teletype_inputs'..i)
         params:show('marco_performer_teletype_outputs'..i)
@@ -207,6 +209,7 @@ function Parameters:_refresh_performer_params(seq, val)
       end
     end
   end
+  _menu.rebuild_params()
 end
 
 function Parameters:get_performer(sequence)
