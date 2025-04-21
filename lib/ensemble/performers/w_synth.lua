@@ -1,4 +1,4 @@
-local Performer = include('lib/performer')
+local Performer = include('lib/ensemble/performer')
 local VELOCITY_CONSTANT = 5/127 -- to test
 
 local WSynthPerformer = {
@@ -22,8 +22,8 @@ function WSynthPerformer:play_note(sequence, note, velocity, envelope_duration)
   local device = params:get('marco_performer_w_device'..sequence)
   local attack = (params:get('marco_attack_'..sequence)*.1) - 5
   crow.ii.wsyn[device].ar_mode(1) -- Investigate alternate options
-  crow.ii.wsyn[device].lpg_symmetry(attack)
-  crow.ii.wsyn[device].play_note((note  - params:get('marco_root'))/ 12, velocity * VELOCITY_CONSTANT) -- Expand with attack and release as best we can
+  crow.ii.wsyn[device].lpg_symmetry(attack) -- Expand with attack and release as best we can
+  crow.ii.wsyn[device].play_note((note  - params:get('marco_root'))/12, velocity * VELOCITY_CONSTANT)
 end
 
 function WSynthPerformer:apply_effect(index, data)

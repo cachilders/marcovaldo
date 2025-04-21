@@ -1,4 +1,4 @@
-local Performer = include('lib/performer')
+local Performer = include('lib/ensemble/performer')
 
 local WTapePerformer = {
   name = 'W/Tape'

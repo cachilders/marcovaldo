@@ -1,6 +1,6 @@
 engine.name='MxSynths'
 
-local Performer = include('lib/performer')
+local Performer = include('lib/ensemble/performer')
 
 local MxSynthsPerformer = {
   mx = nil,

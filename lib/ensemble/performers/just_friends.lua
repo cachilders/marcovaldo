@@ -1,4 +1,4 @@
-local Performer = include('lib/performer')
+local Performer = include('lib/ensemble/performer')
 
 local JustFriendsPerformer = {
   name = 'Just Friends'
@@ -18,7 +18,7 @@ function JustFriendsPerformer:init()
 end
 
 function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_duration)
-  -- Send note to Just Friends
+  -- Send note to Just Friends ii.jf[device]
 end
 
 function JustFriendsPerformer:apply_effect(index, data)
