@@ -41,10 +41,10 @@ function MxSynthsPerformer:play_note(sequence, note, velocity, envelope_duration
     synth = synth,
     note = note,
     velocity = velocity,
-    attack = envelope_duration * (params:get('marco_attack_'..voice) / 100),
-    decay = envelope_duration * (params:get('marco_decay_'..voice) / 100),
-    sustain = params:get('marco_sustain_'..voice) / 100,
-    release = envelope_duration * (params:get('marco_release_'..voice) / 100)
+    attack = envelope_duration * (params:get('marco_attack_'..sequence) / 100),
+    decay = envelope_duration * (params:get('marco_decay_'..sequence) / 100),
+    sustain = params:get('marco_sustain_'..sequence) / 100,
+    release = envelope_duration * (params:get('marco_release_'..sequence) / 100)
   })
 end
 

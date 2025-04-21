@@ -161,7 +161,7 @@ function Parameters:_init_params()
     params:add_option('marco_performer_teletype_inputs'..i, 'Teletype Input Target', TELETYPE_INPUT_OPTIONS, 1)
     params:add_number('marco_performer_teletype_outputs'..i, 'Teletype Output Target', 1, 4, 1)
 
-    params:add_number('marco_performer_w_device'..i, 'Which W/', 1, 12, 1)
+    params:add_number('marco_performer_w_device'..i, 'Which W/', 1, 2, 1)
 
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
