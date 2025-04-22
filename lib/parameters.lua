@@ -175,12 +175,13 @@ end
 function Parameters:_refresh_performer_params(seq, val)
   local active_performer = self.available_performers[val]
   for i = 1, 4 do
-    params:hide('marco_performer_midi_device_'..i)
-    params:hide('marco_performer_midi_channel_'..i)
+    params:hide('marco_performer_ansible_output_'..i)
     params:hide('marco_performer_crow_device_'..i)
     params:hide('marco_performer_crow_outputs_'..i)
     params:hide('marco_performer_er_301_port_'..i)
-    params:hide('marco_performer_ansible_output_'..i)
+    params:hide('marco_performer_jf_device_'..i)
+    params:hide('marco_performer_midi_device_'..i)
+    params:hide('marco_performer_midi_channel_'..i)
     -- params:hide('marco_performer_teletype_send_'..i)
     -- params:hide('marco_performer_teletype_inputs_'..i)
     -- params:hide('marco_performer_teletype_outputs_'..i)

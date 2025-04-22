@@ -28,11 +28,20 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
   local envelope = '{ to(0,0), to('..envelope_duration * (atk / 100)..','..velocity..'), to('..envelope_duration * (dec / 100)..','..sus..'), to('..envelope_duration * (sus_period / 100)..','..sus..'), to('..envelope_duration * (rel / 100)..',0) }'
   note = (note - params:get('marco_root'))/12
   if device == 1 then
-    crow.output[env_out].action = envelope
+    print(envelope)
     crow.output[cv_out].volts = note
+    crow.output[env_out].action = envelope
+    crow.output[env_out]()
   else
-    crow.ii.crow[device - 1].output[env_out].action = envelope
-    crow.ii.crow[device - 1].output[cv_out].volts = note
+    clock.run(
+      function()
+        -- set slew or whatever else we can...ar, for instance
+        crow.ii.crow[device - 1].volts(env_out, 5)
+        crow.ii.crow[device - 1].volts(cv_out, note)
+        clock.sleep(envelope_duration)
+        crow.ii.crow[device - 1].volts(env_out, 0)
+      end
+    )
   end
 end
 
