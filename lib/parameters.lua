@@ -181,10 +181,10 @@ function Parameters:_refresh_performer_params(seq, val)
     params:hide('marco_performer_crow_outputs_'..i)
     params:hide('marco_performer_er_301_port_'..i)
     params:hide('marco_performer_ansible_output_'..i)
-    params:hide('marco_performer_teletype_send_'..i)
-    params:hide('marco_performer_teletype_inputs_'..i)
-    params:hide('marco_performer_teletype_outputs_'..i)
-    params:hide('marco_performer_w_device'..i)
+    -- params:hide('marco_performer_teletype_send_'..i)
+    -- params:hide('marco_performer_teletype_inputs_'..i)
+    -- params:hide('marco_performer_teletype_outputs_'..i)
+    params:hide('marco_performer_w_device_'..i)
     if seq == i then 
       if active_performer == MX then
         -- noop
