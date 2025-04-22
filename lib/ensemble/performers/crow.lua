@@ -24,6 +24,7 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
   local cv_out = output == 1 and 2 or 4
   local atk, dec, sus, rel = params:get('marco_attack_'..sequence), params:get('marco_decay_'..sequence), params:get('marco_sustain_'..sequence), params:get('marco_release_'..sequence)
   local sus_period = envelope_duration - (envelope_duration * (atk + dec + rel) / 100)
+  sus = sus * (velocity / 100)
   sus_period = sus_period >= 0 and sus_period or 0
   local envelope = '{ to(0,0), to('..envelope_duration * (atk / 100)..','..velocity..'), to('..envelope_duration * (dec / 100)..','..sus..'), to('..envelope_duration * (sus_period / 100)..','..sus..'), to('..envelope_duration * (rel / 100)..',0) }'
   note = (note - params:get('marco_root'))/12
