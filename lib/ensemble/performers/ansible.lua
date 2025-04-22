@@ -18,7 +18,7 @@ function AnsiblePerformer:init()
 end
 
 function AnsiblePerformer:play_note(sequence, note, velocity, envelope_duration)
-  local output = params:get('marco_ansible_output')
+  local output = params:get('marco_performer_ansible_output_'..sequence)
   -- figure out how we can do envelopes
   crow.ii.ansible.output[output].volts = (note - params:get('marco_root'))/12
   crow.ii.ansible.output[output].action = 'pulse'

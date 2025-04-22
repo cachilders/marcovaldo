@@ -19,7 +19,7 @@ function WSynthPerformer:init()
 end
 
 function WSynthPerformer:play_note(sequence, note, velocity, envelope_duration)
-  local device = params:get('marco_performer_w_device'..sequence)
+  local device = params:get('marco_performer_w_device_'..sequence)
   local attack = (params:get('marco_attack_'..sequence)*.1) - 5
   crow.ii.wsyn[device].ar_mode(1) -- Investigate alternate options
   crow.ii.wsyn[device].lpg_symmetry(attack) -- Expand with attack and release as best we can
