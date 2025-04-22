@@ -18,7 +18,21 @@ function CrowPerformer:init()
 end
 
 function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
-  -- Send note to Crow crow.ii.crow[this crow]. <- try this syntax
+  local device = params:get('marco_crow_device')
+  local output = params:get('marco_crow_output')
+  local env_out = output == 1 and 1 or 3
+  local cv_out = output == 1 and 2 or 4
+  local atk, dec, sus, rel = params:get('marco_crow_attack'), params:get('marco_crow_decay'), params:get('marco_crow_sustain'), params:get('marco_crow_release')
+  local sus_period = envelope_duration - (envelope_duration * (atk + dec + rel) / 100)
+  sus_period = sus_period >= 0 and sus_period or 0
+  local envelope = '{ to(0,0), to('..envelope_duration * (atk / 100)..','..velocity..'), to('..envelope_duration * (dec / 100)..','..sus..'), to('..envelope_duration * (sus_period / 100)..','..sus..'), to('..envelope_duration * (rel / 100)..',0) }'
+  if device == 1 then
+    crow.output[env_out].action = envelope
+    crow.output[cv_out].volts = (note - params:get('marco_root'))/12
+  else
+    crow.ii.crow[device - 1].output[env_out].action = envelope
+    crow.ii.crow[device - 1].output[cv_out].volts = (note - params:get('marco_root'))/12
+  end
 end
 
 function CrowPerformer:apply_effect(index, data)

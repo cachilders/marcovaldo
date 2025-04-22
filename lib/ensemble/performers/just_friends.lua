@@ -18,7 +18,7 @@ function JustFriendsPerformer:init()
 end
 
 function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_duration)
-  -- Send note to Just Friends ii.jf[device]
+  crow.ii.jf.play_note((note - params:get('marco_root'))/12, velocity/127, envelope_duration)
 end
 
 function JustFriendsPerformer:apply_effect(index, data)
