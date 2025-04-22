@@ -17,6 +17,7 @@ local MX = 'Mx. Synths'
 local ENABLED_STATES = {'Enabled', 'Disabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
 local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS, WT}
+local CROW_DEVICES = {'Host', '1', '2', '3', '4'}
 local CROW_OUTPUTS = {'1/2', '3/4'}
 -- local TELETYPE_SEND_OPTIONS = {'Inputs', 'Outputs'}
 -- local TELETYPE_INPUT_OPTIONS = {'1/2', '3/4', '5/6', '7/8'}
@@ -149,9 +150,9 @@ function Parameters:_init_params()
     params:add_number('marco_performer_jf_device'..i, 'Which JF', 1, 2, 1)
 
     params:add_option('marco_performer_midi_device'..i, 'Midi Device', self.midi_device_identifiers, 1)
-    params:add_number('marco_performer_midi_channel'..i, 'Midi Channel', 0, 16, 1)
+    params:add_number('marco_performer_midi_channel'..i, 'Midi Channel', 1, 16, 1)
 
-    params:add_number('marco_performer_crow_device'..i, 'Which Crow', 1, 4, 1)
+    params:add_option('marco_performer_crow_device'..i, 'Which Crow', CROW_DEVICES, 1)
     params:add_option('marco_performer_crow_outputs'..i, 'Crow Outputs', CROW_OUTPUTS, 1)
 
     params:add_number('marco_performer_er_301_port'..i, 'ER-301 Port', 1, 100, 1)
