@@ -193,15 +193,15 @@ function Parameters:_refresh_performer_params()
       params:show('marco_performer_crow_outputs_'..i)
       params:show('marco_performer_crow_gate_'..i)
       if params:get('marco_performer_crow_gate_'..i) == 1 then
-        params:show('marco_attack_'..i)
-        params:show('marco_decay_'..i)
-        params:show('marco_sustain_'..i)
-        params:show('marco_release_'..i)
-      else
         params:hide('marco_attack_'..i)
         params:hide('marco_decay_'..i)
         params:hide('marco_sustain_'..i)
         params:hide('marco_release_'..i)
+      else
+        params:show('marco_attack_'..i)
+        params:show('marco_decay_'..i)
+        params:show('marco_sustain_'..i)
+        params:show('marco_release_'..i)
       end
     elseif active_performer == SC then
       params:show('marco_performer_er_301_port_'..i)
