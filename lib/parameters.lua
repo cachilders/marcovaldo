@@ -179,6 +179,10 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_midi_device_'..i)
     params:hide('marco_performer_midi_channel_'..i)
     params:hide('marco_performer_w_device_'..i)
+    params:show('marco_attack_'..i)
+    params:show('marco_decay_'..i)
+    params:show('marco_sustain_'..i)
+    params:show('marco_release_'..i)
     if active_performer == MX then
       -- noop
     elseif active_performer == DIST then
@@ -197,11 +201,6 @@ function Parameters:_refresh_performer_params()
         params:hide('marco_decay_'..i)
         params:hide('marco_sustain_'..i)
         params:hide('marco_release_'..i)
-      else
-        params:show('marco_attack_'..i)
-        params:show('marco_decay_'..i)
-        params:show('marco_sustain_'..i)
-        params:show('marco_release_'..i)
       end
     elseif active_performer == SC then
       params:show('marco_performer_er_301_port_'..i)
