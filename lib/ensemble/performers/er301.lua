@@ -17,6 +17,10 @@ function ER301Performer:init()
   -- Initialize ER-301
 end
 
+-- crow.ii.er301.cv(port, volts)
+-- crow.ii.er301.tr(port, state) bool
+-- may need two ports for ER-301
+
 function ER301Performer:play_note(sequence, note, velocity, envelope_duration)
   -- Send note to ER-301
 end
