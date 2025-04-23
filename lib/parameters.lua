@@ -19,9 +19,7 @@ local ERROR_BAD_FILE = 'ERROR: Bad state file'
 local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS, WT}
 local CROW_DEVICES = {'Host', '1', '2', '3', '4'}
 local CROW_OUTPUTS = {'1/2', '3/4'}
--- local TELETYPE_SEND_OPTIONS = {'Inputs', 'Outputs'}
--- local TELETYPE_INPUT_OPTIONS = {'1/2', '3/4', '5/6', '7/8'}
-local W_ALGO_OPTIONS = {'Delay', 'Loop', 'Synth'}
+local CROW_GATES = {'Gate', 'Envelope'}
 
 local Parameters = {
   animations_enabled = nil,
@@ -129,7 +127,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 20)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 21)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -143,10 +141,10 @@ function Parameters:_init_params()
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
-    params:set_action('marco_performer_'..i, function(j) self:_refresh_performer_params(i, j) end)
-
+    params:set_action('marco_performer_'..i, function() self:_refresh_performer_params() end)
+    
     -- Disting EX options: TBD
-
+    
     params:add_number('marco_performer_jf_device_'..i, 'Which JF', 1, 2, 1)
 
     params:add_option('marco_performer_midi_device_'..i, 'Midi Device', self.midi_device_identifiers, 1)
@@ -154,14 +152,12 @@ function Parameters:_init_params()
 
     params:add_option('marco_performer_crow_device_'..i, 'Which Crow', CROW_DEVICES, 1)
     params:add_option('marco_performer_crow_outputs_'..i, 'Crow Outputs', CROW_OUTPUTS, 1)
+    params:add_option('marco_performer_crow_gate_'..i, 'Crow Gate', CROW_GATES, 1)
+    params:set_action('marco_performer_crow_gate_'..i, function() self:_refresh_performer_params() end)
 
     params:add_number('marco_performer_er_301_port_'..i, 'ER-301 Port', 1, 100, 1)
 
     params:add_number('marco_performer_ansible_output_'..i, 'Ansible Output', 1, 4, 1)
-
-    -- params:add_option('marco_performer_teletype_send_'..i, 'Teletype Destination', TELETYPE_SEND_OPTIONS, 2)
-    -- params:add_option('marco_performer_teletype_inputs_'..i, 'Teletype Input Target', TELETYPE_INPUT_OPTIONS, 1)
-    -- params:add_number('marco_performer_teletype_outputs_'..i, 'Teletype Output Target', 1, 4, 1)
 
     params:add_number('marco_performer_w_device_'..i, 'Which W/', 1, 2, 1)
 
@@ -172,9 +168,9 @@ function Parameters:_init_params()
   end
 end
 
-function Parameters:_refresh_performer_params(seq, val)
-  local active_performer = self.available_performers[val]
+function Parameters:_refresh_performer_params()
   for i = 1, 4 do
+    local active_performer = self.available_performers[params:get('marco_performer_'..i)]
     params:hide('marco_performer_ansible_output_'..i)
     params:hide('marco_performer_crow_device_'..i)
     params:hide('marco_performer_crow_outputs_'..i)
@@ -182,34 +178,36 @@ function Parameters:_refresh_performer_params(seq, val)
     params:hide('marco_performer_jf_device_'..i)
     params:hide('marco_performer_midi_device_'..i)
     params:hide('marco_performer_midi_channel_'..i)
-    -- params:hide('marco_performer_teletype_send_'..i)
-    -- params:hide('marco_performer_teletype_inputs_'..i)
-    -- params:hide('marco_performer_teletype_outputs_'..i)
     params:hide('marco_performer_w_device_'..i)
-    if seq == i then 
-      if active_performer == MX then
-        -- noop
-      elseif active_performer == DIST then
-        -- noop
-      elseif active_performer == JF then
-        params:show('marco_performer_jf_device_'..i)
-      elseif active_performer == MIDI then
-        params:show('marco_performer_midi_device_'..i)
-        params:show('marco_performer_midi_channel_'..i)
-      elseif active_performer == CROW then
-        params:show('marco_performer_crow_device_'..i)
-        params:show('marco_performer_crow_outputs_'..i)
-      elseif active_performer == SC then
-        params:show('marco_performer_er_301_port_'..i)
-      elseif active_performer == ANS then
-        params:show('marco_performer_ansible_output_'..i)
-      -- elseif active_performer == TT then
-      --   params:show('marco_performer_teletype_send_'..i)
-      --   params:show('marco_performer_teletype_inputs_'..i)
-      --   params:show('marco_performer_teletype_outputs_'..i)
+    if active_performer == MX then
+      -- noop
+    elseif active_performer == DIST then
+      -- noop
+    elseif active_performer == JF then
+      params:show('marco_performer_jf_device_'..i)
+    elseif active_performer == MIDI then
+      params:show('marco_performer_midi_device_'..i)
+      params:show('marco_performer_midi_channel_'..i)
+    elseif active_performer == CROW then
+      params:show('marco_performer_crow_device_'..i)
+      params:show('marco_performer_crow_outputs_'..i)
+      if params:get('marco_performer_crow_gate_'..i) == 1 then
+        params:show('marco_attack_'..i)
+        params:show('marco_decay_'..i)
+        params:show('marco_sustain_'..i)
+        params:show('marco_release_'..i)
       else
-        params:show('marco_performer_w_device_'..i)
+        params:hide('marco_attack_'..i)
+        params:hide('marco_decay_'..i)
+        params:hide('marco_sustain_'..i)
+        params:hide('marco_release_'..i)
       end
+    elseif active_performer == SC then
+      params:show('marco_performer_er_301_port_'..i)
+    elseif active_performer == ANS then
+      params:show('marco_performer_ansible_output_'..i)
+    else
+      params:show('marco_performer_w_device_'..i)
     end
   end
   _menu.rebuild_params()
