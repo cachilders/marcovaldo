@@ -161,7 +161,7 @@ function Parameters:_init_params()
 
     params:add_number('marco_performer_w_device_'..i, 'Which W/', 1, 2, 1)
 
-    params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, function(param) return ''..param:get()..'% of pulse' end)
+    params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, 0, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_sustain_'..i, 'Sustain', 0, 100, 90, function(param) return ''..param:get()..'% of strength' end)
@@ -173,7 +173,7 @@ function Parameters:_refresh_performer_params()
   for i = 1, 4 do
     local active_performer = self.available_performers[params:get('marco_performer_'..i)]
     params:hide('marco_performer_ansible_output_'..i)
-    param:hide('marco_performer_slew_'..i)
+    params:hide('marco_performer_slew_'..i)
     params:hide('marco_performer_crow_device_'..i)
     params:hide('marco_performer_crow_outputs_'..i)
     params:hide('marco_performer_crow_gate_'..i)

@@ -19,9 +19,10 @@ end
 
 function AnsiblePerformer:play_note(sequence, note, velocity, envelope_duration)
   local output = params:get('marco_performer_ansible_output_'..sequence)
-  crow.ii.ansible.slew(envelope_duration * params:get('marco_performer_ansible_slew_'..sequence) / 100)
-  crow.ii.ansible.cv(output, note / 12)
+  crow.ii.ansible.cv_slew(envelope_duration * params:get('marco_performer_slew_'..sequence) / 100)
   crow.ii.ansible.trigger_time(output, envelope_duration)
+  crow.ii.ansible.cv(output, note / 12)
+  crow.ii.ansible.trigger_pulse(output)
 end
 
 function AnsiblePerformer:apply_effect(index, data)
