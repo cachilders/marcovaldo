@@ -126,7 +126,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 21)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 22)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -154,7 +154,8 @@ function Parameters:_init_params()
     params:add_option('marco_performer_crow_gate_'..i, 'Crow Gate', CROW_GATES, 1)
     params:set_action('marco_performer_crow_gate_'..i, function() self:_refresh_performer_params() end)
 
-    params:add_number('marco_performer_er_301_port_'..i, 'ER-301 Port', 1, 100, 1)
+    params:add_number('marco_performer_er301_cv_port_'..i, 'ER-301 CV Port', 1, 100, 1)
+    params:add_number('marco_performer_er301_tr_port_'..i, 'ER-301 TR Port', 1, 100, 1)
 
     params:add_number('marco_performer_ansible_output_'..i, 'Ansible Output', 1, 4, 1)
 
@@ -174,7 +175,8 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_crow_device_'..i)
     params:hide('marco_performer_crow_outputs_'..i)
     params:hide('marco_performer_crow_gate_'..i)
-    params:hide('marco_performer_er_301_port_'..i)
+    params:hide('marco_performer_er301_cv_port_'..i)
+    params:hide('marco_performer_er301_tr_port_'..i)
     params:hide('marco_performer_jf_device_'..i)
     params:hide('marco_performer_midi_device_'..i)
     params:hide('marco_performer_midi_channel_'..i)
@@ -203,7 +205,12 @@ function Parameters:_refresh_performer_params()
         params:hide('marco_release_'..i)
       end
     elseif active_performer == SC then
-      params:show('marco_performer_er_301_port_'..i)
+      params:show('marco_performer_er301_cv_port_'..i)
+      params:show('marco_performer_er301_tr_port_'..i)
+      params:hide('marco_attack_'..i)
+      params:hide('marco_decay_'..i)
+      params:hide('marco_sustain_'..i)
+      params:hide('marco_release_'..i)
     elseif active_performer == ANS then
       params:show('marco_performer_ansible_output_'..i)
     else
