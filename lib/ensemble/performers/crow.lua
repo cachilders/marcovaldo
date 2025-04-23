@@ -28,7 +28,7 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
   local sus_dur = envelope_duration - (envelope_duration * (atk + dec + rel) / 100)
   sus = sus * peak / 100
   sus_dur = sus_dur >= 0 and sus_dur or 0
-  local a, d, sus_v, r = envelope_duration * (atk / 100), envelope_duration * (dec / 100), sus, envelope_duration * (rel / 100)
+  local a, d, sus_v, r = envelope_duration * atk / 100, envelope_duration * dec / 100, sus, envelope_duration * rel / 100
   note = note / 12
   if device == 1 then
     crow.output[cv_out].volts = note
@@ -58,8 +58,10 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
           crow.ii.crow[device].volts(env_out, 0)
           crow.ii.crow[device].slew(env_out, a)
           crow.ii.crow[device].volts(env_out, peak)
+          clock.sleep(a)
           crow.ii.crow[device].slew(env_out, d)
           crow.ii.crow[device].volts(env_out, sus_v)
+          clock.sleep(d)
           clock.sleep(sus_dur)
           crow.ii.crow[device].slew(env_out, r)
           crow.ii.crow[device].volts(env_out, 0)
