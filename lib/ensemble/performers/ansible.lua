@@ -17,23 +17,11 @@ function AnsiblePerformer:init()
   -- Initialize Ansible
 end
 
--- crow.ii.ansible.trigger( channel, state )
--- crow.ii.ansible.trigger_toggle( channel )
--- crow.ii.ansible.trigger_pulse( channel )
--- crow.ii.ansible.trigger_time( channel, time )
--- crow.ii.ansible.trigger_polarity( channel, polarity )
--- crow.ii.ansible.cv( channel, volts )
--- crow.ii.ansible.cv_slew( channel, time )
--- crow.ii.ansible.cv_offset( channel, volts )
--- crow.ii.ansible.cv_set( channel, volts )
-
-
 function AnsiblePerformer:play_note(sequence, note, velocity, envelope_duration)
   local output = params:get('marco_performer_ansible_output_'..sequence)
-  -- figure out how we can do envelopes
-  crow.ii.ansible.output[output].volts = (note - params:get('marco_root'))/12
-  crow.ii.ansible.output[output].action = 'pulse'
-  crow.ii.ansible.output[output].time = envelope_duration
+  crow.ii.ansible.slew(envelope_duration * params:get('marco_performer_ansible_slew_'..sequence) / 100)
+  crow.ii.ansible.cv(output, note / 12)
+  crow.ii.ansible.trigger_time(output, envelope_duration)
 end
 
 function AnsiblePerformer:apply_effect(index, data)

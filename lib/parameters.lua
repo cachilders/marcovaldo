@@ -126,7 +126,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 22)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 23)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -150,17 +150,18 @@ function Parameters:_init_params()
     params:add_number('marco_performer_midi_channel_'..i, 'Midi Channel', 1, 16, 1)
 
     params:add_option('marco_performer_crow_device_'..i, 'Which Crow', CROW_DEVICES, 1)
-    params:add_option('marco_performer_crow_outputs_'..i, 'Crow Outputs', CROW_OUTPUTS, 1)
-    params:add_option('marco_performer_crow_gate_'..i, 'Crow Gate', CROW_GATES, 1)
+    params:add_option('marco_performer_crow_outputs_'..i, 'Which Outputs', CROW_OUTPUTS, 1)
+    params:add_option('marco_performer_crow_gate_'..i, 'Gate Type', CROW_GATES, 1)
     params:set_action('marco_performer_crow_gate_'..i, function() self:_refresh_performer_params() end)
 
-    params:add_number('marco_performer_er301_cv_port_'..i, 'ER-301 CV Port', 1, 100, 1)
-    params:add_number('marco_performer_er301_tr_port_'..i, 'ER-301 TR Port', 1, 100, 1)
+    params:add_number('marco_performer_er301_cv_port_'..i, 'CV Port', 1, 100, 1)
+    params:add_number('marco_performer_er301_tr_port_'..i, 'TR Port', 1, 100, 1)
 
-    params:add_number('marco_performer_ansible_output_'..i, 'Ansible Output', 1, 4, 1)
+    params:add_number('marco_performer_ansible_output_'..i, 'Output Channel', 1, 4, 1)
 
     params:add_number('marco_performer_w_device_'..i, 'Which W/', 1, 2, 1)
 
+    params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_sustain_'..i, 'Sustain', 0, 100, 90, function(param) return ''..param:get()..'% of strength' end)
@@ -172,6 +173,7 @@ function Parameters:_refresh_performer_params()
   for i = 1, 4 do
     local active_performer = self.available_performers[params:get('marco_performer_'..i)]
     params:hide('marco_performer_ansible_output_'..i)
+    param:hide('marco_performer_slew_'..i)
     params:hide('marco_performer_crow_device_'..i)
     params:hide('marco_performer_crow_outputs_'..i)
     params:hide('marco_performer_crow_gate_'..i)
@@ -181,12 +183,15 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_midi_device_'..i)
     params:hide('marco_performer_midi_channel_'..i)
     params:hide('marco_performer_w_device_'..i)
-    params:show('marco_attack_'..i)
-    params:show('marco_decay_'..i)
-    params:show('marco_sustain_'..i)
-    params:show('marco_release_'..i)
+    params:hide('marco_attack_'..i)
+    params:hide('marco_decay_'..i)
+    params:hide('marco_sustain_'..i)
+    params:hide('marco_release_'..i)
     if active_performer == MX then
-      -- noop
+      params:show('marco_attack_'..i)
+      params:show('marco_decay_'..i)
+      params:show('marco_sustain_'..i)
+      params:show('marco_release_'..i)
     elseif active_performer == DIST then
       -- noop
     elseif active_performer == JF then
@@ -198,21 +203,19 @@ function Parameters:_refresh_performer_params()
       params:show('marco_performer_crow_device_'..i)
       params:show('marco_performer_crow_outputs_'..i)
       params:show('marco_performer_crow_gate_'..i)
-      if params:get('marco_performer_crow_gate_'..i) == 1 then
-        params:hide('marco_attack_'..i)
-        params:hide('marco_decay_'..i)
-        params:hide('marco_sustain_'..i)
-        params:hide('marco_release_'..i)
+      params:show('marco_performer_slew_'..i)
+      if params:get('marco_performer_crow_gate_'..i) == 2 then
+        params:show('marco_attack_'..i)
+        params:show('marco_decay_'..i)
+        params:show('marco_sustain_'..i)
+        params:show('marco_release_'..i)
       end
     elseif active_performer == SC then
       params:show('marco_performer_er301_cv_port_'..i)
       params:show('marco_performer_er301_tr_port_'..i)
-      params:hide('marco_attack_'..i)
-      params:hide('marco_decay_'..i)
-      params:hide('marco_sustain_'..i)
-      params:hide('marco_release_'..i)
     elseif active_performer == ANS then
       params:show('marco_performer_ansible_output_'..i)
+      params:show('marco_performer_slew_'..i)
     else
       params:show('marco_performer_w_device_'..i)
     end

@@ -22,6 +22,7 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
   local device = params:get('marco_performer_crow_device_'..sequence)
   local output = params:get('marco_performer_crow_outputs_'..sequence)
   local gate = params:get('marco_performer_crow_gate_'..sequence)
+  local slew = envelope_duration * params:get('marco_performer_slew_'..sequence) / 100
   local env_out = output == 1 and 1 or 3
   local cv_out = output == 1 and 2 or 4
   local atk, dec, sus, rel = params:get('marco_attack_'..sequence), params:get('marco_decay_'..sequence), params:get('marco_sustain_'..sequence), params:get('marco_release_'..sequence)
@@ -31,6 +32,7 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
   local a, d, sus_v, r = envelope_duration * atk / 100, envelope_duration * dec / 100, sus, envelope_duration * rel / 100
   note = note / 12
   if device == 1 then
+    crow.output[cv_out].slew = slew
     crow.output[cv_out].volts = note
     if gate == 1 then
       crow.output[env_out].action = string.format("pulse(%f, %f)", envelope_duration, peak)
@@ -42,6 +44,7 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
     end
   else
     device = device - 1
+    crow.ii.crow[device].slew(cv_out, slew)
     crow.ii.crow[device].volts(cv_out, note)
     if gate == 1 then
       clock.run(
