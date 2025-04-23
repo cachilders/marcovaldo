@@ -192,7 +192,7 @@ function Parameters:_refresh_performer_params()
       params:show('marco_performer_crow_device_'..i)
       params:show('marco_performer_crow_outputs_'..i)
       params:show('marco_performer_crow_gate_'..i)
-      if params:get('marco_performer_crow_gate_'..i) == 2 then
+      if params:get('marco_performer_crow_gate_'..i) == 1 then
         params:show('marco_attack_'..i)
         params:show('marco_decay_'..i)
         params:show('marco_sustain_'..i)

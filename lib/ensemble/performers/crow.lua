@@ -46,7 +46,7 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
     if gate == 1 then
       clock.run(
         function()
-          crow.ii.crow[device].slew(env_out, 10) -- does not reflect velocity. pure gate.
+          crow.ii.crow[device].volts(env_out, 10) -- does not reflect velocity. pure gate.
           clock.sleep(envelope_duration)
           crow.ii.crow[device].volts(env_out, 0)
         end
