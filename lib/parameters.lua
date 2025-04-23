@@ -7,7 +7,6 @@ local CROW = 'Crow'
 local SC = 'ER-301'
 local DIST = 'Disting EX'
 local JF = 'Just Friends'
--- local TT = 'Teletype'
 local WD = 'W/Delay'
 local WS = 'W/Synth'
 local WT = 'W/Tape'
@@ -174,6 +173,7 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_ansible_output_'..i)
     params:hide('marco_performer_crow_device_'..i)
     params:hide('marco_performer_crow_outputs_'..i)
+    params:hide('marco_performer_crow_gate_'..i)
     params:hide('marco_performer_er_301_port_'..i)
     params:hide('marco_performer_jf_device_'..i)
     params:hide('marco_performer_midi_device_'..i)
@@ -191,7 +191,8 @@ function Parameters:_refresh_performer_params()
     elseif active_performer == CROW then
       params:show('marco_performer_crow_device_'..i)
       params:show('marco_performer_crow_outputs_'..i)
-      if params:get('marco_performer_crow_gate_'..i) == 1 then
+      params:show('marco_performer_crow_gate_'..i)
+      if params:get('marco_performer_crow_gate_'..i) == 2 then
         params:show('marco_attack_'..i)
         params:show('marco_decay_'..i)
         params:show('marco_sustain_'..i)
