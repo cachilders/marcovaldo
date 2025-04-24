@@ -223,6 +223,10 @@ function Parameters:_refresh_performer_params()
   _menu.rebuild_params()
 end
 
+function Parameters:get(k)
+  return self[k]
+end
+
 function Parameters:get_performer(sequence)
   local performer_index = params:get('marco_performer_'..sequence)
   return self.available_performers[performer_index]

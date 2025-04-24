@@ -1,6 +1,8 @@
 local Performer = include('lib/ensemble/performer')
 
 local MidiPerformer = {
+  clocks = nil,
+  connections = nil,
   name = 'MIDI'
 }
 
@@ -14,11 +16,31 @@ function MidiPerformer:new(options)
 end
 
 function MidiPerformer:init()
-  -- Initialize MIDI
+  local connections = {}
+  for id, device_name in pairs(parameters:get('midi_device_identifiers')) do
+    table.insert(connections, midi.connect(id))
+  end
+  self.connections = connections
+  self.clocks = {}
 end
 
 function MidiPerformer:play_note(sequence, note, velocity, envelope_duration)
-  -- Send note to MIDI device
+  local channel = params:get('marco_performer_midi_channel_'..sequence)
+  local connection = self.connections[params:get('marco_performer_midi_device_'..sequence)]
+  print(connection, sequence, note, velocity, envelope_duration, params:get('marco_performer_midi_device_'..sequence), parameters:get('midi_device_identifiers')[params:get('marco_performer_midi_device_'..sequence)])
+  if connection then
+    if self.clocks[sequence] then
+      clock.cancel(self.clocks[sequence])
+    end
+
+    clock.run(
+      function()
+        connection:note_on(note, velocity, channel)
+        clock.sleep(envelope_duration)
+        connection:note_off(note, velocity, channel)
+      end
+    )
+  end
 end
 
 function MidiPerformer:apply_effect(index, data)
