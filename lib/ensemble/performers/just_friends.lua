@@ -1,4 +1,5 @@
 local Performer = include('lib/ensemble/performer')
+VELOCITY_CONSTANT = 5 / 127
 
 local JustFriendsPerformer = {
   name = 'Just Friends'
@@ -14,7 +15,7 @@ function JustFriendsPerformer:new(options)
 end
 
 function JustFriendsPerformer:init()
-  -- Initialize Just Friends
+  crow.ii.jf.mode(1)
 end
 
 -- crow.ii.jf.trigger( channel, state )
@@ -33,8 +34,10 @@ end
 -- ii.jf[2].trigger(1,1) -- device #2
 
 function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_duration)
-  -- Figure out how we can do envelopes
-  crow.ii.jf.play_note((note - params:get('marco_root'))/12, velocity/127)
+  local adj_note = note - params:get('marco_root')
+  local pitch = (adj_note >= 0 and adj_note or 0) / 12
+  local device = params:get('marco_performer_jf_device_'..sequence)
+  crow.ii.jf[device].play_note(pitch, velocity * VELOCITY_CONSTANT)
 end
 
 function JustFriendsPerformer:apply_effect(index, data)

@@ -121,7 +121,7 @@ function Parameters:_init_params()
   params:set_action('marco_animations', function(i) self.animations_enabled:set(i == 1) end)
   params:add_option('marco_scale', 'Scale Type', self.scale_names, 1)
   params:set_action('marco_scale', function(i) self.scale:set(self.scale_names[i]) end)
-  params:add_number('marco_root', 'Root Note', 0, 127, 48, function(param) return music_util.note_num_to_name(param:get(), true) end)
+  params:add_number('marco_root', 'Root Note', 0, 127, 60, function(param) return music_util.note_num_to_name(param:get(), true) end)
   params:set_action('marco_root', function(i) self.root:set(i) end)
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
