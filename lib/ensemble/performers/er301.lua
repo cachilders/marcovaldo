@@ -1,6 +1,7 @@
 local Performer = include('lib/ensemble/performer')
 
 local ER301Performer = {
+  clocks = nil,
   name = 'ER-301'
 }
 
@@ -14,12 +15,15 @@ function ER301Performer:new(options)
 end
 
 function ER301Performer:init()
-  -- Initialize ER-301
+  self.clocks = {}
 end
 
 function ER301Performer:play_note(sequence, note, velocity, envelope_duration)
   crow.ii.er301.cv(params:get('marco_performer_er301_cv_port_'..sequence), note / 12)
-  clock.run(
+  if self.clocks[sequence] then
+    clock.cancel(self.clocks[sequence])
+  end
+  self.clocks[sequence] = clock.run(
     function()
       crow.ii.er301.tr(params:get('marco_performer_er301_tr_port_'..sequence), 1)
       clock.sleep(envelope_duration)

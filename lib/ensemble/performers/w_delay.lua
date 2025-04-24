@@ -1,5 +1,5 @@
 local Performer = include('lib/ensemble/performer')
-local VELOCITY_CONSTANT = 63 / 127
+local VELOCITY_CONSTANT = 10 / 127
 
 local WDelayPerformer = {
   name = 'W/Delay'
@@ -37,8 +37,8 @@ end
 
 function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
   local device = params:get('marco_performer_w_device_'..sequence)
-  crow.ii.w_delay[device].freq(note / 12)
-  crow.ii.w_delay[device].pluck(velocity * VELOCITY_CONSTANT)
+  crow.ii.wdel[device].freq(note / 12)
+  crow.ii.wdel[device].pluck(velocity * VELOCITY_CONSTANT)
 end
 
 function WDelayPerformer:apply_effect(index, data)

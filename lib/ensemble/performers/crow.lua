@@ -1,6 +1,7 @@
 local Performer = include('lib/ensemble/performer')
 
 local CrowPerformer = {
+  clocks = nil,
   name = 'Crow'
 }
 
@@ -14,7 +15,7 @@ function CrowPerformer:new(options)
 end
 
 function CrowPerformer:init()
-  -- Initialize Crow
+  self.clocks = {}
 end
 
 function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -55,7 +56,10 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
         end
       )
     elseif gate == 2 then
-      clock.run(
+      if self.clocks[sequence] then
+        self.clock.cancel(clocks[sequence])
+      end
+      clocks[sequence] = clock.run(
         function()
           crow.ii.crow[device].slew(env_out, 0)
           crow.ii.crow[device].volts(env_out, 0)
