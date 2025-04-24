@@ -22,25 +22,26 @@ function MidiPerformer:init()
   end
   self.connections = connections
   self.clocks = {}
+  for i = 1, 4 do
+    self.clocks[i] = {}
+  end
 end
 
 function MidiPerformer:play_note(sequence, note, velocity, envelope_duration)
   local connection = self.connections[params:get('marco_performer_midi_device_'..sequence)]
   local channel = params:get('marco_performer_midi_channel_'..sequence)
   
-  if connection then
-    if self.clocks[sequence] then
-      clock.cancel(self.clocks[sequence])
-    end
-
-    clock.run(
-      function()
-        connection:note_on(note, velocity, channel)
-        clock.sleep(envelope_duration)
-        connection:note_off(note, velocity, channel)
-      end
-    )
+  if self.clocks[sequence][note] then
+    clock.cancel(self.clocks[sequence][note])
   end
+
+  self.clocks[sequence][note] = clock.run(
+    function()
+      connection:note_on(note, velocity, channel)
+      clock.sleep(envelope_duration)
+      connection:note_off(note, velocity, channel)
+    end
+  )
 end
 
 function MidiPerformer:apply_effect(index, data)
