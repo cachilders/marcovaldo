@@ -3,7 +3,7 @@ local Performer = include('lib/ensemble/performer')
 local MidiPerformer = {
   clocks = nil,
   connections = nil,
-  name = 'MIDI'
+  name = 'Midi'
 }
 
 setmetatable(MidiPerformer, { __index = Performer })
@@ -17,7 +17,7 @@ end
 
 function MidiPerformer:init()
   local connections = {}
-  for id, device_name in pairs(parameters:get('midi_device_identifiers')) do
+  for id, _ in pairs(parameters:get('midi_device_identifiers')) do
     table.insert(connections, midi.connect(id))
   end
   self.connections = connections
@@ -25,9 +25,9 @@ function MidiPerformer:init()
 end
 
 function MidiPerformer:play_note(sequence, note, velocity, envelope_duration)
-  local channel = params:get('marco_performer_midi_channel_'..sequence)
   local connection = self.connections[params:get('marco_performer_midi_device_'..sequence)]
-  print(connection, sequence, note, velocity, envelope_duration, params:get('marco_performer_midi_device_'..sequence), parameters:get('midi_device_identifiers')[params:get('marco_performer_midi_device_'..sequence)])
+  local channel = params:get('marco_performer_midi_channel_'..sequence)
+  
   if connection then
     if self.clocks[sequence] then
       clock.cancel(self.clocks[sequence])
