@@ -1,6 +1,8 @@
 local Performer = include('lib/ensemble/performer')
+local VELOCITY_CONSTANT = 10 / 127
 
 local DistingPerformer = {
+  clocks = nil,
   name = 'Disting'
 }
 
@@ -14,19 +16,30 @@ function DistingPerformer:new(options)
 end
 
 function DistingPerformer:init()
-  -- Initialize Disting EX
+  local clocks = {}
+  for i = 1, 4 do
+    clocks[i] = {}
+  end
+  self.clocks = clocks
 end
 
--- note_pitch(channel, note, velocity)	Note On (with velocity)	1–16, 0–127, 0–127
--- note_velocity(channel, note, velocity)	Change velocity of held note	1–16, 0–127, 0–127
--- note_off(channel, note)	Note Off	1–16, 0–127
--- control(controller, value)	Set mapped parameter value	0+, 0–16383
-
 function DistingPerformer:play_note(sequence, note, velocity, envelope_duration)
-  -- Send note to Disting EX
+  if self.clocks[sequence][note] then
+    clock.cancel(self.clocks[sequence][note])
+  end
+
+  self.clocks[sequence][note] = clock.run(
+    function()
+      crow.ii.disting.note_pitch(note, (note - params:get('marco_root')) / 12)
+      crow.ii.disting.note_velocity(note, velocity * VELOCITY_CONSTANT)
+      clock.sleep(envelope_duration)
+      crow.ii.disting.note_off(note)
+    end
+  )
 end
 
 function DistingPerformer:apply_effect(index, data)
+  -- control(controller, value)	Set mapped parameter value	0+, 0–16383
   -- no-op
 end
 
