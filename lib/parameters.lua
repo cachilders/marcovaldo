@@ -19,6 +19,25 @@ local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS, WT}
 local CROW_DEVICES = {'Host', '1', '2', '3', '4'}
 local CROW_OUTPUTS = {'1/2', '3/4'}
 local CROW_GATES = {'Gate', 'Envelope'}
+local W_V_SPEC = controlspec.def{
+  min = -5,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 0,
+  units = 'v',
+  quantum = 0.01,
+  wrap = false
+}
+local W_RAT_SPEC = controlspec.def{
+  min = 0,
+  max = 20,
+  warp = 'lin',
+  step = 0.01,
+  default = 10,
+  quantum = 0.01,
+  wrap = false
+}
 
 local Parameters = {
   animations_enabled = nil,
@@ -126,7 +145,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 23)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 29)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -160,6 +179,12 @@ function Parameters:_init_params()
     params:add_number('marco_performer_ansible_output_'..i, 'Output Channel', 1, 4, 1)
 
     params:add_number('marco_performer_w_device_'..i, 'Which W/', 1, 2, 1)
+    params:add_control('marco_performer_w_fm_i_'..i, 'FM Index', W_V_SPEC)
+    params:add_control('marco_performer_w_fm_env_'..i, 'FM Envelope', W_V_SPEC)
+    params:add_control('marco_performer_w_fm_rat_n_'..i, 'FM Rat. Num.', W_RAT_SPEC)
+    params:add_control('marco_performer_w_fm_rat_d_'..i, 'FM Rat. Den.', W_RAT_SPEC)
+    params:add_control('marco_performer_w_ramp_'..i, 'Ramp', W_V_SPEC)
+    params:add_control('marco_performer_w_curve_'..i, 'Curve', W_V_SPEC)
 
     params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, 0, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
@@ -183,6 +208,12 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_midi_device_'..i)
     params:hide('marco_performer_midi_channel_'..i)
     params:hide('marco_performer_w_device_'..i)
+    params:hide('marco_performer_w_curve_'..i)
+    params:hide('marco_performer_w_fm_i_'..i)
+    params:hide('marco_performer_w_fm_env_'..i)
+    params:hide('marco_performer_w_fm_rat_n_'..i)
+    params:hide('marco_performer_w_fm_rat_d_'..i)
+    params:hide('marco_performer_w_ramp_'..i)
     params:hide('marco_attack_'..i)
     params:hide('marco_decay_'..i)
     params:hide('marco_sustain_'..i)
@@ -216,6 +247,15 @@ function Parameters:_refresh_performer_params()
     elseif active_performer == ANS then
       params:show('marco_performer_ansible_output_'..i)
       params:show('marco_performer_slew_'..i)
+    elseif active_performer == WS then
+      params:show('marco_performer_w_device_'..i)
+      params:show('marco_performer_w_curve_'..i)
+      params:show('marco_performer_w_fm_i_'..i)
+      params:show('marco_performer_w_fm_env_'..i)
+      params:show('marco_performer_w_fm_rat_n_'..i)
+      params:show('marco_performer_w_fm_rat_d_'..i)
+      params:show('marco_performer_w_ramp_'..i)
+      params:show('marco_attack_'..i)
     else
       params:show('marco_performer_w_device_'..i)
     end

@@ -2,6 +2,7 @@ local Performer = include('lib/ensemble/performer')
 local VELOCITY_CONSTANT = 5/127 -- to test
 
 local WSynthPerformer = {
+  clocks = nil,
   name = 'W/Synth'
 }
 
@@ -15,7 +16,6 @@ function WSynthPerformer:new(options)
 end
 
 function WSynthPerformer:init()
-  -- no-op
 end
 
 -- velocity( voice, velocity ) -- strike the vactrol of <voice> at <velocity> in volts (s8, s16V)
@@ -33,14 +33,30 @@ end
 -- patch( jack, param ) -- patch a hardware *jack* to a *param* destination (s8, s8)
 -- voices( count ) -- set number of polyphonic voices to allocate. use 0 for unison mode (s8)
 
+function WSynthPerformer._scale_to_w(val)
+  return (val*0.1) - 5
+end
 
 function WSynthPerformer:play_note(sequence, note, velocity, envelope_duration)
   local device = params:get('marco_performer_w_device_'..sequence)
-  local attack = (params:get('marco_attack_'..sequence)*.1) - 5
+  local attack = self._scale_to_w(params:get('marco_attack_'..sequence))
+  local curve = params:get('marco_performer_w_curve_'..sequence)
+  local ramp = params:get('marco_performer_w_ramp_'..sequence)
+  local fm_i = params:get('marco_performer_w_fm_i_'..sequence)
+  local fm_env = params:get('marco_performer_w_fm_env_'..sequence)
+  local fm_rat_n = params:get('marco_performer_w_fm_rat_n_'..sequence)
+  local fm_rat_d = params:get('marco_performer_w_fm_rat_d_'..sequence)
   local adj_note = note - params:get('marco_root')
   local pitch = (adj_note >= 0 and adj_note or 0) / 12
-  crow.ii.wsyn[device].ar_mode(1) -- Investigate alternate options
-  crow.ii.wsyn[device].lpg_symmetry(attack) -- Expand with attack and release as best we can
+  crow.ii.wsyn[device].ar_mode(1)
+  crow.ii.wsyn[device].lpg_time(envelope_duration)
+  crow.ii.wsyn[device].lpg_symmetry(attack)
+  crow.ii.wsyn[device].curve(curve)
+  crow.ii.wsyn[device].ramp(ramp)
+  crow.ii.wsyn[device].fm_index(fm_i)
+  crow.ii.wsyn[device].fm_env(fm_env)
+  crow.ii.wsyn[device].fm_ratio(fm_rat_n, fm_rat_d)
+  crow.ii.wsyn[device].lpg_symmetry(attack)
   crow.ii.wsyn[device].play_note(pitch, velocity * VELOCITY_CONSTANT)
 end
 
