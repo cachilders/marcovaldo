@@ -24,7 +24,7 @@ local Chart = {
   page = 1,
   pages = nil,
   plans = nil,
-  sheet = nil, -- holds SequenceSheet or StepSheet instance, or nil
+  sheet = nil,
   sheets = nil
 }
 
@@ -73,7 +73,7 @@ end
 
 function Chart:press(x, y, z)
   if self.sheet then
-    self.sheet:press_to_sheet(x, y, z)
+    self.sheets[self.sheet]:press(x, y, z)
   else
     self.pages[self.page]:press_to_page(x, y, z)
   end
@@ -109,6 +109,7 @@ function Chart:affect(action, index, values)
     self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
   elseif action == actions.edit_sequence then
     -- self.sheets[SEQUENCE]:update(index, values)
+    -- this probably needs to be an index only and the sequence data is streamed
   elseif action == actions.edit_step then
     -- self.sheets[STEP]:update(index, values)
   end
@@ -245,7 +246,11 @@ end
 function Chart:_monobrite_test(l)
   if self.host.cols == PANE_EDGE_LENGTH then
     -- Monobrite for 64s
-    l = 15
+    if l >= 5 then
+      l = 15
+    else
+      l = 0
+    end
   end
   return l
 end

@@ -213,6 +213,7 @@ function Arrangement:_transmit_editor_state(editor, i, state)
 
   self.rings:paint_editor_state(state)
   self.affect_console('edit_'..editor, i, state)
+  self.affect_chart('edit_'..editor, i, state)
 end
 
 return Arrangement
