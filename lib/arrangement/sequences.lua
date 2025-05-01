@@ -86,8 +86,10 @@ function Sequences:step()
   for i = 1, #self.sequences do
     local sequence = self.sequences[i]
     if sequence:get('active') then
+      local next_steps = current_steps()
+      next_steps[i] = sequence:get('current_step')
       sequence:step()
-      current_steps[i]:set(sequence:get('current_step'))
+      current_steps:set(next_steps)
     end
   end
 end
