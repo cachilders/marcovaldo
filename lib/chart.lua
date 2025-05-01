@@ -108,10 +108,9 @@ function Chart:affect(action, index, values)
     -- have is suboptimal
     self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
   elseif action == actions.edit_sequence then
-    -- self.sheets[SEQUENCE]:update(index, values)
-    -- this probably needs to be an index only and the sequence data is streamed
+    self.sheets[SEQUENCE]:update(index, values)
   elseif action == actions.edit_step then
-    -- self.sheets[STEP]:update(index, values)
+    self.sheets[STEP]:update(index, values)
   end
 end
 
@@ -189,7 +188,7 @@ end
 
 function Chart:_init_observers()
   current_mode:register('chart', function()
-    local mode = MODES[current_mode()]
+    local mode = get_current_mode()
     if mode == SEQUENCE then
       self.sheet = SEQUENCE
     elseif mode == STEP then

@@ -156,7 +156,7 @@ function Sequence:state()
     self.step_count,
     self:_determine_modified_pulse_positions(),
     self.octaves,
-    self.subdivision,
+    self.subdivision
   }
   local ranges = {
     STEP_COUNT_MAX - STEP_COUNT_MIN,

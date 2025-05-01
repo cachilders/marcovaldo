@@ -11,20 +11,23 @@ function SequenceSheet:new(options)
 end
 
 function SequenceSheet:refresh()
-  local pulse_positions = self.values[1][2] -- https://vscode.dev/github/cachilders/marcovaldo/blob/feat-editor-charts/lib/arrangement/sequence.lua#L154
+  -- current step is derived from a new observable instantiated in marcovaldo and published to by sequences
+  local pulse_positions = self.values[1][2] 
   local step_count = self.values[1][1] -- https://vscode.dev/github/cachilders/marcovaldo/blob/feat-editor-charts/lib/arrangement/sequence.lua#L153
-  for c = 1, self.width do
-    for r = 1, self.height do
-      local step = c * r
+  for c = 1, self.height do
+    for r = 1, self.width do
+      local step = ((c-1)*self.width) + r
       local step_value = pulse_positions[step]
-      if step <= step_count then -- we also care if this index is the current step in the sequence
-        if step_value then
-          self.led(c, r, 16)
+      if step <= step_count then
+        if step == current_step then
+          self.led(r, c, 15)
+        elseif step_value == true then
+          self.led(r, c, 12)
         else
-          self.led(c, r, 4)
+          self.led(r, c, 4)
         end
       else
-        self.led(c, r, 0)
+        self.led(r, c, 0)
       end
     end
   end
