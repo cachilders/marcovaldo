@@ -213,12 +213,14 @@ function Chart:_init_sheets()
     l = self:_monobrite_test(l)
     self.host:led(x, y, l)
   end
-  local defaults = {
+  sheets[SEQUENCE] = SequenceSheet:new({
     affect_arrangement = self.affect_arrangement,
     led = led
-  }
-  sheets[SEQUENCE] = SequenceSheet:new(defaults)
-  sheets[STEP] = StepSheet:new(defaults)
+  })
+  sheets[STEP] = StepSheet:new({
+    affect_arrangement = self.affect_arrangement,
+    led = led
+  })
   self.sheets = sheets
 end
 
