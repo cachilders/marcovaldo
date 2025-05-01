@@ -34,6 +34,7 @@ function init()
   math.randomseed(os.time())
   run_tests()
   init_params()
+  init_observables()
   create_metaphors()
   init_events()
   init_metaphors()
@@ -88,8 +89,6 @@ function init_events()
   ensemble:set('affect_arrangement', affect_arrangement)
   ensemble:set('affect_chart', affect_chart)
   ensemble:set('affect_console', affect_console)
-
-  current_mode = observable.new(1)
 end
 
 function init_metaphors()
@@ -97,6 +96,17 @@ function init_metaphors()
   console:init()
   chart:init()
   ensemble:init()
+end
+
+function init_observables()
+  local default_mode = 1
+  local default_steps = {}
+  for i = 1, 4 do
+    default_steps[i] = {1}
+  end
+
+  current_mode = observable.new(default_mode)
+  current_steps = observable.new(default_steps)
 end
 
 function init_params()

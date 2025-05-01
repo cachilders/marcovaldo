@@ -11,7 +11,7 @@ function SequenceSheet:new(options)
 end
 
 function SequenceSheet:refresh()
-  -- current step is derived from a new observable instantiated in marcovaldo and published to by sequences
+  local current_step = current_steps()[self.source]
   local pulse_positions = self.values[1][2] 
   local step_count = self.values[1][1] -- https://vscode.dev/github/cachilders/marcovaldo/blob/feat-editor-charts/lib/arrangement/sequence.lua#L153
   for c = 1, self.height do

@@ -87,6 +87,7 @@ function Sequences:step()
     local sequence = self.sequences[i]
     if sequence:get('active') then
       sequence:step()
+      current_steps[i]:set(sequence:get('current_step'))
     end
   end
 end
