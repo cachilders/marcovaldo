@@ -213,6 +213,8 @@ function Sequence:transmit()
 end
 
 function Sequence:toggle_pulse_override(step)
+  -- BUG: console state reflects added pulses but not removed pulses
+  -- BUG: sheet reflects removed pulses but not added pulses
   local current_pulse = self.pulse_position_overrides[step]
   self.pulse_position_overrides[step] = current_pulse == 1 and 0 or 1
   self:transmit()
