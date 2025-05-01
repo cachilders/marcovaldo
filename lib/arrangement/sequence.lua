@@ -213,10 +213,13 @@ function Sequence:transmit()
 end
 
 function Sequence:toggle_pulse_override(step)
-  -- BUG: console state reflects added pulses but not removed pulses
-  -- BUG: sheet reflects removed pulses but not added pulses
   local current_pulse = self.pulse_position_overrides[step]
-  self.pulse_position_overrides[step] = current_pulse == 1 and 0 or 1
+  local next_pulse = current_pulse == 1 and 0 or 1
+  self.pulse_position_overrides[step] = next_pulse
+  if next_pulse == 1 then
+    self.selected_step = step
+    self:_set_step_note(0)
+  end
   self:transmit()
 end
 
@@ -273,21 +276,26 @@ end
 function Sequence:_determine_modified_pulse_positions()
   local pulse_positions = {}
   for i = 1, self.step_count do
-    pulse_positions[i] = self:_determine_pulse_bool(i)
+    -- First check for user override
+    local user_pulse = self.pulse_position_overrides[i]
+    if user_pulse ~= nil then
+      pulse_positions[i] = user_pulse == 1
+    else
+      -- If no override, use natural pulse position
+      pulse_positions[i] = self.pulse_positions[i]
+    end
   end
   return pulse_positions
 end
 
 function Sequence:_determine_pulse_bool(step)
-  local pulse_bool = nil
-  local natural_pulse_bool = self.pulse_positions[step]
-  local user_pulse_bool = self.pulse_position_overrides[step]
-  if user_pulse_bool == nil then
-    pulse_bool = natural_pulse_bool
-  else
-    pulse_bool = user_pulse_bool
+  -- First check for user override
+  local user_pulse = self.pulse_position_overrides[step]
+  if user_pulse ~= nil then
+    return user_pulse == 1
   end
-  return pulse_bool
+  -- If no override, use natural pulse position
+  return self.pulse_positions[step]
 end
 
 function Sequence:_init_notes()
