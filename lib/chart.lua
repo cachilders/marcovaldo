@@ -73,7 +73,7 @@ end
 
 function Chart:press(x, y, z)
   if self.sheet then
-    self.sheets[self.sheet]:press(x, y, z)
+    self.sheets[self.sheet]:press(x, y, z, shift)
   else
     self.pages[self.page]:press_to_page(x, y, z)
   end

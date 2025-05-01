@@ -35,16 +35,21 @@ function SequenceSheet:refresh()
 end
 
 function Sheet:press(x, y, z)
+  -- Current bugs
+  -- 1. Console state is one update behind when extending sequence length
+  --  a. Console length is correct when shortening sequence length
+  -- 2. Console state correctly displays pulses toggled by sheet press
+  --  b. Sheet does not reflect toggled pulses
+  --  c. Sheet does accurately reflect altered sequence length
   default_mode_timeout_extend()
-
   if self.source and self.values and z == 1 then
-    local step_count = self.values[1]
+    local step_count = self.values[1][1]
     local step = (y - 1) * self.width + x
-    if step <= step_count then
-      self.affect_arrangement(actions.toggle_pulse_override, self.source, {step = step})
-    else
+    if shift_depressed or step > step_count then
       local new_length = step
       self.affect_arrangement(actions.set_sequence_length, self.source, {length = new_length})
+    else
+      self.affect_arrangement(actions.toggle_pulse_override, self.source, {step = step})
     end
   end
 end

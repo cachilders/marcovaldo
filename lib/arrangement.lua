@@ -214,7 +214,7 @@ function Arrangement:_transmit_editor_state(editor, i, state)
   if current_mode() ~= editor_mode_index then
     set_current_mode(editor)
   end
-
+  print('transmit_editor_state', editor, i, state)
   self.rings:paint_editor_state(state)
   self.affect_console('edit_'..editor, i, state)
   self.affect_chart('edit_'..editor, i, state)
