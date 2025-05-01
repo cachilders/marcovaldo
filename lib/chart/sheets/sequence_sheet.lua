@@ -14,7 +14,7 @@ end
 function SequenceSheet:refresh()
   local current_step = current_steps()[self.source]
   local pulse_positions = self.values[1][2] 
-  local step_count = self.values[1][1] -- https://vscode.dev/github/cachilders/marcovaldo/blob/feat-editor-charts/lib/arrangement/sequence.lua#L153
+  local step_count = self.values[1][1]
   for c = 1, self.height do
     for r = 1, self.width do
       local step = ((c-1)*self.width) + r
@@ -34,13 +34,13 @@ function SequenceSheet:refresh()
   end
 end
 
+function SequenceSheet:update(index, values)
+  self.source = index
+  self.values = values
+  self:refresh()
+end
+
 function Sheet:press(x, y, z)
-  -- Current bugs
-  -- 1. Console state is one update behind when extending sequence length
-  --  a. Console length is correct when shortening sequence length
-  -- 2. Console state correctly displays pulses toggled by sheet press
-  --  b. Sheet does not reflect toggled pulses
-  --  c. Sheet does accurately reflect altered sequence length
   default_mode_timeout_extend()
   if self.source and self.values and z == 1 then
     local step_count = self.values[1][1]

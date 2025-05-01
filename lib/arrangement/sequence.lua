@@ -220,6 +220,8 @@ end
 
 function Sequence:set_sequence_length(length)
   self.step_count = length
+  self:_adjust_pulse_count(0)
+  self:_distribute_pulses()
   self:transmit()
 end
 
