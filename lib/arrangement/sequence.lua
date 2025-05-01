@@ -212,6 +212,11 @@ function Sequence:transmit()
   end
 end
 
+function Sequence:toggle_pulse_override(step)
+  local current_pulse = self.pulse_position_overrides[step]
+  self.pulse_position_overrides[step] = current_pulse == 1 and 0 or 1
+end
+
 function Sequence:_adjust_pulse_count(delta)
   self.pulse_count = util.clamp(self.pulse_count + delta, 0, self.step_count)
   self:_distribute_pulses()

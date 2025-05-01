@@ -1,3 +1,4 @@
+local actions = include('lib/actions')
 local Sheet = include('lib/chart/sheet')
 
 local StepSheet = {}

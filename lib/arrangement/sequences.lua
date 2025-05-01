@@ -123,6 +123,14 @@ function Sequences:transmit(n)
   self.sequences[n]:transmit()
 end
 
+function Sequences:toggle_pulse_override(sequence, step)
+  self.sequences[sequence]:toggle_pulse_override(step)
+end
+
+function Sequences:set_sequence_length(sequence, length)
+  self.sequences[sequence]:set('step_count', length)
+end
+
 function Sequences:_init_sequences(emit_note, transmit_editor_state)
   local sequences = {}
   local octaves = 1

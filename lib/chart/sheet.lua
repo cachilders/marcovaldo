@@ -28,13 +28,7 @@ function Sheet:update(i, values)
 end
 
 function Sheet:press(x, y, z)
-  -- Once the grid accurately reflects the state of the sequencer, we can
-  -- we need to refactor https://vscode.dev/github/cachilders/marcovaldo/blob/feat-editor-charts/lib/arrangement.lua#L208-L209
-  -- such that the transmission is hoisted and affected by both rings and sheets
-  -- The complexity here increases with two two-way display/edit interfaces
-  -- so updates must travel both was as should the editor state. The grid won't enter sequence
-  -- mode, but its use will extend the timeout that dismisses the edit state.
-  -- send update to arrangement
+  default_mode_timeout_extend()
 end
 
 return Sheet

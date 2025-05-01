@@ -1,3 +1,4 @@
+local actions = include('lib/actions')
 local Sheet = include('lib/chart/sheet')
 
 local SequenceSheet = {}
@@ -29,6 +30,21 @@ function SequenceSheet:refresh()
       else
         self.led(r, c, 0)
       end
+    end
+  end
+end
+
+function Sheet:press(x, y, z)
+  default_mode_timeout_extend()
+
+  if self.source and self.values and z == 1 then
+    local step_count = self.values[1]
+    local step = (y - 1) * self.width + x
+    if step <= step_count then
+      self.affect_arrangement(actions.toggle_pulse_override, self.source, {step = step})
+    else
+      local new_length = step
+      self.affect_arrangement(actions.set_sequence_length, self.source, {length = new_length})
     end
   end
 end
