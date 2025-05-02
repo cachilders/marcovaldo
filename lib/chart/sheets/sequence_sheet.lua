@@ -37,8 +37,7 @@ function Sheet:press(x, y, z)
       -- Two bugs identified as introduced
       -- 1. Pulse overrides cannot be executed in hold mode from the step editor
       --   a. This appears to be the case from any ring edit state
-      -- 2. Edit mode is not invoked for steps added by the sequence sheet (apparently)
-      --   a. Edit mode is entered correctly on a long press for existing steps
+      --   b. The change has been made but is not reflected in console or sheet
       key_timer = clock.run(function()
         clock.sleep(1)
         halt_keys = true

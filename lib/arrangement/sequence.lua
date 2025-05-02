@@ -323,7 +323,7 @@ function Sequence:_init_pulses()
   self.pulse_position_overrides = {}
   self.pulse_strengths = {}
   self.pulse_widths = {}
-  for i = 1, self.step_count do
+  for i = 1, STEP_COUNT_MAX do
     self.pulse_position_overrides[i] = nil
     self.pulse_strengths[i] = 100
     self.pulse_widths[i] = 100
