@@ -59,7 +59,7 @@ function SequenceSheet:refresh()
       if step <= step_count then
         if step == current_step then
           self.led(r, c, 15)
-        elseif step_value == true then
+        elseif step_value == 1 then
           self.led(r, c, 12)
         else
           self.led(r, c, 4)
