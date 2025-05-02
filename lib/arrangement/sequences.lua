@@ -133,7 +133,7 @@ end
 
 function Sequences:trigger_step_edit(sequence, step)
   self.sequences[sequence]:set('selected_step', step)
-  self.sequences[sequence]:trigger_step_edit()
+  self.sequences[sequence]:enter_step_mode()
 end
 
 function Sequences:_init_sequences(emit_note, transmit_editor_state)
