@@ -1,4 +1,6 @@
 local actions = include('lib/actions')
+local halt_keys = false
+local key_timer = nil
 local Sheet = include('lib/chart/sheet')
 
 local SequenceSheet = {}
@@ -9,6 +11,36 @@ function SequenceSheet:new(options)
   setmetatable(instance, self)
   self.__index = self
   return instance
+end
+
+function Sheet:press(x, y, z)
+  default_mode_timeout_extend()
+  if self.source and self.values then
+    local step_count = self.values[1][1]
+    local step = (y - 1) * self.width + x
+    if z == 0 then
+      set_current_mode(SEQUENCE)
+      if not halt_keys then
+        if key_timer then
+          clock.cancel(key_timer)
+        end
+        if shift_depressed or step > step_count then
+          local new_length = step
+          self.affect_arrangement(actions.set_sequence_length, self.source, {length = new_length})
+        else
+          self.affect_arrangement(actions.toggle_pulse_override, self.source, {step = step})
+        end
+      else
+        halt_keys = false
+      end
+    else
+      key_timer = clock.run(function()
+        clock.sleep(1)
+        halt_keys = true
+        self.affect_arrangement(actions.trigger_step_edit, self.source, {step = step})
+      end)
+    end
+  end
 end
 
 function SequenceSheet:refresh()
@@ -38,20 +70,6 @@ function SequenceSheet:update(index, values)
   self.source = index
   self.values = values
   self:refresh()
-end
-
-function Sheet:press(x, y, z)
-  default_mode_timeout_extend()
-  if self.source and self.values and z == 1 then
-    local step_count = self.values[1][1]
-    local step = (y - 1) * self.width + x
-    if shift_depressed or step > step_count then
-      local new_length = step
-      self.affect_arrangement(actions.set_sequence_length, self.source, {length = new_length})
-    else
-      self.affect_arrangement(actions.toggle_pulse_override, self.source, {step = step})
-    end
-  end
 end
 
 return SequenceSheet

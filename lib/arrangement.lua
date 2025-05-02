@@ -46,6 +46,8 @@ function Arrangement:affect(action, index, values)
     self.sequences:toggle_pulse_override(index, values.step)
   elseif action == actions.set_sequence_length then
     self.sequences:set_sequence_length(index, values.length)
+  elseif action == actions.trigger_step_edit then
+    self.sequences:trigger_step_edit(index, values.step)
   end
 end
 

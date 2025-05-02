@@ -192,7 +192,7 @@ function Chart:_init_observers()
     if mode == SEQUENCE then
       self.sheet = SEQUENCE
     elseif mode == STEP then
-      self.sheet = STEP
+      self.sheet = SEQUENCE -- TEMP: Testing hold key to enter step mode on held key
     else
       self.sheet = nil
     end
@@ -200,13 +200,7 @@ function Chart:_init_observers()
 end
 
 function Chart:_init_sheets()
-  -- Need to figure out how to manage different grid sizes in sheet mode
-  -- Need to pass method for getting sequence context or allow sequences to publish current step to observable to which chart subscribes
-  -- Not precisely sure how we're transmitting the active sequence or step
-  -- Might be the affect_chart method, but need to explore console more
-  -- Console is only 1-way, while chart is two way like rings.
-  -- Rings is local to arrangement, making this a more remote operation with a similar pattern to rings.
-  -- Consider making sheets subordinate to arrangement and passed to chart for grid ops only
+  -- Need to handle different grid sizes in sheet mode
   local sheets = {}
   local function led(x, y, l)
     l = self:_monobrite_test(l)

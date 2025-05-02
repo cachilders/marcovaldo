@@ -218,7 +218,9 @@ function Sequence:toggle_pulse_override(step)
   self.pulse_position_overrides[step] = next_pulse
   if next_pulse == 1 then
     self.selected_step = step
-    self:_set_step_note(0)
+    if self.notes[step] == nil then
+      self:_set_step_note(0)
+    end
   end
   self:transmit()
 end
