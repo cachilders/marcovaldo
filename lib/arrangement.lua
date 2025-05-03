@@ -216,10 +216,10 @@ function Arrangement:_transmit_editor_state(editor, i, state)
   if current_mode() ~= editor_mode_index then
     set_current_mode(editor)
   end
-
-  self.rings:paint_editor_state(state)
-  self.affect_console('edit_'..editor, i, state)
-  self.affect_chart('edit_'..editor, i, state)
+  self.rings:paint_editor_state(state[editor])
+  self.affect_console('edit_'..STEP, i[STEP], state[STEP])
+  self.affect_console('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE])
+  self.affect_chart('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE]) -- Validate behavior
 end
 
 return Arrangement

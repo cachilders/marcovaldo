@@ -196,21 +196,37 @@ function Sequence:step_state()
   return values, ranges, types
 end
 
+-- function Sequence:transmit()
+--   local id = self.id
+--   local mode = get_current_mode()
+--   default_mode_timeout_extend()
+--   if mode ~= DEFAULT then
+--     -- Why not both; this is where it's happening. the polymorphism is breaking the reactive sequence broadcast.
+--     -- refactor to transmit both sequence and step data and allow receiver to key on mode if preferred
+--     local values, ranges, types 
+--     if mode == SEQUENCE then
+--       values, ranges, types = self:state()
+--     elseif mode == STEP then
+--       id = self.selected_step
+--       values, ranges, types = self:step_state()
+--     end
+--     self.transmit_editor_state(mode, id, {values, ranges, types})
+--   end
+-- end
+
 function Sequence:transmit()
-  local id = self.id
-  local mode = get_current_mode()
-  default_mode_timeout_extend()
   if mode ~= DEFAULT then
-    -- Why not both; this is where it's happening. the polymorphism is breaking the reactive sequence broadcast.
-    -- refactor to transmit both sequence and step data and allow receiver to key on mode if preferred
-    local values, ranges, types 
-    if mode == SEQUENCE then
-      values, ranges, types = self:state()
-    elseif mode == STEP then
-      id = self.selected_step
-      values, ranges, types = self:step_state()
-    end
-    self.transmit_editor_state(mode, id, {values, ranges, types})
+    default_mode_timeout_extend()
+    local mode = get_current_mode()
+    local sequencer_state = {}
+    local sequencer_ids = {}
+    local values, ranges, types = self:state()
+    sequencer_state[SEQUENCE] = {values, ranges, types}
+    sequencer_ids[SEQUENCE] = self.id
+    values, ranges, types = self:step_state()
+    sequencer_state[STEP] = {values, ranges, types}
+    sequencer_ids[STEP] = self.selected_step
+    self.transmit_editor_state(mode, sequencer_ids, sequencer_state)
   end
 end
 
