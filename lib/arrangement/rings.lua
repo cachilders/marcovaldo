@@ -59,7 +59,7 @@ function Rings:pulse_ring(sequencer)
   self.rings[sequencer]:pulse()
 end
 
-function Rings:step()
+function Rings:update()
   for i = 1, #self.rings do
     self.rings[i]:update()
   end

@@ -90,7 +90,7 @@ end
 
 function Arrangement:step()
   self.sequences:step()
-  self.rings:step()
+  self.rings:update()
 end
 
 function Arrangement:stop(sequence)
@@ -208,6 +208,10 @@ end
 
 function Arrangement:_select_sequence(delta)
   self.selected_sequence = util.clamp(self.selected_sequence + delta, 1, self.sequences:size())
+  self.sequences:transmit(self.selected_sequence)
+end
+
+function Arrangement:_switch_mode()
   self.sequences:transmit(self.selected_sequence)
 end
 
