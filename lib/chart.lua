@@ -107,10 +107,9 @@ function Chart:affect(action, index, values)
     -- method and want to avoid adding state here, but what we
     -- have is suboptimal
     self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
-  elseif action == actions.edit_sequence then
-    self.sheets[SEQUENCE]:update(index, values)
-  elseif action == actions.edit_step then
-    self.sheets[STEP]:update(index, values)
+  elseif action == actions.edit_sequence or action == actions.edit_step then
+    self.screens[SEQUENCE]:update(index, values[SEQUENCE])
+    self.screens[STEP]:update(index, values[STEP])
   end
 end
 
