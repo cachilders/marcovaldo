@@ -19,7 +19,6 @@ function Sheet:press(x, y, z)
     local step_count = self.values[1][1]
     local step = (y - 1) * self.width + x
     if z == 0 then
-      set_current_mode(SEQUENCE)
       if not halt_keys then
         if key_timer then
           clock.cancel(key_timer)
@@ -32,6 +31,7 @@ function Sheet:press(x, y, z)
         end
       else
         halt_keys = false
+        set_current_mode(SEQUENCE)
       end
     else
       key_timer = clock.run(function()

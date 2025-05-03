@@ -212,7 +212,9 @@ function Arrangement:_select_sequence(delta)
 end
 
 function Arrangement:_switch_mode()
-  self.sequences:transmit(self.selected_sequence)
+  if get_current_mode() ~= DEFAULT then
+    self.sequences:transmit(self.selected_sequence)
+  end
 end
 
 function Arrangement:_transmit_editor_state(editor, i, state)
