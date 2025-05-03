@@ -93,8 +93,9 @@ end
 function Console:affect(action, index, values)
   if action == actions.display_note then
     self.screens[INFO]:update(index, values)
-  elseif action == actions.edit_sequence or action == actions.edit_step then
+  elseif action == actions.edit_sequence then
     self.screens[SEQUENCE]:update(index, values[SEQUENCE])
+  elseif action == actions.edit_step then
     self.screens[STEP]:update(index, values[STEP])
   elseif action == actions.set_error_message then
     if DEFAULT_CONSOLE_MODES[self.default_mode] == INFO then
