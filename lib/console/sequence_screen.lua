@@ -60,7 +60,7 @@ function SequenceScreen:_draw_pulses()
   local y = 20
   for i = 1, #pulse_positions do
     local pulse = console_constants.GLYPHS.REST
-    if pulse_positions[i] then
+    if pulse_positions[i] == 1 then
       pulse = console_constants.GLYPHS.BANG
     end
 

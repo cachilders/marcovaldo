@@ -9,6 +9,9 @@ local actions = {
   set_observer_position = 'set_observer_position',
   set_source_positions = 'set_source_positions',
   toggle_sequence = 'toggle_sequence',
+  toggle_pulse_override = 'toggle_pulse_override',
+  trigger_step_edit = 'trigger_step_edit',
+  set_sequence_length = 'set_sequence_length',
   update_arrangement_status = 'update_arrangement_status'
 }
 

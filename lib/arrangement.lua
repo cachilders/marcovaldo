@@ -42,6 +42,12 @@ end
 function Arrangement:affect(action, index, values)
   if action == actions.toggle_sequence then
     self.sequences:toggle_sequence(index)
+  elseif action == actions.toggle_pulse_override then
+    self.sequences:toggle_pulse_override(index, values.step)
+  elseif action == actions.set_sequence_length then
+    self.sequences:set_sequence_length(index, values.length)
+  elseif action == actions.trigger_step_edit then
+    self.sequences:trigger_step_edit(index, values.step)
   end
 end
 
@@ -84,7 +90,7 @@ end
 
 function Arrangement:step()
   self.sequences:step()
-  self.rings:step()
+  self.rings:update()
 end
 
 function Arrangement:stop(sequence)
@@ -205,14 +211,22 @@ function Arrangement:_select_sequence(delta)
   self.sequences:transmit(self.selected_sequence)
 end
 
+function Arrangement:_switch_mode()
+  if get_current_mode() ~= DEFAULT then
+    default_mode_timeout_extend()
+    self.sequences:transmit(self.selected_sequence)
+  end
+end
+
 function Arrangement:_transmit_editor_state(editor, i, state)
   local editor_mode_index = get_mode_index(editor)
   if current_mode() ~= editor_mode_index then
     set_current_mode(editor)
   end
-
-  self.rings:paint_editor_state(state)
-  self.affect_console('edit_'..editor, i, state)
+  self.rings:paint_editor_state(state[editor])
+  self.affect_console('edit_'..STEP, i[STEP], state[STEP])
+  self.affect_console('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE])
+  self.affect_chart('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE]) -- Validate behavior
 end
 
 return Arrangement

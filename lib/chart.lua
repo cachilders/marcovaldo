@@ -5,6 +5,9 @@ local RadiationPlan = include('lib/chart/plans/radiation_plan')
 local ReliefPlan = include('lib/chart/plans/relief_plan')
 local Page = include('lib/chart/page')
 local Pane = include('lib/chart/pane')
+local SequenceSheet = include('lib/chart/sheets/sequence_sheet')
+local StepSheet = include('lib/chart/sheets/step_sheet')
+
 local count = 1
 
 local PATH_PLAN = 'The City All to Himself'
@@ -20,7 +23,9 @@ local Chart = {
   lumen = 5,
   page = 1,
   pages = nil,
-  plans = nil
+  plans = nil,
+  sheet = nil,
+  sheets = nil
 }
 
 function Chart:new(options)
@@ -46,6 +51,8 @@ function Chart:init(n)
   self:set_grid(n)
   self:_init_plans()
   self:_init_pages()
+  self:_init_sheets()
+  self:_init_observers()
 end
 
 function Chart:get(k)
@@ -65,12 +72,20 @@ function Chart:set_grid(n)
 end
 
 function Chart:press(x, y, z)
-  self.pages[self.page]:press_to_page(x, y, z)
+  if self.sheet then
+    self.sheets[self.sheet]:press(x, y, z, shift)
+  else
+    self.pages[self.page]:press_to_page(x, y, z)
+  end
 end
 
 function Chart:refresh()
   self.host:all(0)
-  self.pages[self.page]:refresh()
+  if self.sheet then
+    self.sheets[self.sheet]:refresh()
+  else
+    self.pages[self.page]:refresh()
+  end
   self.host:refresh()
 end
 
@@ -92,6 +107,10 @@ function Chart:affect(action, index, values)
     -- method and want to avoid adding state here, but what we
     -- have is suboptimal
     self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
+  elseif action == actions.edit_sequence or action == actions.edit_step then -- Validate
+    self.sheets[SEQUENCE]:update(index, values)
+  -- elseif action == actions.edit_step then
+  --   self.sheets[STEP]:update(index, values)
   end
 end
 
@@ -105,10 +124,7 @@ function Chart:_init_pages()
   local pages = {}
   local panes_per_page = 4
   local function led(x, y, l)
-    if self.host.cols == PANE_EDGE_LENGTH then
-      -- Monobrite for 64s
-      l = 15
-    end
+    l = self:_monobrite_test(l)
     self.host:led(x, y, l)
   end
   
@@ -170,6 +186,37 @@ function Chart:_init_plans()
   self.plans = plans
 end
 
+function Chart:_init_observers()
+  current_mode:register('chart', function()
+    local mode = get_current_mode()
+    if mode == SEQUENCE then
+      self.sheet = SEQUENCE
+    elseif mode == STEP then
+      self.sheet = SEQUENCE -- TEMP: Testing hold key to enter step mode on held key
+    else
+      self.sheet = nil
+    end
+  end)
+end
+
+function Chart:_init_sheets()
+  -- Need to handle different grid sizes in sheet mode
+  local sheets = {}
+  local function led(x, y, l)
+    l = self:_monobrite_test(l)
+    self.host:led(x, y, l)
+  end
+  sheets[SEQUENCE] = SequenceSheet:new({
+    affect_arrangement = self.affect_arrangement,
+    led = led
+  })
+  sheets[STEP] = StepSheet:new({
+    affect_arrangement = self.affect_arrangement,
+    led = led
+  })
+  self.sheets = sheets
+end
+
 function Chart:_layer_phenomena()
   -- The relief plan is an overlay of all other plan
   -- phenomena and must be initialized after the panes
@@ -189,6 +236,18 @@ end
 
 function Chart:_step_count()
   count = util.wrap(count + 1, 1, 2)
+end
+
+function Chart:_monobrite_test(l)
+  if self.host.cols == PANE_EDGE_LENGTH then
+    -- Monobrite for 64s
+    if l >= 5 then
+      l = 15
+    else
+      l = 0
+    end
+  end
+  return l
 end
 
 return Chart

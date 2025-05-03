@@ -78,6 +78,10 @@ function Sequences:reset_selected_step(sequence)
   self.sequences[sequence]:reset_selected_step()
 end
 
+function Sequences:set_sequence_length(sequence, length)
+  self.sequences[sequence]:set_sequence_length(length)
+end
+
 function Sequences:size()
   return #self.sequences
 end
@@ -86,7 +90,10 @@ function Sequences:step()
   for i = 1, #self.sequences do
     local sequence = self.sequences[i]
     if sequence:get('active') then
+      local next_steps = current_steps()
+      next_steps[i] = sequence:get('current_step')
       sequence:step()
+      current_steps:set(next_steps)
     end
   end
 end
@@ -111,6 +118,10 @@ function Sequences:stop_sequence(sequence)
   self.sequences[sequence]:stop()
 end
 
+function Sequences:toggle_pulse_override(sequence, step)
+  self.sequences[sequence]:toggle_pulse_override(step)
+end
+
 function Sequences:toggle_sequence(sequence)
   local sequence = self.sequences[sequence]
   sequence:set('active', not sequence:get('active'))
@@ -118,6 +129,11 @@ end
 
 function Sequences:transmit(n)
   self.sequences[n]:transmit()
+end
+
+function Sequences:trigger_step_edit(sequence, step)
+  self.sequences[sequence]:set('selected_step', step)
+  self.sequences[sequence]:enter_step_mode()
 end
 
 function Sequences:_init_sequences(emit_note, transmit_editor_state)

@@ -156,7 +156,7 @@ function Sequence:state()
     self.step_count,
     self:_determine_modified_pulse_positions(),
     self.octaves,
-    self.subdivision,
+    self.subdivision
   }
   local ranges = {
     STEP_COUNT_MAX - STEP_COUNT_MIN,
@@ -197,19 +197,39 @@ function Sequence:step_state()
 end
 
 function Sequence:transmit()
-  local id = self.id
-  local mode = get_current_mode()
-  default_mode_timeout_extend()
   if mode ~= DEFAULT then
-    local values, ranges, types
-    if mode == SEQUENCE then
-      values, ranges, types = self:state()
-    elseif mode == STEP then
-      id = self.selected_step
-      values, ranges, types = self:step_state()
-    end
-    self.transmit_editor_state(mode, id, {values, ranges, types})
+    default_mode_timeout_extend()
+    local mode = get_current_mode()
+    local sequencer_state = {}
+    local sequencer_ids = {}
+    local values, ranges, types = self:state()
+    sequencer_state[SEQUENCE] = {values, ranges, types}
+    sequencer_ids[SEQUENCE] = self.id
+    values, ranges, types = self:step_state()
+    sequencer_state[STEP] = {values, ranges, types}
+    sequencer_ids[STEP] = self.selected_step
+    self.transmit_editor_state(mode, sequencer_ids, sequencer_state)
   end
+end
+
+function Sequence:toggle_pulse_override(step)
+  local current_pulse = self.pulse_position_overrides[step]
+  local next_pulse = current_pulse == 1 and 0 or 1
+  self.pulse_position_overrides[step] = next_pulse
+  if next_pulse == 1 then
+    self.selected_step = step
+    if self.notes[step] == nil then
+      self:_set_step_note(0)
+    end
+  end
+  self:transmit()
+end
+
+function Sequence:set_sequence_length(length)
+  self.step_count = length
+  self:_adjust_pulse_count(0)
+  self:_distribute_pulses()
+  self:transmit()
 end
 
 function Sequence:_adjust_pulse_count(delta)
@@ -240,7 +260,12 @@ function Sequence:_calculate_pulse_time(step)
 end
 
 function Sequence:_distribute_pulses()
-  self.pulse_positions = er.gen(self.pulse_count, self.step_count)
+  local pulse_positions = er.gen(self.pulse_count, self.step_count)
+  local pulses = {}
+  for i = 1, #pulse_positions do
+    pulses[i] = pulse_positions[i] and 1 or 0
+  end
+  self.pulse_positions = pulses
 end
 
 function Sequence:_emit_note()
@@ -258,21 +283,26 @@ end
 function Sequence:_determine_modified_pulse_positions()
   local pulse_positions = {}
   for i = 1, self.step_count do
-    pulse_positions[i] = self:_determine_pulse_bool(i)
+    -- First check for user override
+    local user_pulse = self.pulse_position_overrides[i]
+    if user_pulse ~= nil then
+      pulse_positions[i] = user_pulse
+    else
+      -- If no override, use natural pulse position
+      pulse_positions[i] = self.pulse_positions[i]
+    end
   end
   return pulse_positions
 end
 
 function Sequence:_determine_pulse_bool(step)
-  local pulse_bool = nil
-  local natural_pulse_bool = self.pulse_positions[step]
-  local user_pulse_bool = self.pulse_position_overrides[step]
-  if user_pulse_bool == nil then
-    pulse_bool = natural_pulse_bool
-  else
-    pulse_bool = user_pulse_bool
+  -- First check for user override
+  local user_pulse = self.pulse_position_overrides[step]
+  if user_pulse ~= nil then
+    return user_pulse == 1
   end
-  return pulse_bool
+  -- If no override, use natural pulse position
+  return self.pulse_positions[step] == 1
 end
 
 function Sequence:_init_notes()
@@ -293,7 +323,7 @@ function Sequence:_init_pulses()
   self.pulse_position_overrides = {}
   self.pulse_strengths = {}
   self.pulse_widths = {}
-  for i = 1, self.step_count do
+  for i = 1, STEP_COUNT_MAX do
     self.pulse_position_overrides[i] = nil
     self.pulse_strengths[i] = 100
     self.pulse_widths[i] = 100
@@ -310,7 +340,7 @@ end
 
 function Sequence:_reset_pulse_position_overrides()
   for i = 1, self.step_count do
-    self.pulse_position_overrides = nil
+    self.pulse_position_overrides[i] = nil
   end
 end
 
@@ -328,9 +358,11 @@ end
 
 function Sequence:_set_step_pulse_active(delta)
   local step = self.selected_step
-  local pulse_bool = self:_determine_pulse_bool(step)
-  local pulse_binary = pulse_bool and 1 or 0
-  self.pulse_position_overrides[step] = util.clamp(pulse_binary + delta, 0, 1) == 1
+  local current_pulse = self.pulse_position_overrides[step]
+  if current_pulse == nil then
+    current_pulse = self.pulse_positions[step]
+  end
+  self.pulse_position_overrides[step] = util.clamp(current_pulse + delta, 0, 1)
 end
 
 function Sequence:_set_step_pulse_strength(delta)
