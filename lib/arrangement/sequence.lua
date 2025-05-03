@@ -201,7 +201,9 @@ function Sequence:transmit()
   local mode = get_current_mode()
   default_mode_timeout_extend()
   if mode ~= DEFAULT then
-    local values, ranges, types
+    -- Why not both; this is where it's happening. the polymorphism is breaking the reactive sequence broadcast.
+    -- refactor to transmit both sequence and step data and allow receiver to key on mode if preferred
+    local values, ranges, types 
     if mode == SEQUENCE then
       values, ranges, types = self:state()
     elseif mode == STEP then
