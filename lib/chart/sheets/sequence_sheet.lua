@@ -1,6 +1,6 @@
 local actions = include('lib/actions')
 local halt_keys = false
-local key_timer = nil
+local key_timer = {}
 local Sheet = include('lib/chart/sheet')
 
 local SequenceSheet = {}
@@ -13,15 +13,15 @@ function SequenceSheet:new(options)
   return instance
 end
 
-function Sheet:press(x, y, z)
+function SequenceSheet:press(x, y, z)
   default_mode_timeout_extend()
   if self.source and self.values then
     local step_count = self.values[1][1]
     local step = (y - 1) * self.width + x
     if z == 0 then
       if not halt_keys then
-        if key_timer then
-          clock.cancel(key_timer)
+        if key_timer[step] then
+          clock.cancel(key_timer[step])
         end
         if shift_depressed or step > step_count then
           local new_length = step
@@ -34,7 +34,7 @@ function Sheet:press(x, y, z)
         set_current_mode(SEQUENCE)
       end
     else
-      key_timer = clock.run(function()
+      key_timer[step] = clock.run(function()
         clock.sleep(1)
         halt_keys = true
         self.affect_arrangement(actions.trigger_step_edit, self.source, {step = step})

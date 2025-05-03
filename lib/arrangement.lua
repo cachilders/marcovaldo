@@ -213,6 +213,7 @@ end
 
 function Arrangement:_switch_mode()
   if get_current_mode() ~= DEFAULT then
+    default_mode_timeout_extend()
     self.sequences:transmit(self.selected_sequence)
   end
 end
