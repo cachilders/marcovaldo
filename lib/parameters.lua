@@ -15,18 +15,48 @@ local MX = 'Mx. Synths'
 
 local ENABLED_STATES = {'Enabled', 'Disabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
-local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS, WT}
+local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS} -- Remove WT for now
 local CROW_DEVICES = {'Host', '1', '2', '3', '4'}
 local CROW_OUTPUTS = {'1/2', '3/4'}
 local CROW_GATES = {'Gate', 'Envelope'}
 local W_V_SPEC = controlspec.def{
   min = -5,
-  max = 5,
+  max = 10,
   warp = 'lin',
   step = 0.01,
   default = 0,
   units = 'v',
   quantum = 0.01,
+  wrap = false
+}
+local W_FREQ_SPEC = controlspec.def{
+  min = 20,
+  max = 20000,
+  warp = 'exp',
+  step = 0.1,
+  default = 440,
+  units = 'hz',
+  quantum = 0.1,
+  wrap = false
+}
+local W_TIME_SPEC = controlspec.def{
+  min = 0.01,
+  max = 10,
+  warp = 'exp',
+  step = 0.01,
+  default = 1,
+  units = 's',
+  quantum = 0.01,
+  wrap = false
+}
+local W_PCT_SPEC = controlspec.def{
+  min = 0,
+  max = 100,
+  warp = 'lin',
+  step = 1,
+  default = 100,
+  units = '%',
+  quantum = 1,
   wrap = false
 }
 local W_RAT_SPEC = controlspec.def{
@@ -94,8 +124,6 @@ function Parameters:_init_observables()
   self.scale = observable.new('')
 end
 
-
-
 function Parameters:_init_performers()
   local available_performers = {MX, MIDI}
   if norns.crow.dev then
@@ -145,7 +173,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 29)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 38)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -186,6 +214,17 @@ function Parameters:_init_params()
     params:add_control('marco_performer_w_ramp_'..i, 'Ramp', W_V_SPEC)
     params:add_control('marco_performer_w_curve_'..i, 'Curve', W_V_SPEC)
 
+    -- WDelay parameters
+    params:add_control('marco_performer_w_delay_feedback_'..i, 'Feedback', W_V_SPEC)
+    params:add_control('marco_performer_w_delay_mix_'..i, 'Mix', W_V_SPEC)
+    params:add_control('marco_performer_w_delay_filter_'..i, 'Filter', W_FREQ_SPEC)
+    params:add_number('marco_performer_w_delay_env_pct_'..i, 'Env %', 0, 100, 50, function(param) return ''..param:get()..'% of envelope' end)
+    params:add_control('marco_performer_w_delay_rate_'..i, 'Rate', W_V_SPEC)
+    params:add_control('marco_performer_w_delay_mod_rate_'..i, 'Mod Rate', W_V_SPEC)
+    params:add_control('marco_performer_w_delay_mod_amount_'..i, 'Mod Amount', W_PCT_SPEC)
+    params:add_control('marco_performer_w_delay_clock_mul_'..i, 'Clock Mul', W_RAT_SPEC)
+    params:add_control('marco_performer_w_delay_clock_div_'..i, 'Clock Div', W_RAT_SPEC)
+
     params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, 0, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
     params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
@@ -214,6 +253,15 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_w_fm_rat_n_'..i)
     params:hide('marco_performer_w_fm_rat_d_'..i)
     params:hide('marco_performer_w_ramp_'..i)
+    params:hide('marco_performer_w_delay_feedback_'..i)
+    params:hide('marco_performer_w_delay_mix_'..i)
+    params:hide('marco_performer_w_delay_filter_'..i)
+    params:hide('marco_performer_w_delay_env_pct_'..i)
+    params:hide('marco_performer_w_delay_rate_'..i)
+    params:hide('marco_performer_w_delay_mod_rate_'..i)
+    params:hide('marco_performer_w_delay_mod_amount_'..i)
+    params:hide('marco_performer_w_delay_clock_mul_'..i)
+    params:hide('marco_performer_w_delay_clock_div_'..i)
     params:hide('marco_attack_'..i)
     params:hide('marco_decay_'..i)
     params:hide('marco_sustain_'..i)
@@ -223,13 +271,9 @@ function Parameters:_refresh_performer_params()
       params:show('marco_decay_'..i)
       params:show('marco_sustain_'..i)
       params:show('marco_release_'..i)
-    elseif active_performer == DIST then
-      -- noop
-    elseif active_performer == JF then
-      params:show('marco_performer_jf_device_'..i)
-    elseif active_performer == MIDI then
-      params:show('marco_performer_midi_device_'..i)
-      params:show('marco_performer_midi_channel_'..i)
+    elseif active_performer == ANS then
+      params:show('marco_performer_ansible_output_'..i)
+      params:show('marco_performer_slew_'..i)
     elseif active_performer == CROW then
       params:show('marco_performer_crow_device_'..i)
       params:show('marco_performer_crow_outputs_'..i)
@@ -241,12 +285,27 @@ function Parameters:_refresh_performer_params()
         params:show('marco_sustain_'..i)
         params:show('marco_release_'..i)
       end
+    elseif active_performer == DIST then
+      -- noop
+    elseif active_performer == JF then
+      params:show('marco_performer_jf_device_'..i)
+    elseif active_performer == MIDI then
+      params:show('marco_performer_midi_device_'..i)
+      params:show('marco_performer_midi_channel_'..i)
     elseif active_performer == SC then
       params:show('marco_performer_er301_cv_port_'..i)
       params:show('marco_performer_er301_tr_port_'..i)
-    elseif active_performer == ANS then
-      params:show('marco_performer_ansible_output_'..i)
-      params:show('marco_performer_slew_'..i)
+    elseif active_performer == WD then
+      params:show('marco_performer_w_device_'..i)
+      params:show('marco_performer_w_delay_feedback_'..i)
+      params:show('marco_performer_w_delay_mix_'..i)
+      params:show('marco_performer_w_delay_filter_'..i)
+      params:show('marco_performer_w_delay_env_pct_'..i)
+      params:show('marco_performer_w_delay_rate_'..i)
+      params:show('marco_performer_w_delay_mod_rate_'..i)
+      params:show('marco_performer_w_delay_mod_amount_'..i)
+      params:show('marco_performer_w_delay_clock_mul_'..i)
+      params:show('marco_performer_w_delay_clock_div_'..i)
     elseif active_performer == WS then
       params:show('marco_performer_w_device_'..i)
       params:show('marco_performer_w_curve_'..i)
@@ -256,7 +315,7 @@ function Parameters:_refresh_performer_params()
       params:show('marco_performer_w_fm_rat_d_'..i)
       params:show('marco_performer_w_ramp_'..i)
       params:show('marco_attack_'..i)
-    else
+    elseif active_performer == WT then
       params:show('marco_performer_w_device_'..i)
     end
   end
