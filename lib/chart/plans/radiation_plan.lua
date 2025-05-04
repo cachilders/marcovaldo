@@ -8,7 +8,7 @@ local MAX_RAD = 8
 local PULSE_RADIUS_OPERAND = MAX_RAD / MAX_AMP
 
 local RadiationPlan = {
-  emitters = {{1, 1}, {1, 8}, {8, 1}, {8, 8}}
+  emitters = {{1, 1}, {8, 1}, {1, 8}, {8, 8}}
 }
 
 function RadiationPlan:new(options)

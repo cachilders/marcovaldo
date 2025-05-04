@@ -101,16 +101,9 @@ function Chart:affect(action, index, values)
     local sequence = index
     local velocity = values.velocity
     local envelope_duration = values.envelope_duration
-    local radiation_plan
-    -- TODO - cleanup: this is brittle
-    -- Case and point, just broke this. Don't want to loop in this
-    -- method and want to avoid adding state here, but what we
-    -- have is suboptimal
     self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
   elseif action == actions.edit_sequence or action == actions.edit_step then -- Validate
     self.sheets[SEQUENCE]:update(index, values)
-  -- elseif action == actions.edit_step then
-  --   self.sheets[STEP]:update(index, values)
   end
 end
 
@@ -127,7 +120,7 @@ function Chart:_init_pages()
     l = self:_monobrite_test(l)
     self.host:led(x, y, l)
   end
-  
+
   if chart_height == PANE_EDGE_LENGTH then
     if chart_width == PANE_EDGE_LENGTH then
       page_count = PLAN_COUNT
@@ -154,7 +147,7 @@ function Chart:_init_pages()
       pane:init(panes_per_page, led)
       table.insert(panes, pane)
     end
-    
+
     page:set('panes', panes)
     table.insert(pages, page)
   end
@@ -189,10 +182,8 @@ end
 function Chart:_init_observers()
   current_mode:register('chart', function()
     local mode = get_current_mode()
-    if mode == SEQUENCE then
+    if mode == SEQUENCE or mode == STEP then
       self.sheet = SEQUENCE
-    elseif mode == STEP then
-      self.sheet = SEQUENCE -- TEMP: Testing hold key to enter step mode on held key
     else
       self.sheet = nil
     end
@@ -200,7 +191,19 @@ function Chart:_init_observers()
 end
 
 function Chart:_init_sheets()
+  -- TODO
   -- Need to handle different grid sizes in sheet mode
+  --   Just as pages adapt for 8x8, 16x8, and 16x16 grids
+  --   the sheet override should have comparable ergonomics
+  --   and perhaps should use the same Pane structure to pass
+  --   state and handle page turns if this can be accomplished
+  --   with minimal effort
+  -- Move away from original multi-sheet paradigm or cleanup
+  --   The step sheet is not necessary, but the sequence sheet is
+  --   I want to keep the option open for later enhancements
+  --   with the understanding that Sheets are a different paradigm
+  --   from Plans, tending toward standard sequencer and music
+  --   arrangement functionality.
   local sheets = {}
   local function led(x, y, l)
     l = self:_monobrite_test(l)
