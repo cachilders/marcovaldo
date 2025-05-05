@@ -15,7 +15,7 @@ local MX = 'Mx. Synths'
 
 local ENABLED_STATES = {'Enabled', 'Disabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
-local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS, WT}
+local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS} -- Removing WT while we figure out what to do with it
 local CROW_DEVICES = {'Host', '1', '2', '3', '4'}
 local CROW_OUTPUTS = {'1/2', '3/4'}
 local CROW_GATES = {'Gate', 'Envelope'}
