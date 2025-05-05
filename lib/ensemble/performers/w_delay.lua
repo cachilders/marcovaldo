@@ -27,24 +27,7 @@ function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
   end
   self.clocks[sequence] = clock.run(
     function()
-      local feedback = params:get('marco_performer_w_delay_feedback_'..sequence)
-      local mix = params:get('marco_performer_w_delay_mix_'..sequence)
-      local filter = params:get('marco_performer_w_delay_filter_'..sequence)
-      local env_pct = params:get('marco_performer_w_delay_env_pct_'..sequence)
-      local rate = params:get('marco_performer_w_delay_rate_'..sequence)
-      local mod_rate = params:get('marco_performer_w_delay_mod_rate_'..sequence)
-      local mod_amount = params:get('marco_performer_w_delay_mod_amount_'..sequence)
-      local clock_mul = params:get('marco_performer_w_delay_clock_mul_'..sequence)
-      local clock_div = params:get('marco_performer_w_delay_clock_div_'..sequence)
-
-      crow.ii.wdel[device].feedback(feedback)
-      crow.ii.wdel[device].mix(mix)
-      crow.ii.wdel[device].filter(filter)
-      crow.ii.wdel[device].time(envelope_duration * env_pct / 100)
-      crow.ii.wdel[device].rate(rate)
-      crow.ii.wdel[device].mod_rate(mod_rate)
-      crow.ii.wdel[device].mod_amount(mod_amount)
-      crow.ii.wdel[device].clock_ratio(clock_mul, clock_div)
+      crow.ii.wdel[device].time(envelope_duration / note)
       crow.ii.wdel[device].freq(music_util.note_num_to_freq(note))
       crow.ii.wdel[device].pluck(velocity * VELOCITY_CONSTANT)
       crow.ii.wdel[device].freeze(1)
@@ -55,9 +38,21 @@ function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
 end
 
 function WDelayPerformer:apply_effect(index, data)
-  -- TODO
+  -- feedback( level ) -- amount of feedback from read head to write head (s16V)
+  -- mix( fade ) -- fade from dry to delayed signal (s16V)
+  -- filter( cutoff ) -- centre frequency of filter in feedback loop (s16V)
+  -- freeze( is_active ) -- deactivate record head to freeze the current buffer (s8)
+  -- time( seconds ) -- set delay buffer length in seconds, when rate == 1 (s16V)
+  -- length( count, divisions ) -- set buffer loop size as a fraction of buffer time (u8)
   -- position( count, divisions ) -- set loop location as a fraction of buffer time (u8)
   -- cut( count, divisions ) -- jump to loop location as a fraction of buffer time (u8)
+  -- rate( multiplier ) -- direct multiplier of tape speed (s16V)
+  -- freq( volts ) -- manipulate tape speed with musical values (s16V)
+  -- clock() -- receive clock pulse for synchronization
+  -- clock_ratio( mul, div ) -- set clock pulses per buffer time, with clock mul/div (s8)
+  -- pluck( volume ) -- pluck the delay line with noise at volume (s16V)
+  -- mod_rate ( rate ) -- set the multiplier for the modulation rate (s16V)
+  -- mod_amount( amount ) -- set the amount of delay line modulation to be applied (s16V)
 end
 
 return WDelayPerformer 
