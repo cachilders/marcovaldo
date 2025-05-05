@@ -3,8 +3,9 @@ local Sheet = {
   led = nil,
   source = nil,
   values = nil,
-  height = 8, -- WIP; solve for different sizes for this application
-  width = 16
+  height = SHEET_HEIGHT,
+  width = SHEET_WIDTH,
+  y_offset = 0
 }
 
 function Sheet:new(options)

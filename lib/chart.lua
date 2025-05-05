@@ -5,6 +5,7 @@ local RadiationPlan = include('lib/chart/plans/radiation_plan')
 local ReliefPlan = include('lib/chart/plans/relief_plan')
 local Page = include('lib/chart/page')
 local Pane = include('lib/chart/pane')
+local SheetPane = include('lib/chart/sheet_pane')
 local SequenceSheet = include('lib/chart/sheets/sequence_sheet')
 local StepSheet = include('lib/chart/sheets/step_sheet')
 
@@ -191,32 +192,41 @@ function Chart:_init_observers()
 end
 
 function Chart:_init_sheets()
-  -- TODO
-  -- Need to handle different grid sizes in sheet mode
-  --   Just as pages adapt for 8x8, 16x8, and 16x16 grids
-  --   the sheet override should have comparable ergonomics
-  --   and perhaps should use the same Pane structure to pass
-  --   state and handle page turns if this can be accomplished
-  --   with minimal effort
-  -- Move away from original multi-sheet paradigm or cleanup
-  --   The step sheet is not necessary, but the sequence sheet is
-  --   I want to keep the option open for later enhancements
-  --   with the understanding that Sheets are a different paradigm
-  --   from Plans, tending toward standard sequencer and music
-  --   arrangement functionality.
   local sheets = {}
   local function led(x, y, l)
     l = self:_monobrite_test(l)
     self.host:led(x, y, l)
   end
-  sheets[SEQUENCE] = SequenceSheet:new({
+  
+  -- Create sequence sheet
+  local sequence_sheet = SequenceSheet:new({
     affect_arrangement = self.affect_arrangement,
     led = led
   })
-  sheets[STEP] = StepSheet:new({
-    affect_arrangement = self.affect_arrangement,
-    led = led
-  })
+  
+  if self.host.cols == 16 then
+    -- 256-key grid: Show full sheet
+    local pane = SheetPane:new({sheet = sequence_sheet, page = 1})
+    local page = Page:new({
+      id = 1,
+      flip_page = function() self:_flip_page() end
+    })
+    page:set('panes', {pane})
+    sheets[SEQUENCE] = page
+  else
+    -- 64-key grid: Show half at a time
+    local panes = {
+      SheetPane:new({sheet = sequence_sheet, page = 1}),
+      SheetPane:new({sheet = sequence_sheet, page = 2})
+    }
+    local page = Page:new({
+      id = 1,
+      flip_page = function() self:_flip_page() end
+    })
+    page:set('panes', panes)
+    sheets[SEQUENCE] = page
+  end
+  
   self.sheets = sheets
 end
 

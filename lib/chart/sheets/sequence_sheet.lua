@@ -17,7 +17,8 @@ function SequenceSheet:press(x, y, z)
   default_mode_timeout_extend()
   if self.source and self.values then
     local step_count = self.values[1][1]
-    local step = (y - 1) * self.width + x
+    local adjusted_y = y + self.y_offset
+    local step = (adjusted_y - 1) * self.width + x
     if z == 0 then
       if not halt_keys then
         if key_timer[step] then
@@ -47,20 +48,25 @@ function SequenceSheet:refresh()
   local current_step = current_steps()[self.source]
   local pulse_positions = self.values[1][2] 
   local step_count = self.values[1][1]
-  for c = 1, self.height do
-    for r = 1, self.width do
-      local step = ((c-1)*self.width) + r
-      local step_value = pulse_positions[step]
-      if step <= step_count then
-        if step == current_step then
-          self.led(r, c, 15)
-        elseif step_value == 1 then
-          self.led(r, c, 12)
+  
+  -- Only refresh visible portion based on y_offset
+  for c = 1, self.width do
+    for r = 1, PANE_EDGE_LENGTH do  -- Only show 8 rows at a time
+      local adjusted_y = r + self.y_offset
+      if adjusted_y <= self.height then
+        local step = (adjusted_y - 1) * self.width + c
+        local step_value = pulse_positions[step]
+        if step <= step_count then
+          if step == current_step then
+            self.led(c, r, 15)
+          elseif step_value == 1 then
+            self.led(c, r, 12)
+          else
+            self.led(c, r, 4)
+          end
         else
-          self.led(r, c, 4)
+          self.led(c, r, 0)
         end
-      else
-        self.led(r, c, 0)
       end
     end
   end
