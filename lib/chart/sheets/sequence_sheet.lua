@@ -24,7 +24,7 @@ function SequenceSheet:press(x, y, z)
     if tab.contains(keys_held, '87') and tab.contains(keys_held, '88') and tab.contains(keys_held, '78') then
       -- Bottom right corner is page flip gesture
       self.page = self.page % 2 + 1
-      self.y_offset = (self.page - 1) * PANE_EDGE_LENGTH
+      self:set('step_offset', (self.page - 1) * 64)  -- 64 steps per page
       keys_held = {}
       return
     end
@@ -41,8 +41,16 @@ function SequenceSheet:press(x, y, z)
   
   if self.source and self.values then
     local step_count = self.values[1][1]
-    local adjusted_y = y + self.y_offset
-    local step = (adjusted_y - 1) * self.width + x
+    local step_offset = self:get('step_offset') or 0
+    
+    -- For 64-key grid, map coordinates to steps
+    local step
+    if self.is_64_key then
+      step = (y - 1) * PANE_EDGE_LENGTH + x + step_offset
+    else
+      step = self:coords_to_step(x, y)
+    end
+    
     if z == 0 then
       if not halt_keys then
         if key_timer[step] then
@@ -76,15 +84,36 @@ function SequenceSheet:refresh()
   local current_step = current_steps()[self.source]
   local pulse_positions = self.values[1][2] 
   local step_count = self.values[1][1]
+  local step_offset = self:get('step_offset') or 0
   
-  -- Only refresh visible portion based on y_offset
-  for c = 1, self.width do
-    for r = 1, PANE_EDGE_LENGTH do  -- Only show 8 rows at a time
-      local adjusted_y = r + self.y_offset
-      if adjusted_y <= self.height then
-        local step = (adjusted_y - 1) * self.width + c
-        local step_value = pulse_positions[step]
+  if self.is_64_key then
+    -- For 64-key grid, map 8x8 to steps
+    for c = 1, PANE_EDGE_LENGTH do
+      for r = 1, PANE_EDGE_LENGTH do
+        local step = (r - 1) * PANE_EDGE_LENGTH + c + step_offset
+        
         if step <= step_count then
+          local step_value = pulse_positions[step]
+          if step == current_step then
+            self.led(c, r, 15)
+          elseif step_value == 1 then
+            self.led(c, r, 12)
+          else
+            self.led(c, r, 4)
+          end
+        else
+          self.led(c, r, 0)
+        end
+      end
+    end
+  else
+    -- For 128-key grid, use full width
+    for c = 1, self.width do
+      for r = 1, PANE_EDGE_LENGTH do
+        local step = self:coords_to_step(c, r)
+        
+        if step <= step_count then
+          local step_value = pulse_positions[step]
           if step == current_step then
             self.led(c, r, 15)
           elseif step_value == 1 then
