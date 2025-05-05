@@ -76,7 +76,8 @@ function Chart:press(x, y, z)
   if self.sheet then
     -- Get the page containing our sheet
     local page = self.sheets[self.sheet]
-    -- Pass the press through the appropriate pane
+    
+    -- Pass the press through the appropriate pane for sequence editing
     for _, pane in ipairs(page:get('panes')) do
       if pane:contains(x, y) then
         pane:pass(x, y, z)
@@ -219,7 +220,7 @@ function Chart:_init_sheets()
   
   if self.host.cols == 16 then
     -- 256-key grid: Show full sheet
-    local pane = SheetPane:new({sheet = sequence_sheet, page = 1})
+    local pane = SheetPane:new({sheet = sequence_sheet, page = 1, is_64_key = false})
     local page = Page:new({
       id = 1,
       flip_page = function() self:_flip_page() end
@@ -229,8 +230,8 @@ function Chart:_init_sheets()
   else
     -- 64-key grid: Show half at a time
     local panes = {
-      SheetPane:new({sheet = sequence_sheet, page = 1}),
-      SheetPane:new({sheet = sequence_sheet, page = 2})
+      SheetPane:new({sheet = sequence_sheet, page = 1, is_64_key = true}),
+      SheetPane:new({sheet = sequence_sheet, page = 2, is_64_key = true})
     }
     local page = Page:new({
       id = 1,
