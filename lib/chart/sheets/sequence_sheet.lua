@@ -1,6 +1,7 @@
 local actions = include('lib/actions')
 local halt_keys = false
 local key_timer = {}
+local keys_held = {}
 local Sheet = include('lib/chart/sheet')
 
 local SequenceSheet = {}
@@ -10,11 +11,34 @@ function SequenceSheet:new(options)
   setmetatable(self, {__index = Sheet})
   setmetatable(instance, self)
   self.__index = self
+  self.is_64_key = options.is_64_key or false
   return instance
 end
 
 function SequenceSheet:press(x, y, z)
   default_mode_timeout_extend()
+  
+  -- Handle page turn gesture for 64-key grid
+  if self.is_64_key and z == 1 then
+    table.insert(keys_held, x..y)
+    if tab.contains(keys_held, '87') and tab.contains(keys_held, '88') and tab.contains(keys_held, '78') then
+      -- Bottom right corner is page flip gesture
+      self.page = self.page % 2 + 1
+      self.y_offset = (self.page - 1) * PANE_EDGE_LENGTH
+      keys_held = {}
+      return
+    end
+  elseif z == 0 then
+    -- Clear held keys on release
+    local next_keys = {}
+    for i = 1, #keys_held do
+      if keys_held[i] ~= x..y then
+        table.insert(next_keys, keys_held[i])
+      end
+    end
+    keys_held = next_keys
+  end
+  
   if self.source and self.values then
     local step_count = self.values[1][1]
     local adjusted_y = y + self.y_offset
