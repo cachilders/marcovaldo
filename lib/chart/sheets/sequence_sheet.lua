@@ -45,6 +45,10 @@ function SequenceSheet:press(x, y, z)
 end
 
 function SequenceSheet:refresh()
+  if not self.source or not self.values then
+    return
+  end
+  
   local current_step = current_steps()[self.source]
   local pulse_positions = self.values[1][2] 
   local step_count = self.values[1][1]

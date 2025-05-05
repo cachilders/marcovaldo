@@ -74,7 +74,15 @@ end
 
 function Chart:press(x, y, z)
   if self.sheet then
-    self.sheets[self.sheet]:press(x, y, z, shift)
+    -- Get the page containing our sheet
+    local page = self.sheets[self.sheet]
+    -- Pass the press through the appropriate pane
+    for _, pane in ipairs(page:get('panes')) do
+      if pane:contains(x, y) then
+        pane:pass(x, y, z)
+        break
+      end
+    end
   else
     self.pages[self.page]:press_to_page(x, y, z)
   end
@@ -104,7 +112,12 @@ function Chart:affect(action, index, values)
     local envelope_duration = values.envelope_duration
     self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
   elseif action == actions.edit_sequence or action == actions.edit_step then -- Validate
-    self.sheets[SEQUENCE]:update(index, values)
+    -- Get the page containing our sequence sheet
+    local page = self.sheets[SEQUENCE]
+    -- Update the sheet through its pane
+    for _, pane in ipairs(page:get('panes')) do
+      pane.sheet:update(index, values)
+    end
   end
 end
 
