@@ -35,6 +35,7 @@ end
 -- seek(seconds) - seconds: float - Move tape relative to current position (seconds)
 
 function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
+  -- TODO: I believe this performer will be a cat, rather than a discrete voice.
   local device = params:get('marco_performer_w_device_'..sequence)
   crow.ii.wtape[device].freq(note / 12)
   crow.ii.wtape[device].seek(envelope_duration) -- Just goofin; might want to init a loop and bounce around in it

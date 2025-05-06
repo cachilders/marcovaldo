@@ -13,11 +13,30 @@ function SequenceSheet:new(options)
   return instance
 end
 
+function SequenceSheet:coords_to_step(x, y)
+  if self.is_64_key then
+    local step_offset = self:get('step_offset') or 0
+    return (y - 1) * PANE_EDGE_LENGTH + x + step_offset
+  else
+    return (y - 1) * 16 + x
+  end
+end
+
 function SequenceSheet:press(x, y, z)
   default_mode_timeout_extend()
+  
   if self.source and self.values then
     local step_count = self.values[1][1]
-    local step = (y - 1) * self.width + x
+    local step_offset = self:get('step_offset') or 0
+    
+    -- For 64-key grid, map coordinates to steps
+    local step
+    if self.is_64_key then
+      step = (y - 1) * PANE_EDGE_LENGTH + x + step_offset
+    else
+      step = self:coords_to_step(x, y)
+    end
+    
     if z == 0 then
       if not halt_keys then
         if key_timer[step] then
@@ -44,23 +63,53 @@ function SequenceSheet:press(x, y, z)
 end
 
 function SequenceSheet:refresh()
+  if not self.source or not self.values then
+    return
+  end
+  
   local current_step = current_steps()[self.source]
   local pulse_positions = self.values[1][2] 
   local step_count = self.values[1][1]
-  for c = 1, self.height do
-    for r = 1, self.width do
-      local step = ((c-1)*self.width) + r
-      local step_value = pulse_positions[step]
-      if step <= step_count then
-        if step == current_step then
-          self.led(r, c, 15)
-        elseif step_value == 1 then
-          self.led(r, c, 12)
+  local step_offset = self:get('step_offset') or 0
+  
+  if self.is_64_key then
+    -- For 64-key grid, map 8x8 to steps
+    for c = 1, PANE_EDGE_LENGTH do
+      for r = 1, PANE_EDGE_LENGTH do
+        local step = (r - 1) * PANE_EDGE_LENGTH + c + step_offset
+        
+        if step <= step_count then
+          local step_value = pulse_positions[step]
+          if step == current_step then
+            self.led(c, r, 15)
+          elseif step_value == 1 then
+            self.led(c, r, 12)
+          else
+            self.led(c, r, 4)
+          end
         else
-          self.led(r, c, 4)
+          self.led(c, r, 0)
         end
-      else
-        self.led(r, c, 0)
+      end
+    end
+  else
+    -- For 128-key grid, use full width
+    for c = 1, 16 do
+      for r = 1, PANE_EDGE_LENGTH do
+        local step = self:coords_to_step(c, r)
+        
+        if step <= step_count then
+          local step_value = pulse_positions[step]
+          if step == current_step then
+            self.led(c, r, 15)
+          elseif step_value == 1 then
+            self.led(c, r, 12)
+          else
+            self.led(c, r, 4)
+          end
+        else
+          self.led(c, r, 0)
+        end
       end
     end
   end
@@ -70,6 +119,18 @@ function SequenceSheet:update(index, values)
   self.source = index
   self.values = values
   self:refresh()
+end
+
+function SequenceSheet:on_gesture_complete()
+  -- Cancel all running timers
+  for step, timer in pairs(key_timer) do
+    if timer then
+      clock.cancel(timer)
+      key_timer[step] = nil
+    end
+  end
+  -- Set halt_keys to true to prevent new timers
+  halt_keys = true
 end
 
 return SequenceSheet

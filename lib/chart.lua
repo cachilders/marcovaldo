@@ -5,6 +5,7 @@ local RadiationPlan = include('lib/chart/plans/radiation_plan')
 local ReliefPlan = include('lib/chart/plans/relief_plan')
 local Page = include('lib/chart/page')
 local Pane = include('lib/chart/pane')
+local SheetPane = include('lib/chart/sheet_pane')
 local SequenceSheet = include('lib/chart/sheets/sequence_sheet')
 local StepSheet = include('lib/chart/sheets/step_sheet')
 
@@ -73,7 +74,14 @@ end
 
 function Chart:press(x, y, z)
   if self.sheet then
-    self.sheets[self.sheet]:press(x, y, z, shift)
+    -- Get the page containing our sheet
+    local page = self.sheets[self.sheet]
+    
+    -- Pass the press through the appropriate pane for sequence editing
+    for _, pane in ipairs(page:get('panes')) do
+      pane:pass(x, y, z)
+      break
+    end
   else
     self.pages[self.page]:press_to_page(x, y, z)
   end
@@ -101,16 +109,14 @@ function Chart:affect(action, index, values)
     local sequence = index
     local velocity = values.velocity
     local envelope_duration = values.envelope_duration
-    local radiation_plan
-    -- TODO - cleanup: this is brittle
-    -- Case and point, just broke this. Don't want to loop in this
-    -- method and want to avoid adding state here, but what we
-    -- have is suboptimal
     self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
   elseif action == actions.edit_sequence or action == actions.edit_step then -- Validate
-    self.sheets[SEQUENCE]:update(index, values)
-  -- elseif action == actions.edit_step then
-  --   self.sheets[STEP]:update(index, values)
+    -- Get the page containing our sequence sheet
+    local page = self.sheets[SEQUENCE]
+    -- Update the sheet through its pane
+    for _, pane in ipairs(page:get('panes')) do
+      pane.sheet:update(index, values)
+    end
   end
 end
 
@@ -127,7 +133,7 @@ function Chart:_init_pages()
     l = self:_monobrite_test(l)
     self.host:led(x, y, l)
   end
-  
+
   if chart_height == PANE_EDGE_LENGTH then
     if chart_width == PANE_EDGE_LENGTH then
       page_count = PLAN_COUNT
@@ -154,7 +160,7 @@ function Chart:_init_pages()
       pane:init(panes_per_page, led)
       table.insert(panes, pane)
     end
-    
+
     page:set('panes', panes)
     table.insert(pages, page)
   end
@@ -189,10 +195,8 @@ end
 function Chart:_init_observers()
   current_mode:register('chart', function()
     local mode = get_current_mode()
-    if mode == SEQUENCE then
+    if mode == SEQUENCE or mode == STEP then
       self.sheet = SEQUENCE
-    elseif mode == STEP then
-      self.sheet = SEQUENCE -- TEMP: Testing hold key to enter step mode on held key
     else
       self.sheet = nil
     end
@@ -200,20 +204,42 @@ function Chart:_init_observers()
 end
 
 function Chart:_init_sheets()
-  -- Need to handle different grid sizes in sheet mode
   local sheets = {}
   local function led(x, y, l)
     l = self:_monobrite_test(l)
     self.host:led(x, y, l)
   end
-  sheets[SEQUENCE] = SequenceSheet:new({
+  
+  -- Create sequence sheet
+  local sequence_sheet = SequenceSheet:new({
     affect_arrangement = self.affect_arrangement,
-    led = led
+    led = led,
+    is_64_key = self.host.cols == PANE_EDGE_LENGTH
   })
-  sheets[STEP] = StepSheet:new({
-    affect_arrangement = self.affect_arrangement,
-    led = led
-  })
+  
+  if self.host.cols == 16 then
+    -- 256-key grid: Show full sheet
+    local pane = SheetPane:new({sheet = sequence_sheet, page = 1, is_64_key = false})
+    local page = Page:new({
+      id = 1,
+      flip_page = function() self:_flip_page() end
+    })
+    page:set('panes', {pane})
+    sheets[SEQUENCE] = page
+  else
+    -- 64-key grid: Show half at a time
+    local panes = {
+      SheetPane:new({sheet = sequence_sheet, page = 1, is_64_key = true}),
+      SheetPane:new({sheet = sequence_sheet, page = 2, is_64_key = true})
+    }
+    local page = Page:new({
+      id = 1,
+      flip_page = function() self:_flip_page() end
+    })
+    page:set('panes', panes)
+    sheets[SEQUENCE] = page
+  end
+  
   self.sheets = sheets
 end
 

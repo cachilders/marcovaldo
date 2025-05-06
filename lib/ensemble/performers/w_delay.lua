@@ -26,6 +26,7 @@ function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
     clock.cancel(self.clocks[sequence])
   end
   self.clocks[sequence] = clock.run(
+    -- TODO: Parameterize all additional available settings once defaults and ranges are identified
     function()
       crow.ii.wdel[device].time(envelope_duration / note)
       crow.ii.wdel[device].freq(music_util.note_num_to_freq(note))

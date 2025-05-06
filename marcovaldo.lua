@@ -9,6 +9,11 @@ PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
 STEP = 'step'
 
+-- Sheet constants
+SHEET_WIDTH = 16  -- Full width of a sheet
+SHEET_HEIGHT = 8  -- Height of a sheet (matches PANE_EDGE_LENGTH)
+SHEET_STEPS = SHEET_WIDTH * SHEET_HEIGHT  -- Total steps in a sheet (128)
+
 MODES = {DEFAULT, ERROR, SEQUENCE, STEP}
 
 shift_depressed = false
