@@ -13,8 +13,18 @@ function WTapePerformer:new(options)
   return instance
 end
 
+function WTapePerformer:_get_available_mods()
+  return {
+    { mod = 'tape_speed', id = 'wtape_speed' },
+    { mod = 'direction', id = 'wtape_direction' }
+  }
+end
+
 function WTapePerformer:init()
   -- Initialize W/
+  if cat_breed_registry and cat_breed_registry.register_breeds then
+    cat_breed_registry:register_breeds(self, self:_get_available_mods())
+  end
 end
 
 -- record(is_recording) - is_recording: bool - Set recording state
@@ -42,7 +52,18 @@ function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
 end
 
 function WTapePerformer:apply_effect(index, data)
-  -- no-op
+  local function log_data(label, idx, d)
+    local parts = {}
+    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
+    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
+  end
+  if data.mod == 'tape_speed' then
+    log_data('WTapePerformer', index, data)
+    -- TODO: Implement tape speed effect for W/Tape
+  elseif data.mod == 'direction' then
+    log_data('WTapePerformer', index, data)
+    -- TODO: Implement direction effect for W/Tape
+  end
 end
 
-return WTapePerformer 
+return WTapePerformer

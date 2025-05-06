@@ -16,13 +16,31 @@ function MxSynthsPerformer:new(options)
   return instance
 end
 
+function MxSynthsPerformer:get_cat_breeds()
+  local breeds = {}
+  for i = 1, 4 do
+    table.insert(breeds, { mod = i, id = 'mxsynths_mod'..i })
+  end
+  return breeds
+end
+
 function MxSynthsPerformer:init()
   local mxsynths = include('mx.synths/lib/mx.synths')
   self.mx = mxsynths:new()
   params:set('mxsynths_synth', 7)
+  -- Register MX.Synths mods as cat breeds by default
+  if cat_breed_registry and cat_breed_registry.register_breeds then
+    cat_breed_registry:register_breeds(self, self:get_cat_breeds())
+  end
 end
 
 function MxSynthsPerformer:apply_effect(index, data)
+  local function log_data(label, idx, d)
+    local parts = {}
+    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
+    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
+  end
+  log_data('MxSynthsPerformer', index, data)
   local mod_reset_value = params:get('mxsynths_mod'..index)
   local beat_time = 60 / params:get('clock_tempo')
   local mod_new_value = (1/32) * ((data[1] * data[2]) - 32)
@@ -48,4 +66,4 @@ function MxSynthsPerformer:play_note(sequence, note, velocity, envelope_duration
   })
 end
 
-return MxSynthsPerformer 
+return MxSynthsPerformer

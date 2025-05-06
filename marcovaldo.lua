@@ -20,6 +20,7 @@ shift_depressed = false
 current_mode = nil
 
 local Arrangement = include('lib/arrangement')
+local CatBreedRegistry = include('lib/cat_breed_registry')
 local Chart = include('lib/chart')
 local Console = include('lib/console')
 local Ensemble = include('lib/ensemble')
@@ -109,9 +110,9 @@ function init_observables()
   for i = 1, 4 do
     default_steps[i] = {1}
   end
-
   current_mode = observable.new(default_mode)
   current_steps = observable.new(default_steps)
+  cat_breed_registry = CatBreedRegistry:new()
 end
 
 function init_params()

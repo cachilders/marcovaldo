@@ -87,6 +87,60 @@ This document provides key resources, best practices, and lessons learned from p
 
 ---
 
+## Development Guidelines
+
+### Observables and Global State
+- All global or shared state, including observables, should be initialized in `init_observables()` in `marcovaldo.lua`.
+- Use snake_case for global/shared instances (e.g., `cat_breed_registry`).
+- Avoid using `_G.` or other global mutation patterns unless absolutely necessary.
+- Modules that require access to shared observables should reference the instance (e.g., `cat_breed_registry`) rather than requiring the module directly.
+
+### Cat Breed Registry
+- The cat breed registry (observable for cat breeds/mods) should be initialized in `init_observables()` as `cat_breed_registry`.
+- All modules should use this instance for registering, deregistering, or querying cat breeds.
+- Do not subscribe to or initialize the registry in individual plans or modules.
+
+### Consistency
+- Use snake_case for all variable and instance names unless a different convention is established in the codebase.
+- Follow the established observable and initialization patterns for all new global/shared state.
+
+---
+
+### Registry and Service Class Pattern
+- All shared registries (e.g., cat_breed_registry) must be implemented as classes with a :new() constructor.
+- Instantiate these classes in initialization functions (such as init_observables), not at the top level.
+- Never require/include and use a registry as a singleton table.
+- Always access the instance (e.g., cat_breed_registry:register_breeds(...)).
+
+### Initialization Order
+- Ensure all shared state (e.g., cat_breed_registry, observables) is instantiated before any module or plan that depends on it.
+- If a module uses a registry or observable, verify it is initialized in init_observables or an equivalent setup function.
+
+### Debug Logging for Effect Application
+- When logging effect application (e.g., in performer:apply_effect), use a local log_data function to enumerate all keys and values in the data table.
+- This pattern should be used for all effect application logs to ensure consistency and aid debugging.
+- Remove or disable debug logs before production release.
+
+### Observable Usage
+- Query observables directly (e.g., cat_breed_registry:get()) when current state is needed.
+- Only subscribe to observables if you need to react to changes (e.g., UI updates).
+- Do not store local copies of observable state unless absolutely necessary.
+
+---
+
+## Include Pattern
+- Use `include('path/to/module')` at the top of each file to import project modules, following the standard pattern throughout the codebase.
+- Place all `include` statements together at the top of the file, before any function or class definitions.
+- Use `require` only for external Lua libraries or dependencies that are not part of the project source tree.
+- Instantiate classes or modules (e.g., `SomeClass:new()`) in initialization functions (such as `init_observables`), not at the top level.
+- This pattern ensures clarity, consistency, and maintainability across all modules.
+
+---
+
+Add further guidelines as new architectural patterns are introduced.
+
+---
+
 ## Recommendations for Future Development
 
 - **Continuous Improvement:**
@@ -103,4 +157,4 @@ This document provides key resources, best practices, and lessons learned from p
 
 ---
 
-By following these principles, we can ensure the project remains maintainable, scalable, and easy to extend, while avoiding common pitfalls. 
+By following these principles, we can ensure the project remains maintainable, scalable, and easy to extend, while avoiding common pitfalls.

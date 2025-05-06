@@ -2,6 +2,7 @@ local actions = include('lib/actions')
 local CatSymbol = include('lib/chart/symbols/cat_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 local Plan = include('lib/chart/plan')
+local CatBreedRegistry = include('lib/cat_breed_registry')
 
 local CatPlan = {}
 
@@ -13,8 +14,14 @@ function CatPlan:new(options)
   return instance
 end
 
+function CatPlan:init(...)
+end
+
 function CatPlan:_add(x, y)
-  local act = function(x, y, flavor)
+  local cat_breeds = CatBreedRegistry:get()
+  if #cat_breeds == 0 then return end
+  local breed = cat_breeds[math.random(1, #cat_breeds)]
+  local act = function(x, y)
     local phenomenon = EphemeralSymbol:new({
       led = self.led,
       source_type = 'cat',
@@ -23,18 +30,16 @@ function CatPlan:_add(x, y)
       y = y,
       y_offset = self.y_offset
     })
-
     self.phenomena[x][y] = phenomenon
-    self.affect_ensemble(actions.apply_effect, flavor, {x, y})
-
+    self.affect_ensemble(actions.apply_effect, breed.performer, {mod = breed.mod, x = x, y = y})
     clock.run(function()
       clock.sleep(self._get_bpm())
       self:_nullify_phenomenon(phenomenon)
     end)
   end
-
   local symbol = {
     act = act,
+    breed = breed,
     led = self.led,
     lumen = 5,
     x = x,

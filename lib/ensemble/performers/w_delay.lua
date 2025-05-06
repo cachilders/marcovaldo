@@ -16,8 +16,19 @@ function WDelayPerformer:new(options)
   return instance
 end
 
+function WDelayPerformer:_get_available_mods()
+  return {
+    { mod = 'delay_time', id = 'wdelay_time' },
+    { mod = 'feedback', id = 'wdelay_feedback' }
+  }
+end
+
 function WDelayPerformer:init()
   self.clocks = {}
+  -- Initialize W/
+  if cat_breed_registry and cat_breed_registry.register_breeds then
+    cat_breed_registry:register_breeds(self, self:_get_available_mods())
+  end
 end
 
 function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -39,21 +50,18 @@ function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
 end
 
 function WDelayPerformer:apply_effect(index, data)
-  -- feedback( level ) -- amount of feedback from read head to write head (s16V)
-  -- mix( fade ) -- fade from dry to delayed signal (s16V)
-  -- filter( cutoff ) -- centre frequency of filter in feedback loop (s16V)
-  -- freeze( is_active ) -- deactivate record head to freeze the current buffer (s8)
-  -- time( seconds ) -- set delay buffer length in seconds, when rate == 1 (s16V)
-  -- length( count, divisions ) -- set buffer loop size as a fraction of buffer time (u8)
-  -- position( count, divisions ) -- set loop location as a fraction of buffer time (u8)
-  -- cut( count, divisions ) -- jump to loop location as a fraction of buffer time (u8)
-  -- rate( multiplier ) -- direct multiplier of tape speed (s16V)
-  -- freq( volts ) -- manipulate tape speed with musical values (s16V)
-  -- clock() -- receive clock pulse for synchronization
-  -- clock_ratio( mul, div ) -- set clock pulses per buffer time, with clock mul/div (s8)
-  -- pluck( volume ) -- pluck the delay line with noise at volume (s16V)
-  -- mod_rate ( rate ) -- set the multiplier for the modulation rate (s16V)
-  -- mod_amount( amount ) -- set the amount of delay line modulation to be applied (s16V)
+  local function log_data(label, idx, d)
+    local parts = {}
+    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
+    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
+  end
+  if data.mod == 'delay_time' then
+    log_data('WDelayPerformer', index, data)
+    -- TODO: Implement delay time effect for W/Delay
+  elseif data.mod == 'feedback' then
+    log_data('WDelayPerformer', index, data)
+    -- TODO: Implement feedback effect for W/Delay
+  end
 end
 
-return WDelayPerformer 
+return WDelayPerformer

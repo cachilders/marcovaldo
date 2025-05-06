@@ -14,8 +14,18 @@ function JustFriendsPerformer:new(options)
   return instance
 end
 
+function JustFriendsPerformer:_get_available_mods()
+  return {
+    { mod = 'octave_shift', id = 'jf_octave_shift' },
+    { mod = 'voice_mode', id = 'jf_voice_mode' }
+  }
+end
+
 function JustFriendsPerformer:init()
   crow.ii.jf.mode(1)
+  if cat_breed_registry and cat_breed_registry.register_breeds then
+    cat_breed_registry:register_breeds(self, self:_get_available_mods())
+  end
 end
 
 -- crow.ii.jf.trigger( channel, state )
@@ -41,7 +51,18 @@ function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_durat
 end
 
 function JustFriendsPerformer:apply_effect(index, data)
-  -- no-op
+  local function log_data(label, idx, d)
+    local parts = {}
+    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
+    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
+  end
+  if data.mod == 'octave_shift' then
+    log_data('JustFriendsPerformer', index, data)
+    -- TODO: Implement octave shift effect for Just Friends
+  elseif data.mod == 'voice_mode' then
+    log_data('JustFriendsPerformer', index, data)
+    -- TODO: Implement voice mode effect for Just Friends
+  end
 end
 
-return JustFriendsPerformer 
+return JustFriendsPerformer
