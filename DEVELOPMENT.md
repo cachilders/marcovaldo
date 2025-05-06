@@ -128,6 +128,41 @@ This document provides key resources, best practices, and lessons learned from p
 
 ---
 
+### Debugging and Regression Analysis Guidelines
+
+- **Always Limit Root Cause Analysis to Recent Changes:**  
+  When investigating a regression or bug, begin by examining only the changes introduced in the current branch or pull request (i.e., the diff from the main branch). Do not speculate about causes outside the scope of the current changes unless evidence is found in the diff.
+
+- **Use Evidence, Not Assumptions:**  
+  Do not propose fixes or root causes based on assumptions or patterns from other projects or codebases. Always verify that the suspected cause is present in the actual code changes under review.
+
+- **Trace Initialization and Usage Order:**  
+  When a bug involves uninitialized or nil values, trace the order of object creation, initialization, and usage in the changed code. Confirm that all required initialization occurs before use.
+
+- **Search the Diff First:**  
+  Before searching the entire codebase or proposing architectural changes, search the diff between the current branch and main for any relevant changes to the affected files, methods, or initialization patterns.
+
+- **Document the Investigation Path:**  
+  When reporting or discussing a regression, clearly state:
+  - What was changed in the diff.
+  - What was not changed.
+  - The exact evidence (lines, files, or diffs) supporting your hypothesis.
+
+- **Avoid No-Op or Redundant Edits:**  
+  Do not propose or make changes that do not actually alter the code (e.g., removing a default assignment that does not exist). Always confirm the presence of the code before suggesting its removal.
+
+- **Escalate Only with Evidence:**  
+  If the root cause is not found in the diff, escalate the investigation with a summary of what was checked and why the diff does not explain the regression.
+
+#### Example Workflow for Regression Analysis:
+1. Reproduce the bug and note the error message and stack trace.
+2. Run `git diff main...feature-branch` and review all changes to relevant files.
+3. Search for changes to initialization, construction, or usage of affected objects.
+4. Confirm or refute each hypothesis with direct evidence from the diff.
+5. Only expand the search to the rest of the codebase if the diff does not explain the bug.
+
+---
+
 ## Include Pattern
 - Use `include('path/to/module')` at the top of each file to import project modules, following the standard pattern throughout the codebase.
 - Place all `include` statements together at the top of the file, before any function or class definitions.

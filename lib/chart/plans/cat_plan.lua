@@ -14,9 +14,6 @@ function CatPlan:new(options)
   return instance
 end
 
-function CatPlan:init(...)
-end
-
 function CatPlan:_add(x, y)
   local cat_breeds = CatBreedRegistry:get()
   if #cat_breeds == 0 then return end
