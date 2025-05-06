@@ -73,28 +73,15 @@ function Chart:set_grid(n)
 end
 
 function Chart:press(x, y, z)
+  print("Chart:press", x, y, z)
   if self.sheet then
     -- Get the page containing our sheet
     local page = self.sheets[self.sheet]
     
-    -- Handle page turning for 64-key grid
-    if self.host.cols == PANE_EDGE_LENGTH and z == 1 then
-      if x == 7 and y == 8 or x == 8 and y == 7 or x == 8 and y == 8 then
-        -- Bottom right corner is page flip gesture
-        for _, pane in ipairs(page:get('panes')) do
-          pane.page = pane.page % 2 + 1
-          pane:update_offsets()
-        end
-        return
-      end
-    end
-    
     -- Pass the press through the appropriate pane for sequence editing
     for _, pane in ipairs(page:get('panes')) do
-      if pane:contains(x, y) then
-        pane:pass(x, y, z)
-        break
-      end
+      pane:pass(x, y, z)
+      break
     end
   else
     self.pages[self.page]:press_to_page(x, y, z)

@@ -1,7 +1,6 @@
 local actions = include('lib/actions')
 local halt_keys = false
 local key_timer = {}
-local keys_held = {}
 local Sheet = include('lib/chart/sheet')
 
 local SequenceSheet = {}
@@ -11,33 +10,21 @@ function SequenceSheet:new(options)
   setmetatable(self, {__index = Sheet})
   setmetatable(instance, self)
   self.__index = self
-  self.is_64_key = options.is_64_key or false
   return instance
 end
 
-function SequenceSheet:press(x, y, z)
-  default_mode_timeout_extend()
-  
-  -- Handle page turn gesture for 64-key grid
-  if self.is_64_key and z == 1 then
-    table.insert(keys_held, x..y)
-    if tab.contains(keys_held, '87') and tab.contains(keys_held, '88') and tab.contains(keys_held, '78') then
-      -- Bottom right corner is page flip gesture
-      self.page = self.page % 2 + 1
-      self:set('step_offset', (self.page - 1) * 64)  -- 64 steps per page
-      keys_held = {}
-      return
-    end
-  elseif z == 0 then
-    -- Clear held keys on release
-    local next_keys = {}
-    for i = 1, #keys_held do
-      if keys_held[i] ~= x..y then
-        table.insert(next_keys, keys_held[i])
-      end
-    end
-    keys_held = next_keys
+function SequenceSheet:coords_to_step(x, y)
+  if self.is_64_key then
+    local step_offset = self:get('step_offset') or 0
+    return (y - 1) * PANE_EDGE_LENGTH + x + step_offset
+  else
+    return (y - 1) * 16 + x
   end
+end
+
+function SequenceSheet:press(x, y, z)
+  print("SequenceSheet:press", x, y, z, "halt_keys:", halt_keys)
+  default_mode_timeout_extend()
   
   if self.source and self.values then
     local step_count = self.values[1][1]
@@ -52,6 +39,7 @@ function SequenceSheet:press(x, y, z)
     end
     
     if z == 0 then
+      print("SequenceSheet: keyup", step, "halt_keys:", halt_keys, "key_timer:", key_timer[step] ~= nil)
       if not halt_keys then
         if key_timer[step] then
           clock.cancel(key_timer[step])
@@ -67,9 +55,12 @@ function SequenceSheet:press(x, y, z)
         set_current_mode(SEQUENCE)
       end
     else
+      print("SequenceSheet: keydown", step)
       key_timer[step] = clock.run(function()
+        print("SequenceSheet: long press timer triggered for step", step)
         clock.sleep(1)
         halt_keys = true
+        print("SequenceSheet: setting halt_keys to true for step", step)
         self.affect_arrangement(actions.trigger_step_edit, self.source, {step = step})
       end)
     end
@@ -108,7 +99,7 @@ function SequenceSheet:refresh()
     end
   else
     -- For 128-key grid, use full width
-    for c = 1, self.width do
+    for c = 1, 16 do
       for r = 1, PANE_EDGE_LENGTH do
         local step = self:coords_to_step(c, r)
         
@@ -133,6 +124,18 @@ function SequenceSheet:update(index, values)
   self.source = index
   self.values = values
   self:refresh()
+end
+
+function SequenceSheet:on_gesture_complete()
+  -- Cancel all running timers
+  for step, timer in pairs(key_timer) do
+    if timer then
+      clock.cancel(timer)
+      key_timer[step] = nil
+    end
+  end
+  -- Set halt_keys to true to prevent new timers
+  halt_keys = true
 end
 
 return SequenceSheet
