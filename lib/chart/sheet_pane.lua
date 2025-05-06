@@ -43,7 +43,6 @@ end
 function SheetPane:_update_held_keys(x, y, z)
   if z == 1 then
     table.insert(keys_held, x..y)
-    print("SheetPane: Added key to held keys:", x..y, "Current held keys:", table.concat(keys_held, ", "))
   else
     local next_keys = {}
     for i = 1, #keys_held do
@@ -52,15 +51,12 @@ function SheetPane:_update_held_keys(x, y, z)
       end
     end
     keys_held = next_keys
-    print("SheetPane: Removed key from held keys:", x..y, "Current held keys:", table.concat(keys_held, ", "))
   end
 end
 
 function SheetPane:_check_for_held_key_gestures()
-  print("SheetPane: Checking for gesture. Current held keys:", table.concat(keys_held, ", "))
   -- Only trigger if all three gesture keys are held simultaneously
   if tab.contains(keys_held, '88') and tab.contains(keys_held, '78') and tab.contains(keys_held, '87') then
-    print("SheetPane: Gesture detected! All three keys held")
     -- Execute page turn
     self.page = self.page % 2 + 1
     self:_update_offsets()

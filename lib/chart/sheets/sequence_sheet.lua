@@ -23,48 +23,38 @@ function SequenceSheet:coords_to_step(x, y)
 end
 
 function SequenceSheet:press(x, y, z)
-  print("SequenceSheet:press", x, y, z, "halt_keys:", halt_keys)
-  default_mode_timeout_extend()
-  
-  if self.source and self.values then
-    local step_count = self.values[1][1]
-    local step_offset = self:get('step_offset') or 0
-    
-    -- For 64-key grid, map coordinates to steps
-    local step
-    if self.is_64_key then
-      step = (y - 1) * PANE_EDGE_LENGTH + x + step_offset
-    else
-      step = self:coords_to_step(x, y)
-    end
-    
-    if z == 0 then
-      print("SequenceSheet: keyup", step, "halt_keys:", halt_keys, "key_timer:", key_timer[step] ~= nil)
-      if not halt_keys then
-        if key_timer[step] then
-          clock.cancel(key_timer[step])
-        end
-        if shift_depressed or step > step_count then
-          local new_length = step
-          self.affect_arrangement(actions.set_sequence_length, self.source, {length = new_length})
-        else
-          self.affect_arrangement(actions.toggle_pulse_override, self.source, {step = step})
-        end
-      else
-        halt_keys = false
-        set_current_mode(SEQUENCE)
-      end
-    else
-      print("SequenceSheet: keydown", step)
-      key_timer[step] = clock.run(function()
-        print("SequenceSheet: long press timer triggered for step", step)
-        clock.sleep(1)
-        halt_keys = true
-        print("SequenceSheet: setting halt_keys to true for step", step)
-        self.affect_arrangement(actions.trigger_step_edit, self.source, {step = step})
-      end)
-    end
+  local step = self:coords_to_step(x, y)
+  if z == 1 then
+    self:keydown(step)
+  else
+    self:keyup(step)
   end
+end
+
+function SequenceSheet:keyup(step)
+  if halt_keys then
+    halt_keys = false
+    return
+  end
+  
+  if key_timer[step] then
+    clock.cancel(key_timer[step])
+    key_timer[step] = nil
+  end
+  
+  self:set_step(step, false)
+end
+
+function SequenceSheet:keydown(step)
+  self:set_step(step, true)
+  
+  key_timer[step] = clock.run(function()
+    clock.sleep(0.5)
+    if key_timer[step] then
+      halt_keys = true
+      key_timer[step] = nil
+    end
+  end)
 end
 
 function SequenceSheet:refresh()
