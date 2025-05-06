@@ -123,17 +123,9 @@ function SheetPane:_is_gesture_key(x, y)
 end
 
 function SheetPane:pass(x, y, z)
-  -- First update held keys
-  self:_update_held_keys(x, y, z)
-
-  -- Then check for gesture only on key press
-  local gesture_completed = false
-  if z == 1 then
-    gesture_completed = self:_check_for_held_key_gestures()
-  end
-
-  -- If this is a gesture key that needs to be halted, don't pass it at all
   local key = x..y
+  
+  -- If this is a gesture key that needs to be halted, don't pass it at all
   if tab.contains(gesture_keys_to_halt, key) then
     -- Cancel any running timer for this key
     if self.sheet.key_timer and self.sheet.key_timer[key] then
@@ -149,11 +141,24 @@ function SheetPane:pass(x, y, z)
       end
     end
     gesture_keys_to_halt = next_keys
+
+    -- If this was the last key to be halted, ensure we pass the keyup event
+    if #gesture_keys_to_halt == 0 and z == 0 then
+      self.sheet:press(x, y, z)
+    end
     return
   end
 
-  -- If a gesture was just completed or any gesture keys are still being held, don't pass any key events
-  if gesture_completed or #gesture_keys_to_halt > 0 then
+  -- If any gesture keys are still being held, don't pass any key events
+  if #gesture_keys_to_halt > 0 then
+    return
+  end
+
+  -- Update held keys
+  self:_update_held_keys(x, y, z)
+
+  -- Then check for gesture only on key press
+  if z == 1 and self:_check_for_held_key_gestures() then
     return
   end
 
