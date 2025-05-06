@@ -41,6 +41,13 @@ This document provides key resources, best practices, and lessons learned from p
   - Use `print` statements during development as needed.
   - Delete ALL logs before release.
   - Test thoroughly after log removal.
+- **Important:** When removing logs:
+  - Remove ONLY the print statements
+  - Do NOT modify any other code
+  - Do NOT restructure functions
+  - Do NOT change logic
+  - Do NOT simplify implementations
+  - Preserve ALL existing functionality
 
 ---
 

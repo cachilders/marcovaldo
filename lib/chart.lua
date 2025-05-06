@@ -73,7 +73,18 @@ function Chart:set_grid(n)
 end
 
 function Chart:press(x, y, z)
-  -- Press implementation
+  if self.sheet then
+    -- Get the page containing our sheet
+    local page = self.sheets[self.sheet]
+    
+    -- Pass the press through the appropriate pane for sequence editing
+    for _, pane in ipairs(page:get('panes')) do
+      pane:pass(x, y, z)
+      break
+    end
+  else
+    self.pages[self.page]:press_to_page(x, y, z)
+  end
 end
 
 function Chart:refresh()
