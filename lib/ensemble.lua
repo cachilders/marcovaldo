@@ -102,11 +102,18 @@ function Ensemble:_get_distance_operand(sequence)
 end
 
 function Ensemble:_apply_effect(breed, data)
+  print('[Ensemble:_apply_effect] Received breed:', type(breed), 'data:', type(data))
   if type(breed) == 'table' and breed.performer and breed.performer.name then
+    print('[Ensemble:_apply_effect] Performer name:', breed.performer.name)
     local performer_instance = self.performers[breed.performer.name]
     if performer_instance then
-      performer_instance:apply_effect(breed, data)
+      print('[Ensemble:_apply_effect] Found performer instance, calling apply_effect with mod:', breed.mod)
+      performer_instance:apply_effect(breed.mod, data)
+    else
+      print('[Ensemble:_apply_effect] No performer instance found for:', breed.performer.name)
     end
+  else
+    print('[Ensemble:_apply_effect] Invalid breed:', breed)
   end
 end
 

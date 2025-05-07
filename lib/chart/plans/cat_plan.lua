@@ -14,9 +14,10 @@ function CatPlan:new(options)
 end
 
 function CatPlan:_add(x, y)
-  local cat_breeds = CatBreedRegistry:get()
+  local cat_breeds = cat_breed_registry:get()
   if #cat_breeds == 0 then return end
   local breed = cat_breeds[math.random(1, #cat_breeds)]
+  print('[CatPlan:_add] Selected breed:', breed.id, 'mod:', breed.mod.mod)
   local act = function(x, y)
     local phenomenon = EphemeralSymbol:new({
       led = self.led,
@@ -27,6 +28,7 @@ function CatPlan:_add(x, y)
       y_offset = self.y_offset
     })
     self.phenomena[x][y] = phenomenon
+    print('[CatPlan:_add] Calling affect_ensemble with breed:', breed.id)
     self.affect_ensemble(actions.apply_effect, breed, {x = x, y = y})
     clock.run(function()
       clock.sleep(self._get_bpm())

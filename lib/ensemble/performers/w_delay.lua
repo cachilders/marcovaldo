@@ -54,19 +54,15 @@ function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
   )
 end
 
-function WDelayPerformer:apply_effect(breed, data)
-  local function log_data(label, b, d)
+function WDelayPerformer:apply_effect(index, data)
+  local function log_data(label, idx, d)
     local parts = {}
     for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect for breed: %s | data: {%s}', label, tostring(b.id), table.concat(parts, ', ')))
+    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
   end
-  if breed.mod.mod == 'delay_time' then
-    log_data('WDelayPerformer', breed, data)
-    -- TODO: Implement delay time effect for W/Delay
-  elseif breed.mod.mod == 'feedback' then
-    log_data('WDelayPerformer', breed, data)
-    -- TODO: Implement feedback effect for W/Delay
-  end
+  log_data('WDelayPerformer', index, data)
+  -- TODO: Implement delay time effect for W/Delay
+  -- TODO: Implement feedback effect for W/Delay
 end
 
 return WDelayPerformer
