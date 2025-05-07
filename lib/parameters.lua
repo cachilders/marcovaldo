@@ -40,6 +40,66 @@ local W_RAT_SPEC = controlspec.def{
   wrap = false
 }
 
+local W_FEEDBACK_SPEC = controlspec.def{
+  min = 0,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 2,
+  quantum = 0.01,
+  wrap = false
+}
+
+local W_MIX_SPEC = controlspec.def{
+  min = 0,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 3,
+  quantum = 0.01,
+  wrap = false
+}
+
+local W_FILTER_SPEC = controlspec.def{
+  min = 0,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 4,
+  quantum = 0.01,
+  wrap = false
+}
+
+local W_RATE_SPEC = controlspec.def{
+  min = 0.125,
+  max = 2,
+  warp = 'lin',
+  step = 0.01,
+  default = 1,
+  quantum = 0.01,
+  wrap = false
+}
+
+local W_MOD_SPEC = controlspec.def{
+  min = -5,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 1,
+  quantum = 0.01,
+  wrap = false
+}
+
+local W_AMOUNT_SPEC = controlspec.def{
+  min = 0,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 2,
+  quantum = 0.01,
+  wrap = false
+}
+
 local Parameters = {
   animations_enabled = nil,
   available_performers = nil,
@@ -144,7 +204,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 29)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 35)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -184,6 +244,14 @@ function Parameters:_init_params()
     params:add_control('marco_performer_w_fm_rat_d_'..i, 'FM Rat. Den.', W_RAT_SPEC)
     params:add_control('marco_performer_w_ramp_'..i, 'Ramp', W_V_SPEC)
     params:add_control('marco_performer_w_curve_'..i, 'Curve', W_V_SPEC)
+    
+    -- W/ parameters
+    params:add_control('marco_performer_w_feedback_'..i, 'Feedback', W_FEEDBACK_SPEC)
+    params:add_control('marco_performer_w_mix_'..i, 'Mix', W_MIX_SPEC)
+    params:add_control('marco_performer_w_filter_'..i, 'Filter', W_FILTER_SPEC)
+    params:add_control('marco_performer_w_rate_'..i, 'Rate', W_RATE_SPEC)
+    params:add_control('marco_performer_w_mod_rate_'..i, 'Mod Rate', W_MOD_SPEC)
+    params:add_control('marco_performer_w_mod_amount_'..i, 'Mod Amount', W_AMOUNT_SPEC)
 
     params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, 0, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
@@ -217,6 +285,12 @@ function Parameters:_refresh_performer_params(seq, val)
     params:hide('marco_decay_'..i)
     params:hide('marco_sustain_'..i)
     params:hide('marco_release_'..i)
+    params:hide('marco_performer_w_feedback_'..i)
+    params:hide('marco_performer_w_mix_'..i)
+    params:hide('marco_performer_w_filter_'..i)
+    params:hide('marco_performer_w_rate_'..i)
+    params:hide('marco_performer_w_mod_rate_'..i)
+    params:hide('marco_performer_w_mod_amount_'..i)
     if seq == i then 
       if active_performer == MX then
         params:show('marco_attack_'..i)
@@ -256,6 +330,14 @@ function Parameters:_refresh_performer_params(seq, val)
         params:show('marco_performer_w_fm_rat_d_'..i)
         params:show('marco_performer_w_ramp_'..i)
         params:show('marco_attack_'..i)
+      elseif active_performer == WD then
+        params:show('marco_performer_w_device_'..i)
+        params:show('marco_performer_w_feedback_'..i)
+        params:show('marco_performer_w_mix_'..i)
+        params:show('marco_performer_w_filter_'..i)
+        params:show('marco_performer_w_rate_'..i)
+        params:show('marco_performer_w_mod_rate_'..i)
+        params:show('marco_performer_w_mod_amount_'..i)
       else
         params:show('marco_performer_w_device_'..i)
       end
