@@ -39,7 +39,6 @@ local W_RAT_SPEC = controlspec.def{
   quantum = 0.01,
   wrap = false
 }
-
 local W_FEEDBACK_SPEC = controlspec.def{
   min = 0,
   max = 5,
@@ -49,7 +48,6 @@ local W_FEEDBACK_SPEC = controlspec.def{
   quantum = 0.01,
   wrap = false
 }
-
 local W_MIX_SPEC = controlspec.def{
   min = 0,
   max = 5,
@@ -59,7 +57,6 @@ local W_MIX_SPEC = controlspec.def{
   quantum = 0.01,
   wrap = false
 }
-
 local W_FILTER_SPEC = controlspec.def{
   min = 0,
   max = 5,
@@ -69,7 +66,6 @@ local W_FILTER_SPEC = controlspec.def{
   quantum = 0.01,
   wrap = false
 }
-
 local W_RATE_SPEC = controlspec.def{
   min = 0.125,
   max = 2,
@@ -79,7 +75,6 @@ local W_RATE_SPEC = controlspec.def{
   quantum = 0.01,
   wrap = false
 }
-
 local W_MOD_SPEC = controlspec.def{
   min = -5,
   max = 5,
@@ -89,7 +84,6 @@ local W_MOD_SPEC = controlspec.def{
   quantum = 0.01,
   wrap = false
 }
-
 local W_AMOUNT_SPEC = controlspec.def{
   min = 0,
   max = 5,
