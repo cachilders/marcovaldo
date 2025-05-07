@@ -70,6 +70,10 @@ function Ensemble:init_performers()
 end
 
 function Ensemble:affect(action, index, values)
+  print('[Ensemble:affect] Received:')
+  print('  action:', action)
+  print('  index:', index)
+  print('  values:', values)
   if action == actions.play_note then
     local sequence = index
     local note = values.note
@@ -81,6 +85,9 @@ function Ensemble:affect(action, index, values)
   elseif action == actions.set_source_positions then
     self.source_positions = values
   elseif action == actions.apply_effect then
+    print('[Ensemble:affect] Calling _apply_effect with:')
+    print('  index:', index)
+    print('  values:', values)
     self:_apply_effect(index, values)
   end
 end
@@ -102,9 +109,9 @@ function Ensemble:_get_distance_operand(sequence)
 end
 
 function Ensemble:_apply_effect(breed, data)
-  print('[Ensemble:_apply_effect] Breed:', breed)
-  print('[Ensemble:_apply_effect] Breed.performer:', breed.performer)
-  print('[Ensemble:_apply_effect] Breed.mod:', breed.mod)
+  print('[Ensemble:_apply_effect] Received:')
+  print('  breed:', breed)
+  print('  data:', data)
   if type(breed) == 'table' and breed.performer and breed.performer.name then
     print('[Ensemble:_apply_effect] Performer name:', breed.performer.name)
     local performer_instance = self.performers[breed.performer.name]

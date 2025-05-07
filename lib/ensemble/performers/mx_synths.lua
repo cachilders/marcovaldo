@@ -25,24 +25,29 @@ function MxSynthsPerformer:get_cat_breeds()
 end
 
 function MxSynthsPerformer:init()
+  print('[MxSynthsPerformer:init] Starting initialization')
   local mxsynths = include('mx.synths/lib/mx.synths')
   self.mx = mxsynths:new()
   params:set('mxsynths_synth', 7)
   -- Register MX.Synths mods as cat breeds by default
   if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:get_cat_breeds())
+    print('[MxSynthsPerformer:init] Registering breeds:')
+    local breeds = self:get_cat_breeds()
+    for i, breed in ipairs(breeds) do
+      print('  Breed', i, ':')
+      print('    mod:', breed.mod)
+      print('    id:', breed.id)
+    end
+    cat_breed_registry:register_breeds(self, breeds)
+  else
+    print('[MxSynthsPerformer:init] No cat_breed_registry available')
   end
 end
 
 function MxSynthsPerformer:apply_effect(breed, data)
-  print('[MxSynthsPerformer] Breed:')
-  for k,v in pairs(breed) do
-    print('  '..k..':', v)
-  end
-  print('[MxSynthsPerformer] Data:')
-  for k,v in pairs(data) do
-    print('  '..k..':', v)
-  end
+  print('[MxSynthsPerformer:apply_effect] Received:')
+  print('  breed:', breed)
+  print('  data:', data)
   -- TODO: Implement effect handling once we understand the data structure
   -- local mod_reset_value = params:get('mxsynths_mod'..breed.mod)
   -- local beat_time = 60 / params:get('clock_tempo')
