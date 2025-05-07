@@ -2,7 +2,6 @@ local actions = include('lib/actions')
 local CatSymbol = include('lib/chart/symbols/cat_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 local Plan = include('lib/chart/plan')
-local CatBreedRegistry = include('lib/cat_breed_registry')
 
 local CatPlan = {}
 

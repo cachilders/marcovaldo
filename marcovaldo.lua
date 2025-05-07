@@ -100,8 +100,8 @@ end
 function init_metaphors()
   arrangement:init()
   console:init()
-  chart:init()
   ensemble:init()
+  chart:init()
 end
 
 function init_observables()
