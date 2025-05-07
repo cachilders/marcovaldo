@@ -101,11 +101,12 @@ function Ensemble:_get_distance_operand(sequence)
   return operand
 end
 
-function Ensemble:_apply_effect(index, data)
-  local performer_index = params:get('marco_performer_'..index)
-  local performer = self.performers[performer_name]
-  if performer then
-    performer:apply_effect(index, data)
+function Ensemble:_apply_effect(breed, data)
+  if type(breed) == 'table' and breed.performer and breed.performer.name then
+    local performer_instance = self.performers[breed.performer.name]
+    if performer_instance then
+      performer_instance:apply_effect(breed, data)
+    end
   end
 end
 

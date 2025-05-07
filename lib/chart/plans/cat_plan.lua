@@ -28,7 +28,7 @@ function CatPlan:_add(x, y)
       y_offset = self.y_offset
     })
     self.phenomena[x][y] = phenomenon
-    self.affect_ensemble(actions.apply_effect, breed.performer, {mod = breed.mod, x = x, y = y})
+    self.affect_ensemble(actions.apply_effect, breed, {x = x, y = y})
     clock.run(function()
       clock.sleep(self._get_bpm())
       self:_nullify_phenomenon(phenomenon)
