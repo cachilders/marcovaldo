@@ -102,7 +102,9 @@ function Ensemble:_get_distance_operand(sequence)
 end
 
 function Ensemble:_apply_effect(breed, data)
-  print('[Ensemble:_apply_effect] Received breed:', type(breed), 'data:', type(data))
+  print('[Ensemble:_apply_effect] Breed:', breed)
+  print('[Ensemble:_apply_effect] Breed.performer:', breed.performer)
+  print('[Ensemble:_apply_effect] Breed.mod:', breed.mod)
   if type(breed) == 'table' and breed.performer and breed.performer.name then
     print('[Ensemble:_apply_effect] Performer name:', breed.performer.name)
     local performer_instance = self.performers[breed.performer.name]

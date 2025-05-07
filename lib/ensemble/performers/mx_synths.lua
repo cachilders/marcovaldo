@@ -34,23 +34,26 @@ function MxSynthsPerformer:init()
   end
 end
 
-function MxSynthsPerformer:apply_effect(index, data)
-  local function log_data(label, idx, d)
-    local parts = {}
-    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
+function MxSynthsPerformer:apply_effect(breed, data)
+  print('[MxSynthsPerformer] Breed:')
+  for k,v in pairs(breed) do
+    print('  '..k..':', v)
   end
-  log_data('MxSynthsPerformer', index, data)
-  local mod_reset_value = params:get('mxsynths_mod'..index)
-  local beat_time = 60 / params:get('clock_tempo')
-  local mod_new_value = (1/32) * ((data[1] * data[2]) - 32)
-  clock.run(
-    function()
-      engine.mx_set('mod'..index, mod_new_value)
-      clock.sleep(beat_time)
-      engine.mx_set('mod'..index, mod_reset_value)
-    end
-  )
+  print('[MxSynthsPerformer] Data:')
+  for k,v in pairs(data) do
+    print('  '..k..':', v)
+  end
+  -- TODO: Implement effect handling once we understand the data structure
+  -- local mod_reset_value = params:get('mxsynths_mod'..breed.mod)
+  -- local beat_time = 60 / params:get('clock_tempo')
+  -- local mod_new_value = (1/32) * ((data[1] * data[2]) - 32)
+  -- clock.run(
+  --   function()
+  --     engine.mx_set('mod'..breed.mod, mod_new_value)
+  --     clock.sleep(beat_time)
+  --     engine.mx_set('mod'..breed.mod, mod_reset_value)
+  --   end
+  -- )
 end
 
 function MxSynthsPerformer:play_note(sequence, note, velocity, envelope_duration)
