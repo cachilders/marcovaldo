@@ -14,19 +14,16 @@ function ER301Performer:new(options)
   return instance
 end
 
-function ER301Performer:_get_available_mods()
+function ER301Performer:get_effects()
   return {
-    { mod = 'sample_start', id = 'er301_sample_start' },
-    { mod = 'grain_size', id = 'er301_grain_size' }
+    { effect = "sample_start", id = "er301_sample_start" },
+    { effect = "grain_size", id = "er301_grain_size" }
   }
 end
 
 function ER301Performer:init()
+  print('[ER301Performer:init] Starting initialization')
   self.clocks = {}
-  -- Initialize ER-301
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:_get_available_mods())
-  end
 end
 
 function ER301Performer:play_note(sequence, note, velocity, envelope_duration)
@@ -43,18 +40,16 @@ function ER301Performer:play_note(sequence, note, velocity, envelope_duration)
   )
 end
 
-function ER301Performer:apply_effect(index, data)
-  local function log_data(label, idx, d)
-    local parts = {}
-    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
-  end
-  if data.mod == 'sample_start' then
-    log_data('ER301Performer', index, data)
+function ER301Performer:apply_effect(effect, data)
+  print('[ER301Performer:apply_effect] Received:')
+  print('  effect:', effect)
+  print('  data:', data)
+  if effect.effect == "sample_start" then
     -- TODO: Implement sample start effect for ER-301
-  elseif data.mod == 'grain_size' then
-    log_data('ER301Performer', index, data)
+    print('[ER301Performer] Applying sample start effect')
+  elseif effect.effect == "grain_size" then
     -- TODO: Implement grain size effect for ER-301
+    print('[ER301Performer] Applying grain size effect')
   end
 end
 

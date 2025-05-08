@@ -6,50 +6,57 @@ CatBreedRegistry.__index = CatBreedRegistry
 function CatBreedRegistry:new(options)
   local instance = options or {}
   setmetatable(instance, self)
+  -- breeds is now a table with breed_id as key
   instance.breeds = observable.new({})
-  instance.breeds:register('cat_breed_registry', function(breeds)
-    print('[CatBreedRegistry] Observable updated:')
-    for i, breed in ipairs(breeds) do
-      print('  Breed', i, ':')
-      print('    performer:', breed.performer.name)
-      print('    mod:', breed.mod)
-      print('    id:', breed.id)
-    end
-  end)
   return instance
 end
 
-function CatBreedRegistry:register_breeds(performer, breeds)
-  print('[CatBreedRegistry:register_breeds] Registering breeds for performer:', performer.name)
+function CatBreedRegistry:handle_sequence_performer_change(sequence)
+  print('[CatBreedRegistry:handle_sequence_performer_change] Handling change for sequence:', sequence)
+  
   local registry = self.breeds()
-  for _, breed in ipairs(breeds) do
-    print('[CatBreedRegistry:register_breeds] Adding breed:')
-    print('  performer:', performer.name)
-    print('  mod:', breed.mod)
-    print('  id:', breed.id)
-    table.insert(registry, { performer = performer, mod = breed, id = breed.id or (util and util.generate_id and util.generate_id()) or math.random() })
-  end
-  self.breeds:set(registry)
-end
-
-function CatBreedRegistry:deregister_breeds(performer)
-  local registry = self.breeds()
-  for i = #registry, 1, -1 do
-    if registry[i].performer == performer then
-      table.remove(registry, i)
+  
+  -- Loop through all sequences to collect effects
+  for seq = 1, 4 do
+    local performer_name = params:get('marco_performer_'..seq)
+    local performer = ensemble.performers[performer_name]
+    
+    if performer and performer.get_effects then
+      local effects = performer:get_effects()
+      for _, effect in ipairs(effects) do
+        local effect_key = seq..'_'..effect.id
+        if not registry[effect_key] then
+          registry[effect_key] = {
+            effect = effect.effect,
+            id = effect.id,
+            sequence = seq
+          }
+        end
+      end
     end
   end
+  
+  -- Update the registry with the new effects
   self.breeds:set(registry)
 end
 
 function CatBreedRegistry:get()
-  local breeds = self.breeds()
+  local function log_data(data)
+    for k, v in pairs(data) do
+      print('    '..k..':', v)
+    end
+  end
+
+  local registry = self.breeds()
   print('[CatBreedRegistry:get] Retrieved breeds:')
-  for i, breed in ipairs(breeds) do
-    print('  Breed', i, ':')
-    print('    performer:', breed.performer.name)
-    print('    mod:', breed.mod)
-    print('    id:', breed.id)
+  for breed_id, breed in pairs(registry) do
+    print('  Breed', breed_id, ':')
+    log_data(breed)
+  end
+  -- Convert to array for random selection
+  local breeds = {}
+  for _, breed in pairs(registry) do
+    table.insert(breeds, breed)
   end
   return breeds
 end

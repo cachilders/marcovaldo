@@ -15,14 +15,15 @@ function MidiPerformer:new(options)
   return instance
 end
 
-function MidiPerformer:_get_available_mods()
+function MidiPerformer:get_effects()
   return {
-    { mod = 'channel', id = 'midi_channel' },
-    { mod = 'velocity_curve', id = 'midi_velocity_curve' }
+    { effect = "channel", id = "midi_channel" },
+    { effect = "velocity_curve", id = "midi_velocity_curve" }
   }
 end
 
 function MidiPerformer:init()
+  print('[MidiPerformer:init] Starting initialization')
   local connections = {}
   for id, _ in pairs(parameters:get('midi_device_identifiers')) do
     table.insert(connections, midi.connect(id))
@@ -31,11 +32,6 @@ function MidiPerformer:init()
   self.clocks = {}
   for i = 1, 4 do
     self.clocks[i] = {}
-  end
-
-  -- Initialize MIDI
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:_get_available_mods())
   end
 end
 
@@ -56,18 +52,16 @@ function MidiPerformer:play_note(sequence, note, velocity, envelope_duration)
   )
 end
 
-function MidiPerformer:apply_effect(index, data)
-  local function log_data(label, idx, d)
-    local parts = {}
-    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
-  end
-  if data.mod == 'channel' then
-    log_data('MidiPerformer', index, data)
+function MidiPerformer:apply_effect(effect, data)
+  print('[MidiPerformer:apply_effect] Received:')
+  print('  effect:', effect)
+  print('  data:', data)
+  if effect.effect == "channel" then
     -- TODO: Implement channel effect for MIDI
-  elseif data.mod == 'velocity_curve' then
-    log_data('MidiPerformer', index, data)
+    print('[MidiPerformer] Applying channel effect')
+  elseif effect.effect == "velocity_curve" then
     -- TODO: Implement velocity curve effect for MIDI
+    print('[MidiPerformer] Applying velocity curve effect')
   end
 end
 

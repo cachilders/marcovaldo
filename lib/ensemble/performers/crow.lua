@@ -14,18 +14,16 @@ function CrowPerformer:new(options)
   return instance
 end
 
-function CrowPerformer:_get_available_mods()
+function CrowPerformer:get_effects()
   return {
-    { mod = 'slew', id = 'crow_slew' },
-    { mod = 'pulse_width', id = 'crow_pulse_width' }
+    { effect = "slew", id = "crow_slew" },
+    { effect = "pulse_width", id = "crow_pulse_width" }
   }
 end
 
 function CrowPerformer:init()
+  print('[CrowPerformer:init] Starting initialization')
   self.clocks = {}
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:_get_available_mods())
-  end
 end
 
 function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -88,18 +86,16 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
   end
 end
 
-function CrowPerformer:apply_effect(index, data)
-  local function log_data(label, idx, d)
-    local parts = {}
-    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
-  end
-  if data.mod == 'slew' then
-    log_data('CrowPerformer', index, data)
+function CrowPerformer:apply_effect(effect, data)
+  print('[CrowPerformer:apply_effect] Received:')
+  print('  effect:', effect)
+  print('  data:', data)
+  if effect.effect == "slew" then
     -- TODO: Implement slew effect for Crow
-  elseif data.mod == 'pulse_width' then
-    log_data('CrowPerformer', index, data)
+    print('[CrowPerformer] Applying slew effect')
+  elseif effect.effect == "pulse_width" then
     -- TODO: Implement pulse width effect for Crow
+    print('[CrowPerformer] Applying pulse width effect')
   end
 end
 

@@ -212,7 +212,7 @@ function Parameters:_init_params()
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
-    params:set_action('marco_performer_'..i, function(val) self:_refresh_performer_params(i, val) end)
+    params:set_action('marco_performer_'..i, function(val) self:_refresh_performer_params(i, val); CatBreedRegistry:handle_sequence_performer_change(i) end)
     
     -- Disting EX options: TBD
     
@@ -335,16 +335,6 @@ function Parameters:_refresh_performer_params(seq, val)
       else
         params:show('marco_performer_w_device_'..i)
       end
-      -- Register/deregister cat breeds for this sequence's performer
-      if self.last_performer and self.last_performer[seq] then
-        CatBreedRegistry.deregister_breeds(self.last_performer[seq])
-      end
-      local performer = self:_get_performer_instance(active_performer)
-      if performer and performer.get_cat_breeds then
-        CatBreedRegistry.register_breeds(performer, performer:get_cat_breeds())
-      end
-      self.last_performer = self.last_performer or {}
-      self.last_performer[seq] = performer
     end
   end
   _menu.rebuild_params()

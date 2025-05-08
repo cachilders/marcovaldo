@@ -15,17 +15,15 @@ function WSynthPerformer:new(options)
   return instance
 end
 
-function WSynthPerformer:_get_available_mods()
+function WSynthPerformer:get_effects()
   return {
-    { mod = 'fm_index', id = 'wsyn_fm_index' },
-    { mod = 'curve', id = 'wsyn_curve' }
+    { effect = "fm_index", id = "wsyn_fm_index" },
+    { effect = "curve", id = "wsyn_curve" }
   }
 end
 
 function WSynthPerformer:init()
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:_get_available_mods())
-  end
+  print('[WSynthPerformer:init] Starting initialization')
 end
 
 -- velocity( voice, velocity ) -- strike the vactrol of <voice> at <velocity> in volts (s8, s16V)
@@ -70,18 +68,16 @@ function WSynthPerformer:play_note(sequence, note, velocity, envelope_duration)
   crow.ii.wsyn[device].play_note(pitch, velocity * VELOCITY_CONSTANT)
 end
 
-function WSynthPerformer:apply_effect(index, data)
-  local function log_data(label, idx, d)
-    local parts = {}
-    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
-  end
-  if data.mod == 'fm_index' then
-    log_data('WSynthPerformer', index, data)
+function WSynthPerformer:apply_effect(effect, data)
+  print('[WSynthPerformer:apply_effect] Received:')
+  print('  effect:', effect)
+  print('  data:', data)
+  if effect.effect == "fm_index" then
     -- TODO: Implement FM index effect for W/Synth
-  elseif data.mod == 'curve' then
-    log_data('WSynthPerformer', index, data)
+    print('[WSynthPerformer] Applying FM index effect')
+  elseif effect.effect == "curve" then
     -- TODO: Implement curve effect for W/Synth
+    print('[WSynthPerformer] Applying curve effect')
   end
 end
 

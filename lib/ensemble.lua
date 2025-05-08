@@ -70,10 +70,18 @@ function Ensemble:init_performers()
 end
 
 function Ensemble:affect(action, index, values)
+  local function log_data(data)
+    for k, v in pairs(data) do
+      print('    '..k..':', v)
+    end
+  end
+
   print('[Ensemble:affect] Received:')
   print('  action:', action)
   print('  index:', index)
-  print('  values:', values)
+  print('  values:')
+  log_data(values)
+
   if action == actions.play_note then
     local sequence = index
     local note = values.note
@@ -85,10 +93,13 @@ function Ensemble:affect(action, index, values)
   elseif action == actions.set_source_positions then
     self.source_positions = values
   elseif action == actions.apply_effect then
-    print('[Ensemble:affect] Calling _apply_effect with:')
-    print('  index:', index)
-    print('  values:', values)
-    self:_apply_effect(index, values)
+    print('[Ensemble:affect] Applying effect to sequence:', index)
+    local performer = self.performers[parameters:get_performer(index)]
+    if performer then
+      print('  Effect data:')
+      log_data(values)
+      performer:apply_effect(values.effect, values.data)
+    end
   end
 end
 
@@ -106,24 +117,6 @@ function Ensemble:_get_distance_operand(sequence)
   end
 
   return operand
-end
-
-function Ensemble:_apply_effect(breed, data)
-  print('[Ensemble:_apply_effect] Received:')
-  print('  breed:', breed)
-  print('  data:', data)
-  if type(breed) == 'table' and breed.performer and breed.performer.name then
-    print('[Ensemble:_apply_effect] Performer name:', breed.performer.name)
-    local performer_instance = self.performers[breed.performer.name]
-    if performer_instance then
-      print('[Ensemble:_apply_effect] Found performer instance, calling apply_effect with mod:', breed.mod)
-      performer_instance:apply_effect(breed.mod, data)
-    else
-      print('[Ensemble:_apply_effect] No performer instance found for:', breed.performer.name)
-    end
-  else
-    print('[Ensemble:_apply_effect] Invalid breed:', breed)
-  end
 end
 
 function Ensemble:_calculate_adjusted_velocity(sequence, velocity)

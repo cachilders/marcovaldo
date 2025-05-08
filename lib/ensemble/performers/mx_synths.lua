@@ -16,12 +16,13 @@ function MxSynthsPerformer:new(options)
   return instance
 end
 
-function MxSynthsPerformer:get_cat_breeds()
-  local breeds = {}
-  for i = 1, 4 do
-    table.insert(breeds, { mod = i, id = 'mxsynths_mod'..i })
-  end
-  return breeds
+function MxSynthsPerformer:get_effects()
+  return {
+    { effect = "mod1", id = "mxsynths_mod1" },
+    { effect = "mod2", id = "mxsynths_mod2" },
+    { effect = "mod3", id = "mxsynths_mod3" },
+    { effect = "mod4", id = "mxsynths_mod4" }
+  }
 end
 
 function MxSynthsPerformer:init()
@@ -29,36 +30,25 @@ function MxSynthsPerformer:init()
   local mxsynths = include('mx.synths/lib/mx.synths')
   self.mx = mxsynths:new()
   params:set('mxsynths_synth', 7)
-  -- Register MX.Synths mods as cat breeds by default
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    print('[MxSynthsPerformer:init] Registering breeds:')
-    local breeds = self:get_cat_breeds()
-    for i, breed in ipairs(breeds) do
-      print('  Breed', i, ':')
-      print('    mod:', breed.mod)
-      print('    id:', breed.id)
-    end
-    cat_breed_registry:register_breeds(self, breeds)
-  else
-    print('[MxSynthsPerformer:init] No cat_breed_registry available')
-  end
 end
 
-function MxSynthsPerformer:apply_effect(breed, data)
+function MxSynthsPerformer:apply_effect(effect, data)
   print('[MxSynthsPerformer:apply_effect] Received:')
-  print('  breed:', breed)
+  print('  effect:', effect)
   print('  data:', data)
-  -- TODO: Implement effect handling once we understand the data structure
-  -- local mod_reset_value = params:get('mxsynths_mod'..breed.mod)
-  -- local beat_time = 60 / params:get('clock_tempo')
-  -- local mod_new_value = (1/32) * ((data[1] * data[2]) - 32)
-  -- clock.run(
-  --   function()
-  --     engine.mx_set('mod'..breed.mod, mod_new_value)
-  --     clock.sleep(beat_time)
-  --     engine.mx_set('mod'..breed.mod, mod_reset_value)
-  --   end
-  -- )
+  local mod_num = tonumber(string.match(effect.effect, "%d+"))
+  if mod_num then
+    local mod_reset_value = params:get('mxsynths_mod'..mod_num)
+    local beat_time = 60 / params:get('clock_tempo')
+    local mod_new_value = (1/32) * ((data.x * data.y) - 32)
+    clock.run(
+      function()
+        engine.mx_set('mod'..mod_num, mod_new_value)
+        clock.sleep(beat_time)
+        engine.mx_set('mod'..mod_num, mod_reset_value)
+      end
+    )
+  end
 end
 
 function MxSynthsPerformer:play_note(sequence, note, velocity, envelope_duration)

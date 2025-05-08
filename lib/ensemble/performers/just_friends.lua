@@ -14,18 +14,16 @@ function JustFriendsPerformer:new(options)
   return instance
 end
 
-function JustFriendsPerformer:_get_available_mods()
+function JustFriendsPerformer:get_effects()
   return {
-    { mod = 'octave_shift', id = 'jf_octave_shift' },
-    { mod = 'voice_mode', id = 'jf_voice_mode' }
+    { effect = "octave_shift", id = "jf_octave_shift" },
+    { effect = "voice_mode", id = "jf_voice_mode" }
   }
 end
 
 function JustFriendsPerformer:init()
+  print('[JustFriendsPerformer:init] Starting initialization')
   crow.ii.jf.mode(1)
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:_get_available_mods())
-  end
 end
 
 -- crow.ii.jf.trigger( channel, state )
@@ -50,18 +48,16 @@ function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_durat
   crow.ii.jf[device].play_note(pitch, velocity * VELOCITY_CONSTANT)
 end
 
-function JustFriendsPerformer:apply_effect(index, data)
-  local function log_data(label, idx, d)
-    local parts = {}
-    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
-  end
-  if data.mod == 'octave_shift' then
-    log_data('JustFriendsPerformer', index, data)
+function JustFriendsPerformer:apply_effect(effect, data)
+  print('[JustFriendsPerformer:apply_effect] Received:')
+  print('  effect:', effect)
+  print('  data:', data)
+  if effect.effect == "octave_shift" then
     -- TODO: Implement octave shift effect for Just Friends
-  elseif data.mod == 'voice_mode' then
-    log_data('JustFriendsPerformer', index, data)
+    print('[JustFriendsPerformer] Applying octave shift effect')
+  elseif effect.effect == "voice_mode" then
     -- TODO: Implement voice mode effect for Just Friends
+    print('[JustFriendsPerformer] Applying voice mode effect')
   end
 end
 

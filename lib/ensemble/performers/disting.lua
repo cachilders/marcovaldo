@@ -15,24 +15,20 @@ function DistingPerformer:new(options)
   return instance
 end
 
-function DistingPerformer:_get_available_mods()
+function DistingPerformer:get_effects()
   return {
-    { mod = 'algorithm', id = 'disting_algorithm' },
-    { mod = 'parameter_a', id = 'disting_param_a' }
+    { effect = "algorithm", id = "disting_algorithm" },
+    { effect = "parameter_a", id = "disting_param_a" }
   }
 end
 
 function DistingPerformer:init()
+  print('[DistingPerformer:init] Starting initialization')
   local clocks = {}
   for i = 1, 4 do
     clocks[i] = {}
   end
   self.clocks = clocks
-
-  -- Initialize Disting EX
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:_get_available_mods())
-  end
 end
 
 function DistingPerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -50,18 +46,16 @@ function DistingPerformer:play_note(sequence, note, velocity, envelope_duration)
   )
 end
 
-function DistingPerformer:apply_effect(index, data)
-  local function log_data(label, idx, d)
-    local parts = {}
-    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
-  end
-  if data.mod == 'algorithm' then
-    log_data('DistingPerformer', index, data)
+function DistingPerformer:apply_effect(effect, data)
+  print('[DistingPerformer:apply_effect] Received:')
+  print('  effect:', effect)
+  print('  data:', data)
+  if effect.effect == "algorithm" then
     -- TODO: Implement algorithm effect for Disting EX
-  elseif data.mod == 'parameter_a' then
-    log_data('DistingPerformer', index, data)
+    print('[DistingPerformer] Applying algorithm effect')
+  elseif effect.effect == "parameter_a" then
     -- TODO: Implement parameter A effect for Disting EX
+    print('[DistingPerformer] Applying parameter A effect')
   end
 end
 

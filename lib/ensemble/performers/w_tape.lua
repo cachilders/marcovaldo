@@ -13,18 +13,15 @@ function WTapePerformer:new(options)
   return instance
 end
 
-function WTapePerformer:_get_available_mods()
+function WTapePerformer:get_effects()
   return {
-    { mod = 'tape_speed', id = 'wtape_speed' },
-    { mod = 'direction', id = 'wtape_direction' }
+    { effect = "tape_speed", id = "wtape_speed" },
+    { effect = "direction", id = "wtape_direction" }
   }
 end
 
 function WTapePerformer:init()
-  -- Initialize W/
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:_get_available_mods())
-  end
+  print('[WTapePerformer:init] Starting initialization')
 end
 
 -- record(is_recording) - is_recording: bool - Set recording state
@@ -51,18 +48,16 @@ function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
   crow.ii.wtape[device].seek(envelope_duration) -- Just goofin; might want to init a loop and bounce around in it
 end
 
-function WTapePerformer:apply_effect(index, data)
-  local function log_data(label, idx, d)
-    local parts = {}
-    for k, v in pairs(d) do table.insert(parts, tostring(k)..'='..tostring(v)) end
-    print(string.format('[%s] Applying effect on index: %s | data: {%s}', label, tostring(idx), table.concat(parts, ', ')))
-  end
-  if data.mod == 'tape_speed' then
-    log_data('WTapePerformer', index, data)
+function WTapePerformer:apply_effect(effect, data)
+  print('[WTapePerformer:apply_effect] Received:')
+  print('  effect:', effect)
+  print('  data:', data)
+  if effect.effect == "tape_speed" then
     -- TODO: Implement tape speed effect for W/Tape
-  elseif data.mod == 'direction' then
-    log_data('WTapePerformer', index, data)
+    print('[WTapePerformer] Applying tape speed effect')
+  elseif effect.effect == "direction" then
     -- TODO: Implement direction effect for W/Tape
+    print('[WTapePerformer] Applying direction effect')
   end
 end
 

@@ -13,18 +13,15 @@ function AnsiblePerformer:new(options)
   return instance
 end
 
-function AnsiblePerformer:_get_available_mods()
+function AnsiblePerformer:get_effects()
   return {
-    { mod = 'transpose', id = 'ansible_transpose' },
-    { mod = 'repeats', id = 'ansible_repeats' }
+    { effect = "transpose", id = "ansible_transpose" },
+    { effect = "repeats", id = "ansible_repeats" }
   }
 end
 
 function AnsiblePerformer:init()
-  -- Register Ansible mods as cat breeds by default
-  if cat_breed_registry and cat_breed_registry.register_breeds then
-    cat_breed_registry:register_breeds(self, self:_get_available_mods())
-  end
+  print('[AnsiblePerformer:init] Starting initialization')
 end
 
 function AnsiblePerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -35,15 +32,18 @@ function AnsiblePerformer:play_note(sequence, note, velocity, envelope_duration)
   crow.ii.ansible.trigger_pulse(output)
 end
 
-function AnsiblePerformer:apply_effect(index, data)
-  if data.mod == 'transpose' then
+function AnsiblePerformer:apply_effect(effect, data)
+  print('[AnsiblePerformer:apply_effect] Received:')
+  print('  effect:', effect)
+  print('  data:', data)
+  if effect.effect == "transpose" then
     -- Example: transpose the CV by a semitone (or random interval)
-    local output = params:get('marco_performer_ansible_output_'..index)
+    local output = params:get('marco_performer_ansible_output_'..data.sequence)
     local interval = (data.interval or 1) / 12 -- default: up one semitone
     crow.ii.ansible.cv(output, interval)
-  elseif data.mod == 'repeats' then
+  elseif effect.effect == "repeats" then
     -- Example: trigger multiple pulses in quick succession
-    local output = params:get('marco_performer_ansible_output_'..index)
+    local output = params:get('marco_performer_ansible_output_'..data.sequence)
     local repeats = data.repeats or 3
     local spacing = data.spacing or 0.05
     for i = 1, repeats do
