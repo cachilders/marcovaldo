@@ -6,7 +6,6 @@ CatBreedRegistry.__index = CatBreedRegistry
 function CatBreedRegistry:new(options)
   local instance = options or {}
   setmetatable(instance, self)
-  -- breeds is now a table with breed_id as key
   instance.breeds = observable.new({})
   return instance
 end

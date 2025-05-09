@@ -99,3 +99,7 @@ The ADSR params of each sequence are applied as percentage multipliers to the ca
 This sequencer gets its voice from [mx.synths](https://github.com/schollz/mx.synths) and would do very little without it.
 
 Grid diagrams care of [Tyler Etters](https://nor.the-rn.info/about)'s excellent [GridStation](https://tyleretters.github.io/GridStation/)
+
+## Documentation
+- [Architecture Guidelines](ARCHITECTURE.md) - Core patterns, principles, and development guidelines
+- [Norns API Reference](https://monome.org/docs/norns/reference/)
