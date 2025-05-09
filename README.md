@@ -2,7 +2,7 @@
 a spatial sequencer with cats
 
 ## Useage
-Marcovaldo is a sequencer for monome norns. It works best with a varibright monome grid, but it isn't required for basic use. Grids of any size will do. It's also built with the monome arc in mind, but this is not a requirement to enjoy the script.
+Marcovaldo is a sequencer for monome norns. It works best with a varibright monome grid, but it isn't required for basic use. Grids of any size will do, with both 64-key and 128-key grids fully supported for direct sequence editing. It's also built with the monome arc in mind, but this is not a requirement to enjoy the script.
 
 ### The Arrangement
 The collection of four sequences at the heart of Marcovaldo is called its Arrangement. The rings, encoders, keys, and console all serve the Arrangement.
@@ -50,9 +50,11 @@ While the Arrangement more or less represents the "sequencer" part of Marcovaldo
 
 It's the grid. You don't need it to experience the music, but something is lost without one in your ability to connect to it.
 
-The Chart is divided into four sections. If your grid is a 256, you'll see all four at once. If not, you'll move between them with the page gesture.
+The Chart is divided into four sections. If your grid is a 128-key (16x8), you'll see all four at once. If you're using a 64-key grid (8x8), you'll see one section at a time and can move between them with the page gesture.
 
 ![page gesture](./assets/images/documentation/turn_page.png)
+
+For 64-key grids, the page gesture is performed by simultaneously pressing the three keys in the bottom-right corner (positions 7,8 + 8,7 + 8,8). This allows you to navigate between pages while maintaining the same intuitive interface on smaller grid layouts.
 
 Each of the first three Chart plans (RADIATION, PATH, CATS) contains both FEATURES and PHENOMENA. FEATURES are stable aspects of the environment. PHENOMENA represent the ephemera of their affect on the environment. The fourth plan (RELIEF) is only PHENOMENA.
 
@@ -86,6 +88,20 @@ When they walk off the Chart, they're gone for good. When they do move, they mod
 
 The final plan is the RELIEF ("Smoke, wind, and Soap Bubbles"). It is a collection of all the Chart phenomena layered atop one another. A visualization of how all the pieces fit together with no interactive characteristics.
 
+### Direct Sequence Editing
+
+When in SEQUENCE mode, you can directly edit sequences on the grid. This feature is fully supported on both 64-key and 128-key grids:
+
+- On 128-key grids, you'll see the full sequence laid out across the grid
+- On 64-key grids, you'll see a portion of the sequence at a time, with paging functionality to navigate through longer sequences
+
+To edit a sequence:
+- Tap a step to toggle its pulse on/off
+- Hold a step for one second to enter STEP edit mode for that specific step
+- Tap a position beyond the current sequence length to extend the sequence to that length
+
+This direct editing capability allows for intuitive, visual sequence creation and modification without leaving the grid interface.
+
 ### Params
 SAVING and LOADING from Marcovaldo's global parameter group will save and load not only the feature placements on the chart but also the current state of all params.
 
@@ -94,6 +110,27 @@ The COSMOLOGICAL CONSTANT is a global operand applied to the calculated duration
 If you do not use a grid, the global and sequence parameters are how you must manage transport.
 
 The ADSR params of each sequence are applied as percentage multipliers to the calculated pulse duration of their respective sequence.
+
+### Performers
+
+Marcovaldo supports various hardware interfaces for sound output through its Performer system:
+
+#### Core Performers
+- **Mx. Synths**: Controls the internal norns synth engine
+- **Midi**: Sends notes to MIDI devices
+- **Crow**: Controls the Crow Eurorack module via CV and gate outputs
+- **Ansible**: Interfaces with the Monome Ansible Eurorack module
+- **Just Friends**: Controls the Make Noise Just Friends module
+- **ER-301**: Interfaces with the Orthogonal Devices ER-301 Sound Computer
+- **Disting**: Controls the Expert Sleepers Disting module
+- **Teletype**: Interfaces with the Monome Teletype module
+
+#### Whimsical Raps Series
+- **W/Delay**: Interfaces with the Whimsical Raps Delay module, providing time-based effects with parameters for feedback, mix, filter, and modulation
+- **W/Synth**: Controls the Whimsical Raps Synth module with FM synthesis capabilities, offering parameters for curve, ramp, FM index, FM envelope, and FM ratio
+- **W/Tape**: Interfaces with the Whimsical Raps Tape module, providing tape-based manipulation of sound with recording, playback control, and looping functionality
+
+Each performer has its own set of parameters that can be configured in the parameters menu, allowing for extensive customization of your sound output.
 
 ### Acknowledgements 
 This sequencer gets its voice from [mx.synths](https://github.com/schollz/mx.synths) and would do very little without it.
