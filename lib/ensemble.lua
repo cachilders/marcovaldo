@@ -94,7 +94,14 @@ function Ensemble:affect(action, index, values)
     self.source_positions = values
   elseif action == actions.apply_effect then
     print('[Ensemble:affect] Applying effect to sequence:', index)
-    local performer = self.performers[parameters:get_performer(index)]
+    local performer
+    
+    if index == 5 and params:get('marco_wrong_stop') == 2 then
+      performer = self.performers['W/Tape']
+    else
+      performer = self.performers[parameters:get_performer(index)]
+    end
+    
     if performer then
       print('  Effect data:')
       log_data(values)
