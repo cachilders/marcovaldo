@@ -43,16 +43,7 @@ local W_FEEDBACK_SPEC = controlspec.def{
   max = 5,
   warp = 'lin',
   step = 0.01,
-  default = 2,
-  quantum = 0.01,
-  wrap = false
-}
-local W_MIX_SPEC = controlspec.def{
-  min = 0,
-  max = 5,
-  warp = 'lin',
-  step = 0.01,
-  default = 3,
+  default = 5,
   quantum = 0.01,
   wrap = false
 }
@@ -70,7 +61,7 @@ local W_RATE_SPEC = controlspec.def{
   max = 2,
   warp = 'lin',
   step = 0.01,
-  default = 1,
+  default = 0.2,
   quantum = 0.01,
   wrap = false
 }
@@ -88,7 +79,7 @@ local W_AMOUNT_SPEC = controlspec.def{
   max = 5,
   warp = 'lin',
   step = 0.01,
-  default = 2,
+  default = 0,
   quantum = 0.01,
   wrap = false
 }
@@ -197,7 +188,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 35)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 34)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -240,7 +231,6 @@ function Parameters:_init_params()
     
     -- W/ parameters
     params:add_control('marco_performer_w_feedback_'..i, 'Feedback', W_FEEDBACK_SPEC)
-    params:add_control('marco_performer_w_mix_'..i, 'Mix', W_MIX_SPEC)
     params:add_control('marco_performer_w_filter_'..i, 'Filter', W_FILTER_SPEC)
     params:add_control('marco_performer_w_rate_'..i, 'Rate', W_RATE_SPEC)
     params:add_control('marco_performer_w_mod_rate_'..i, 'Mod Rate', W_MOD_SPEC)
@@ -279,7 +269,6 @@ function Parameters:_refresh_performer_params(seq, val)
     params:hide('marco_sustain_'..i)
     params:hide('marco_release_'..i)
     params:hide('marco_performer_w_feedback_'..i)
-    params:hide('marco_performer_w_mix_'..i)
     params:hide('marco_performer_w_filter_'..i)
     params:hide('marco_performer_w_rate_'..i)
     params:hide('marco_performer_w_mod_rate_'..i)
@@ -326,7 +315,6 @@ function Parameters:_refresh_performer_params(seq, val)
       elseif active_performer == WD then
         params:show('marco_performer_w_device_'..i)
         params:show('marco_performer_w_feedback_'..i)
-        params:show('marco_performer_w_mix_'..i)
         params:show('marco_performer_w_filter_'..i)
         params:show('marco_performer_w_rate_'..i)
         params:show('marco_performer_w_mod_rate_'..i)
