@@ -120,6 +120,11 @@ end
 
 function Parameters:_init_params()
   params:add_group('marcovaldo', 'MARCOVALDO', 13)
+  
+  params:set_action('clock_tempo', function()
+    update_clock_rates()
+  end)
+  
   params:add_trigger('marco_start', 'Start All Sequences')
   params:set_action('marco_start', function() arrangement:start() end)
   params:add_trigger('marco_pause', 'Pause All Sequences')
