@@ -68,6 +68,12 @@ function init_clocks()
   world_time:start()
 end
 
+function update_clock_rates()
+  local bpm = 60 / params:get('clock_tempo')
+  podium_time:start(bpm / 3)
+  world_time:start(bpm / 2)
+end
+
 function init_events()
   local function affect_arrangement(action, index, values)
     arrangement:affect(action, index, values)

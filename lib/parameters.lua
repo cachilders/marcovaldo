@@ -143,6 +143,10 @@ function Parameters:_init_params()
   params:add_number('marco_root', 'Root Note', 0, 127, 60, function(param) return music_util.note_num_to_name(param:get(), true) end)
   params:set_action('marco_root', function(i) self.root:set(i) end)
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
+  
+  params:set_action('clock_tempo', function()
+    update_clock_rates()
+  end)
 
   for i = 1, 4 do
     params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 29)
