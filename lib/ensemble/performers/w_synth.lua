@@ -17,7 +17,6 @@ function WSynthPerformer:new(options)
 end
 
 function WSynthPerformer:init()
-  print('[WSynthPerformer:init] Starting initialization')
   self:init_effects()
 end
 

@@ -28,6 +28,7 @@ SHEET_HEIGHT = 8  -- Height of a sheet (matches PANE_EDGE_LENGTH)
 SHEET_STEPS = SHEET_WIDTH * SHEET_HEIGHT  -- Total steps in a sheet (128)
 
 MODES = {DEFAULT, ERROR, SEQUENCE, STEP}
+WRONG_STOP_SEQ = 5
 
 shift_depressed = false
 current_mode = nil

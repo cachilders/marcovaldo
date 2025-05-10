@@ -15,7 +15,6 @@ function AnsiblePerformer:new(options)
 end
 
 function AnsiblePerformer:init()
-  print('[AnsiblePerformer:init] Starting initialization')
   self:init_effects()
 end
 

@@ -16,7 +16,6 @@ function ER301Performer:new(options)
 end
 
 function ER301Performer:init()
-  print('[ER301Performer:init] Starting initialization')
   self.clocks = {}
   self:init_effects()
 end

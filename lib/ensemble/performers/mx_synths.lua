@@ -26,6 +26,7 @@ end
 
 function MxSynthsPerformer:_create_effect(effect_num)
   return function(data)
+    print('[Mx. Synths] Effect '..effect_num..' applied')
     local mod_reset_value = params:get('mxsynths_mod'..effect_num)
     local beat_time = 60 / params:get('clock_tempo')
     local mod_new_value = (1/32) * ((data.x * data.y) - 32)

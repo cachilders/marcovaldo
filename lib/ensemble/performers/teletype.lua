@@ -15,7 +15,6 @@ function TeletypePerformer:new(options)
 end
 
 function TeletypePerformer:init()
-  print('[TeletypePerformer:init] Starting initialization')
   self:init_effects()
 end
 

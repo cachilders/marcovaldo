@@ -17,7 +17,6 @@ function MidiPerformer:new(options)
 end
 
 function MidiPerformer:init()
-  print('[MidiPerformer:init] Starting initialization')
   local connections = {}
   for id, _ in pairs(parameters:get('midi_device_identifiers')) do
     table.insert(connections, midi.connect(id))

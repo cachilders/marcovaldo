@@ -18,7 +18,6 @@ function WDelayPerformer:new(options)
 end
 
 function WDelayPerformer:init()
-  print('[WDelayPerformer:init] Starting initialization')
   self.clocks = {}
   self:init_effects()
 end
@@ -46,7 +45,6 @@ function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
   self.clocks[sequence] = clock.run(
     function()
       crow.ii.wdel[device].feedback(params:get('marco_performer_w_feedback_'..sequence))
-      crow.ii.wdel[device].mix(params:get('marco_performer_w_mix_'..sequence))
       crow.ii.wdel[device].filter(params:get('marco_performer_w_filter_'..sequence))
       crow.ii.wdel[device].rate(params:get('marco_performer_w_rate_'..sequence))
       crow.ii.wdel[device].mod_rate(params:get('marco_performer_w_mod_rate_'..sequence))

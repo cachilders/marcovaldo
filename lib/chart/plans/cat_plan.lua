@@ -21,24 +21,15 @@ function CatPlan:new(options)
 end
 
 function CatPlan:_add(x, y)
-  print('[CatPlan:_add] Starting _add at', x, y)
-  
-  -- Determine sequence based on x position
   local max_sequences = 4
-  if params:get('marco_wrong_stop') == 1 then
+  if params:get('marco_wrong_stop') == 2 then
     max_sequences = 5
   end
   
-  local sequence = math.floor((x + self.x_offset) / 4) + 1
-  if sequence < 1 then sequence = 1 end
-  if sequence > max_sequences then sequence = max_sequences end
-  
-  -- Select a random breed (1-4)
+  local sequence = math.random(1, max_sequences)
   local breed = math.random(1, 4)
-  print('[CatPlan:_add] Selected breed:', breed)
   
   local act = function(x, y)
-    print('[CatPlan:_add] Act function called at', x, y)
     local phenomenon = EphemeralSymbol:new({
       led = self.led,
       source_type = 'cat',
@@ -52,8 +43,8 @@ function CatPlan:_add(x, y)
     print('  action:', actions.apply_effect)
     print('  sequence:', sequence)
     print('  breed:', breed)
-    print('  data:', {x = x, y = y})
-    self.affect_ensemble(actions.apply_effect, sequence, {breed = breed, data = {x = x, y = y}})
+    print('  data:',x, y)
+    self.affect_ensemble(actions.apply_effect, sequence, {effect = breed, data = {x = x, y = y}})
     clock.run(function()
       clock.sleep(self._get_bpm())
       self:_nullify_phenomenon(phenomenon)

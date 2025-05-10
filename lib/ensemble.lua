@@ -70,18 +70,6 @@ function Ensemble:init_performers()
 end
 
 function Ensemble:affect(action, index, values)
-  local function log_data(data)
-    for k, v in pairs(data) do
-      print('    '..k..':', v)
-    end
-  end
-
-  print('[Ensemble:affect] Received:')
-  print('  action:', action)
-  print('  index:', index)
-  print('  values:')
-  log_data(values)
-
   if action == actions.play_note then
     local sequence = index
     local note = values.note
@@ -96,9 +84,8 @@ function Ensemble:affect(action, index, values)
     print('[Ensemble:affect] Applying effect to sequence:', index)
     local performer
     
-    if index == 5 then
-      if params:get('marco_wrong_stop') == 1 then
-        -- The Wrong Stop is enabled, find the W/Tape performer
+    if index == WRONG_STOP_SEQ then
+      if params:get('marco_wrong_stop') == 2 then
         for name, perf in pairs(self.performers) do
           if name == WT then
             performer = perf
@@ -106,17 +93,14 @@ function Ensemble:affect(action, index, values)
           end
         end
       else
-        -- The Wrong Stop is disabled but we still need to handle index=5 safely
-        print('[Ensemble:affect] Warning: Received effect for sequence 5 but The Wrong Stop is disabled')
+        performer = self.performers[parameters:get_performer(math.random(1, 4))]
       end
     else
       performer = self.performers[parameters:get_performer(index)]
     end
     
     if performer then
-      print('  Effect data:')
-      log_data(values)
-      performer:apply_effect(values.breed, values.data)
+      performer:apply_effect(values.effect, values.data)
     end
   end
 end

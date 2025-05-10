@@ -2,7 +2,7 @@ include('lib/utils')
 local textentry = require('textentry')
 local fileselect = require('fileselect')
 
-local ENABLED_STATES = {'Enabled', 'Disabled'}
+local ENABLED_STATES = {'Disabled', 'Enabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
 local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS} -- Removing WT while we figure out what to do with it
 local CROW_DEVICES = {'Host', '1', '2', '3', '4'}
@@ -168,8 +168,8 @@ function Parameters:_init_params()
   params:set_action('marco_reset', function() arrangement:reset() end)
   params:add_separator('marco_global_actions_foot', '')
   params:add_separator('marco_global_settings', 'GLOBAL SETTINGS')
-  params:add_option('marco_animations', 'Animations', ENABLED_STATES, 1)
-  params:set_action('marco_animations', function(i) self.animations_enabled:set(i == 1) end)
+  params:add_option('marco_animations', 'Animations', ENABLED_STATES, 2)
+  params:set_action('marco_animations', function(i) self.animations_enabled:set(i == 2) end)
   params:add_option('marco_scale', 'Scale Type', self.scale_names, 1)
   params:set_action('marco_scale', function(i) self.scale:set(self.scale_names[i]) end)
   params:add_number('marco_root', 'Root Note', 0, 127, 60, function(param) return music_util.note_num_to_name(param:get(), true) end)
@@ -218,7 +218,6 @@ function Parameters:_init_params()
     params:add_control('marco_performer_w_ramp_'..i, 'Ramp', W_V_SPEC)
     params:add_control('marco_performer_w_curve_'..i, 'Curve', W_V_SPEC)
     
-    -- W/ parameters
     params:add_control('marco_performer_w_feedback_'..i, 'Feedback', W_FEEDBACK_SPEC)
     params:add_control('marco_performer_w_filter_'..i, 'Filter', W_FILTER_SPEC)
     params:add_control('marco_performer_w_rate_'..i, 'Rate', W_RATE_SPEC)
@@ -232,18 +231,28 @@ function Parameters:_init_params()
     params:add_number('marco_release_'..i, 'Release', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
   end
   
-  params:add_group('marco_experimental', 'EXPERIMENTAL', 1)
-  params:add_option('marco_wrong_stop', 'The Wrong Stop', ENABLED_STATES, 2)
+  params:add_group('marco_experimental', 'EXPERIMENTAL', 3)
+  params:add_option('marco_wrong_stop', 'The W/rong Stop', ENABLED_STATES, 1)
   params:set_action('marco_wrong_stop', function(i) 
     if arrangement and arrangement.sequences then
       arrangement:refresh()
+      self:_refresh_performer_params()
     end
   end)
+  params:add_number('marco_performer_w_device_'..WRONG_STOP_SEQ, 'Which W/', 1, 2, 1)
+  params:add_separator('marco_w_tape_settings', '< !! records to w/tape !!>')
 end
 
 function Parameters:_refresh_performer_params(seq, val)
   if norns.crow.dev then
     params:show('marco_experimental')
+    if params:get('marco_wrong_stop') == 2 then
+      params:show('marco_performer_w_device_'..WRONG_STOP_SEQ)
+      params:show('marco_w_tape_settings')
+    else
+      params:hide('marco_performer_w_device_'..WRONG_STOP_SEQ)
+      params:hide('marco_w_tape_settings')
+    end
   else
     params:hide('marco_experimental')
   end

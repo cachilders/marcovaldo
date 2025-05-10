@@ -15,7 +15,6 @@ function WTapePerformer:new(options)
 end
 
 function WTapePerformer:init()
-  print('[WTapePerformer:init] Starting initialization')
   self:init_effects()
 end
 

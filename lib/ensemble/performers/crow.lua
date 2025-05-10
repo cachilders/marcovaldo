@@ -16,7 +16,6 @@ function CrowPerformer:new(options)
 end
 
 function CrowPerformer:init()
-  print('[CrowPerformer:init] Starting initialization')
   self.clocks = {}
   self:init_effects()
 end
