@@ -2,7 +2,8 @@ local Performer = include('lib/ensemble/performer')
 
 local ER301Performer = {
   clocks = nil,
-  name = 'ER-301'
+  name = 'ER-301',
+  effects = nil
 }
 
 setmetatable(ER301Performer, { __index = Performer })
@@ -14,16 +15,25 @@ function ER301Performer:new(options)
   return instance
 end
 
-function ER301Performer:get_effects()
-  return {
-    { effect = "sample_start", id = "er301_sample_start" },
-    { effect = "grain_size", id = "er301_grain_size" }
-  }
-end
-
 function ER301Performer:init()
   print('[ER301Performer:init] Starting initialization')
   self.clocks = {}
+  self:init_effects()
+end
+
+function ER301Performer:_create_effect(effect_num)
+  return function(data)
+    print('[ER301Performer] Effect '..effect_num..' not implemented')
+  end
+end
+
+function ER301Performer:init_effects()
+  self.effects = {
+    self:_create_effect(1),
+    self:_create_effect(2),
+    self:_create_effect(3),
+    self:_create_effect(4)
+  }
 end
 
 function ER301Performer:play_note(sequence, note, velocity, envelope_duration)
@@ -38,19 +48,6 @@ function ER301Performer:play_note(sequence, note, velocity, envelope_duration)
       crow.ii.er301.tr(params:get('marco_performer_er301_tr_port_'..sequence), 0)
     end
   )
-end
-
-function ER301Performer:apply_effect(effect, data)
-  print('[ER301Performer:apply_effect] Received:')
-  print('  effect:', effect)
-  print('  data:', data)
-  if effect.effect == "sample_start" then
-    -- TODO: Implement sample start effect for ER-301
-    print('[ER301Performer] Applying sample start effect')
-  elseif effect.effect == "grain_size" then
-    -- TODO: Implement grain size effect for ER-301
-    print('[ER301Performer] Applying grain size effect')
-  end
 end
 
 return ER301Performer

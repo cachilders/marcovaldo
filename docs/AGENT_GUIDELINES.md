@@ -43,8 +43,8 @@ This document outlines the core architectural patterns, principles, and developm
 
 ### Global Instance Pattern
 - **Never** include a module if you're only using its global instance
-  - Wrong: `local CatBreedRegistry = include('lib/cat_breed_registry')` when only using `cat_breed_registry`
-  - Right: Just use the global `cat_breed_registry` instance directly
+  - Wrong: `local SomeClass = include('lib/some_class')` when only using `some_instance`
+  - Right: Just use the global instance directly
 - **Only** include modules when you need:
   - The class/module definition for inheritance
   - To create new instances
@@ -57,7 +57,7 @@ This document outlines the core architectural patterns, principles, and developm
 
 ### Observables and Global State
 - All global or shared state, including observables, should be initialized in `init_observables()`
-- Use snake_case for global/shared instances (e.g., `cat_breed_registry`)
+- Use snake_case for global/shared instances
 - Avoid using `_G.` or other global mutation patterns unless absolutely necessary
 - Modules should reference instances rather than requiring modules directly
 
@@ -65,10 +65,10 @@ This document outlines the core architectural patterns, principles, and developm
 - All shared registries must be implemented as classes with a `:new()` constructor
 - Instantiate these classes in initialization functions
 - Never require/include and use a registry as a singleton table
-- Always access the instance (e.g., `cat_breed_registry:register_breeds(...)`)
+- Always access the instance
 
 ### Observable Usage
-- Query observables directly (e.g., `cat_breed_registry:get()`) when current state is needed
+- Query observables directly when current state is needed
 - Only subscribe to observables if you need to react to changes
 - Do not store local copies of observable state unless absolutely necessary
 

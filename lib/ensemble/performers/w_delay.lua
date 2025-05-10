@@ -4,7 +4,8 @@ local VELOCITY_CONSTANT = 5 / 127
 
 local WDelayPerformer = {
   clocks = nil,
-  name = 'W/Delay'
+  name = 'W/Delay',
+  effects = nil
 }
 
 setmetatable(WDelayPerformer, { __index = Performer })
@@ -16,16 +17,25 @@ function WDelayPerformer:new(options)
   return instance
 end
 
-function WDelayPerformer:get_effects()
-  return {
-    { effect = "delay_time", id = "wdelay_time" },
-    { effect = "feedback", id = "wdelay_feedback" }
-  }
-end
-
 function WDelayPerformer:init()
   print('[WDelayPerformer:init] Starting initialization')
   self.clocks = {}
+  self:init_effects()
+end
+
+function WDelayPerformer:_create_effect(effect_num)
+  return function(data)
+    print('[WDelayPerformer] Effect '..effect_num..' not implemented')
+  end
+end
+
+function WDelayPerformer:init_effects()
+  self.effects = {
+    self:_create_effect(1),
+    self:_create_effect(2),
+    self:_create_effect(3),
+    self:_create_effect(4)
+  }
 end
 
 function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -49,35 +59,6 @@ function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
       crow.ii.wdel[device].freeze(0)
     end
   )
-end
-
-function WDelayPerformer:apply_effect(effect, data)
-  print('[WDelayPerformer:apply_effect] Received:')
-  print('  effect:', effect)
-  print('  data:', data)
-  if effect.effect == "delay_time" then
-    local mod_reset_value = params:get('wdelay_time')
-    local beat_time = 60 / params:get('clock_tempo')
-    local mod_new_value = (1/32) * ((data.x * data.y) - 32)
-    clock.run(
-      function()
-        engine.wdelay_set('time', mod_new_value)
-        clock.sleep(beat_time)
-        engine.wdelay_set('time', mod_reset_value)
-      end
-    )
-  elseif effect.effect == "feedback" then
-    local mod_reset_value = params:get('wdelay_feedback')
-    local beat_time = 60 / params:get('clock_tempo')
-    local mod_new_value = (1/32) * ((data.x * data.y) - 32)
-    clock.run(
-      function()
-        engine.wdelay_set('feedback', mod_new_value)
-        clock.sleep(beat_time)
-        engine.wdelay_set('feedback', mod_reset_value)
-      end
-    )
-  end
 end
 
 return WDelayPerformer

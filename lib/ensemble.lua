@@ -98,7 +98,7 @@ function Ensemble:affect(action, index, values)
     if performer then
       print('  Effect data:')
       log_data(values)
-      performer:apply_effect(values.effect, values.data)
+      performer:apply_effect(values.breed, values.data)
     end
   end
 end

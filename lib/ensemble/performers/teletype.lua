@@ -1,7 +1,8 @@
 local Performer = include('lib/ensemble/performer')
 
 local TeletypePerformer = {
-  name = 'Teletype'
+  name = 'Teletype',
+  effects = nil
 }
 
 setmetatable(TeletypePerformer, { __index = Performer })
@@ -14,15 +15,26 @@ function TeletypePerformer:new(options)
 end
 
 function TeletypePerformer:init()
-  -- Initialize Teletype
+  print('[TeletypePerformer:init] Starting initialization')
+  self:init_effects()
+end
+
+function TeletypePerformer:_create_effect(effect_num)
+  return function(data)
+    print('[TeletypePerformer] Effect '..effect_num..' not implemented')
+  end
+end
+
+function TeletypePerformer:init_effects()
+  self.effects = {
+    self:_create_effect(1),
+    self:_create_effect(2),
+    self:_create_effect(3),
+    self:_create_effect(4)
+  }
 end
 
 function TeletypePerformer:play_note(sequence, note, velocity, envelope_duration)
-  -- Send note to Teletype
-end
-
-function TeletypePerformer:apply_effect(index, data)
-  -- no-op
 end
 
 return TeletypePerformer 

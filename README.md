@@ -101,5 +101,5 @@ This sequencer gets its voice from [mx.synths](https://github.com/schollz/mx.syn
 Grid diagrams care of [Tyler Etters](https://nor.the-rn.info/about)'s excellent [GridStation](https://tyleretters.github.io/GridStation/)
 
 ## Documentation
-- [Architecture Guidelines](ARCHITECTURE.md) - Core patterns, principles, and development guidelines
+- [Agent Guidelines](docs/AGENT_GUIDELINES.md) - Core patterns, principles, and development guidelines
 - [Norns API Reference](https://monome.org/docs/norns/reference/)

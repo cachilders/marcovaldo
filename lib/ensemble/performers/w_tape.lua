@@ -1,7 +1,8 @@
 local Performer = include('lib/ensemble/performer')
 
 local WTapePerformer = {
-  name = 'W/Tape'
+  name = 'W/Tape',
+  effects = nil
 }
 
 setmetatable(WTapePerformer, { __index = Performer })
@@ -13,15 +14,9 @@ function WTapePerformer:new(options)
   return instance
 end
 
-function WTapePerformer:get_effects()
-  return {
-    { effect = "tape_speed", id = "wtape_speed" },
-    { effect = "direction", id = "wtape_direction" }
-  }
-end
-
 function WTapePerformer:init()
   print('[WTapePerformer:init] Starting initialization')
+  self:init_effects()
 end
 
 -- record(is_recording) - is_recording: bool - Set recording state
@@ -41,23 +36,71 @@ end
 -- timestamp(seconds) - seconds: float - Move tape to absolute position (seconds)
 -- seek(seconds) - seconds: float - Move tape relative to current position (seconds)
 
-function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
-  -- TODO: I believe this performer will be a cat, rather than a discrete voice.
-  local device = params:get('marco_performer_w_device_'..sequence)
-  crow.ii.wtape[device].freq(note / 12)
-  crow.ii.wtape[device].seek(envelope_duration) -- Just goofin; might want to init a loop and bounce around in it
+function WTapePerformer:_create_effect(effect_num)
+  return function(data)
+    print('[WTapePerformer] Effect '..effect_num..' not implemented')
+  end
 end
 
-function WTapePerformer:apply_effect(effect, data)
-  print('[WTapePerformer:apply_effect] Received:')
-  print('  effect:', effect)
-  print('  data:', data)
-  if effect.effect == "tape_speed" then
-    -- TODO: Implement tape speed effect for W/Tape
-    print('[WTapePerformer] Applying tape speed effect')
-  elseif effect.effect == "direction" then
-    -- TODO: Implement direction effect for W/Tape
-    print('[WTapePerformer] Applying direction effect')
+function WTapePerformer:init_effects()
+  self.effects = {
+    self:_create_effect(1),
+    self:_create_effect(2),
+    self:_create_effect(3),
+    self:_create_effect(4)
+  }
+end
+
+function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
+  local device = params:get('marco_performer_w_device_'..sequence)
+  local output = params:get('marco_performer_w_outputs_'..sequence)
+  local gate = params:get('marco_performer_w_gate_'..sequence)
+  local atk, dec, sus, rel = params:get('marco_attack_'..sequence), params:get('marco_decay_'..sequence), params:get('marco_sustain_'..sequence), params:get('marco_release_'..sequence)
+  local sus_dur = envelope_duration - (envelope_duration * (atk + dec + rel) / 100)
+  sus = sus * velocity / 100
+  sus_dur = sus_dur >= 0 and sus_dur or 0
+  local a, d, sus_v, r = envelope_duration * atk / 100, envelope_duration * dec / 100, sus, envelope_duration * rel / 100
+  note = note / 12
+  if device == 1 then
+    crow.output[output].slew = 0
+    crow.output[output].volts = note
+    if gate == 1 then
+      crow.output[output].action = string.format("pulse(%f, %f)", envelope_duration, velocity)
+      crow.output[output]()
+    elseif gate == 2 then
+      local envelope = string.format("{ to(0,0), to(%f,%f), to(%f,%f), to(%f,%f), to(0,%f) }", velocity, a, sus_v, d, sus_v, sus_dur, r)
+      crow.output[output].action = envelope
+      crow.output[output]()
+    end
+  else
+    device = device - 1
+    crow.ii.crow[device].slew(output, 0)
+    crow.ii.crow[device].volts(output, note)
+    if gate == 1 then
+      clock.run(
+        function()
+          crow.ii.crow[device].volts(output, 10)
+          clock.sleep(envelope_duration)
+          crow.ii.crow[device].volts(output, 0)
+        end
+      )
+    elseif gate == 2 then
+      clock.run(
+        function()
+          crow.ii.crow[device].slew(output, 0)
+          crow.ii.crow[device].volts(output, 0)
+          crow.ii.crow[device].slew(output, a)
+          crow.ii.crow[device].volts(output, velocity)
+          clock.sleep(a)
+          crow.ii.crow[device].slew(output, d)
+          crow.ii.crow[device].volts(output, sus_v)
+          clock.sleep(d)
+          clock.sleep(sus_dur)
+          crow.ii.crow[device].slew(output, r)
+          crow.ii.crow[device].volts(output, 0)
+        end
+      )
+    end
   end
 end
 

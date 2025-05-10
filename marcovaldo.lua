@@ -20,7 +20,6 @@ shift_depressed = false
 current_mode = nil
 
 local Arrangement = include('lib/arrangement')
-local CatBreedRegistry = include('lib/cat_breed_registry')
 local Chart = include('lib/chart')
 local Console = include('lib/console')
 local Ensemble = include('lib/ensemble')
@@ -39,9 +38,9 @@ include('lib/utils')
 function init()
   math.randomseed(os.time())
   run_tests()
+  create_metaphors()
   init_observables()
   init_params()
-  create_metaphors()
   init_events()
   init_metaphors()
   init_clocks()
@@ -112,7 +111,6 @@ function init_observables()
   end
   current_mode = observable.new(default_mode)
   current_steps = observable.new(default_steps)
-  cat_breed_registry = CatBreedRegistry:new()
 end
 
 function init_params()

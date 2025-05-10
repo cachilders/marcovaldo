@@ -1,8 +1,8 @@
 local Performer = include('lib/ensemble/performer')
-VELOCITY_CONSTANT = 5 / 127
 
 local JustFriendsPerformer = {
-  name = 'Just Friends'
+  name = 'Just Friends',
+  effects = nil
 }
 
 setmetatable(JustFriendsPerformer, { __index = Performer })
@@ -14,18 +14,10 @@ function JustFriendsPerformer:new(options)
   return instance
 end
 
-function JustFriendsPerformer:get_effects()
-  return {
-    { effect = "octave_shift", id = "jf_octave_shift" },
-    { effect = "voice_mode", id = "jf_voice_mode" }
-  }
-end
-
 function JustFriendsPerformer:init()
   print('[JustFriendsPerformer:init] Starting initialization')
-  crow.ii.jf.mode(1)
+  self:init_effects()
 end
-
 -- crow.ii.jf.trigger( channel, state )
 -- crow.ii.jf.run_mode( mode )
 -- crow.ii.jf.run( volts )
@@ -40,25 +32,24 @@ end
 -- crow.ii.jf.quantize( divisions )
 -- ii.jf[1].trigger(1,1) -- device #1
 -- ii.jf[2].trigger(1,1) -- device #2
-
-function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_duration)
-  local adj_note = note - params:get('marco_root')
-  local pitch = (adj_note >= 0 and adj_note or 0) / 12
-  local device = params:get('marco_performer_jf_device_'..sequence)
-  crow.ii.jf[device].play_note(pitch, velocity * VELOCITY_CONSTANT)
+function JustFriendsPerformer:_create_effect(effect_num)
+  return function(data)
+    print('[JustFriendsPerformer] Effect '..effect_num..' not implemented')
+  end
 end
 
-function JustFriendsPerformer:apply_effect(effect, data)
-  print('[JustFriendsPerformer:apply_effect] Received:')
-  print('  effect:', effect)
-  print('  data:', data)
-  if effect.effect == "octave_shift" then
-    -- TODO: Implement octave shift effect for Just Friends
-    print('[JustFriendsPerformer] Applying octave shift effect')
-  elseif effect.effect == "voice_mode" then
-    -- TODO: Implement voice mode effect for Just Friends
-    print('[JustFriendsPerformer] Applying voice mode effect')
-  end
+function JustFriendsPerformer:init_effects()
+  self.effects = {
+    self:_create_effect(1),
+    self:_create_effect(2),
+    self:_create_effect(3),
+    self:_create_effect(4)
+  }
+end
+
+function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_duration)
+  local device = params:get('marco_performer_jf_device_'..sequence)
+  crow.ii.jf[device].note(note / 12, velocity / 127)
 end
 
 return JustFriendsPerformer

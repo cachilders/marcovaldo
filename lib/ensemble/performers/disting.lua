@@ -1,9 +1,10 @@
 local Performer = include('lib/ensemble/performer')
-local VELOCITY_CONSTANT = 10 / 127
+local VELOCITY_CONSTANT = 5/127
 
 local DistingPerformer = {
-  clocks = nil,
-  name = 'Disting'
+  name = 'Disting',
+  effects = nil,
+  clocks = nil
 }
 
 setmetatable(DistingPerformer, { __index = Performer })
@@ -15,20 +16,25 @@ function DistingPerformer:new(options)
   return instance
 end
 
-function DistingPerformer:get_effects()
-  return {
-    { effect = "algorithm", id = "disting_algorithm" },
-    { effect = "parameter_a", id = "disting_param_a" }
-  }
-end
-
 function DistingPerformer:init()
   print('[DistingPerformer:init] Starting initialization')
-  local clocks = {}
-  for i = 1, 4 do
-    clocks[i] = {}
+  self.clocks = {}
+  self:init_effects()
+end
+
+function DistingPerformer:_create_effect(effect_num)
+  return function(data)
+    print('[DistingPerformer] Effect '..effect_num..' not implemented')
   end
-  self.clocks = clocks
+end
+
+function DistingPerformer:init_effects()
+  self.effects = {
+    self:_create_effect(1),
+    self:_create_effect(2),
+    self:_create_effect(3),
+    self:_create_effect(4)
+  }
 end
 
 function DistingPerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -44,19 +50,6 @@ function DistingPerformer:play_note(sequence, note, velocity, envelope_duration)
       crow.ii.disting.note_off(note)
     end
   )
-end
-
-function DistingPerformer:apply_effect(effect, data)
-  print('[DistingPerformer:apply_effect] Received:')
-  print('  effect:', effect)
-  print('  data:', data)
-  if effect.effect == "algorithm" then
-    -- TODO: Implement algorithm effect for Disting EX
-    print('[DistingPerformer] Applying algorithm effect')
-  elseif effect.effect == "parameter_a" then
-    -- TODO: Implement parameter A effect for Disting EX
-    print('[DistingPerformer] Applying parameter A effect')
-  end
 end
 
 return DistingPerformer

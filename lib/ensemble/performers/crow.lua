@@ -2,7 +2,8 @@ local Performer = include('lib/ensemble/performer')
 
 local CrowPerformer = {
   clocks = nil,
-  name = 'Crow'
+  name = 'Crow',
+  effects = nil
 }
 
 setmetatable(CrowPerformer, { __index = Performer })
@@ -14,16 +15,25 @@ function CrowPerformer:new(options)
   return instance
 end
 
-function CrowPerformer:get_effects()
-  return {
-    { effect = "slew", id = "crow_slew" },
-    { effect = "pulse_width", id = "crow_pulse_width" }
-  }
-end
-
 function CrowPerformer:init()
   print('[CrowPerformer:init] Starting initialization')
   self.clocks = {}
+  self:init_effects()
+end
+
+function CrowPerformer:_create_effect(effect_num)
+  return function(data)
+    print('[CrowPerformer] Effect '..effect_num..' not implemented')
+  end
+end
+
+function CrowPerformer:init_effects()
+  self.effects = {
+    self:_create_effect(1),
+    self:_create_effect(2),
+    self:_create_effect(3),
+    self:_create_effect(4)
+  }
 end
 
 function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -58,7 +68,7 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
     if gate == 1 then
       clock.run(
         function()
-          crow.ii.crow[device].volts(env_out, 10) -- does not reflect velocity. pure gate.
+          crow.ii.crow[device].volts(env_out, 10)
           clock.sleep(envelope_duration)
           crow.ii.crow[device].volts(env_out, 0)
         end
@@ -83,19 +93,6 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
         end
       )
     end
-  end
-end
-
-function CrowPerformer:apply_effect(effect, data)
-  print('[CrowPerformer:apply_effect] Received:')
-  print('  effect:', effect)
-  print('  data:', data)
-  if effect.effect == "slew" then
-    -- TODO: Implement slew effect for Crow
-    print('[CrowPerformer] Applying slew effect')
-  elseif effect.effect == "pulse_width" then
-    -- TODO: Implement pulse width effect for Crow
-    print('[CrowPerformer] Applying pulse width effect')
   end
 end
 

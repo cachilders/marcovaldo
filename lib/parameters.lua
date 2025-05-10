@@ -211,10 +211,7 @@ function Parameters:_init_params()
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
-    params:set_action('marco_performer_'..i, function(val) 
-      self:_refresh_performer_params(i, val)
-      cat_breed_registry:handle_sequence_performer_change(i) 
-    end)
+    params:set_action('marco_performer_'..i, function(val) self:_refresh_performer_params(i, val) end)
     
     -- Disting EX options: TBD
     
