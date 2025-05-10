@@ -253,10 +253,10 @@ function Parameters:_init_params()
 end
 
 function Parameters:_refresh_performer_params(seq, val)
-  if not norns.crow.dev then
-    params:hide('marco_experimental')
-  else
+  if norns.crow.dev then
     params:show('marco_experimental')
+  else
+    params:hide('marco_experimental')
   end
   
   local active_performer = self.available_performers[val]
