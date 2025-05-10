@@ -96,12 +96,18 @@ function Ensemble:affect(action, index, values)
     print('[Ensemble:affect] Applying effect to sequence:', index)
     local performer
     
-    if index == 5 and params:get('marco_wrong_stop') == 1 then
-      for name, perf in pairs(self.performers) do
-        if name == WT then
-          performer = perf
-          break
+    if index == 5 then
+      if params:get('marco_wrong_stop') == 1 then
+        -- The Wrong Stop is enabled, find the W/Tape performer
+        for name, perf in pairs(self.performers) do
+          if name == WT then
+            performer = perf
+            break
+          end
         end
+      else
+        -- The Wrong Stop is disabled but we still need to handle index=5 safely
+        print('[Ensemble:affect] Warning: Received effect for sequence 5 but The Wrong Stop is disabled')
       end
     else
       performer = self.performers[parameters:get_performer(index)]
