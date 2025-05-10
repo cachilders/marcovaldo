@@ -2,17 +2,6 @@ include('lib/utils')
 local textentry = require('textentry')
 local fileselect = require('fileselect')
 
-local ANS = 'Ansible'
-local CROW = 'Crow'
-local SC = 'ER-301'
-local DIST = 'Disting'
-local JF = 'Just Friends'
-local WD = 'W/Delay'
-local WS = 'W/Synth'
-local WT = 'W/Tape'
-local MIDI = 'Midi'
-local MX = 'Mx. Synths'
-
 local ENABLED_STATES = {'Enabled', 'Disabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
 local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS} -- Removing WT while we figure out what to do with it

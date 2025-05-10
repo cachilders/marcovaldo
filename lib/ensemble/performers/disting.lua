@@ -2,7 +2,7 @@ local Performer = include('lib/ensemble/performer')
 local VELOCITY_CONSTANT = 5/127
 
 local DistingPerformer = {
-  name = 'Disting',
+  name = DIST,
   effects = nil,
   clocks = nil
 }

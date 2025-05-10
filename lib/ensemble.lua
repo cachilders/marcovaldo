@@ -98,7 +98,7 @@ function Ensemble:affect(action, index, values)
     
     if index == 5 and params:get('marco_wrong_stop') == 1 then
       for name, perf in pairs(self.performers) do
-        if name == 'W/Tape' then
+        if name == WT then
           performer = perf
           break
         end

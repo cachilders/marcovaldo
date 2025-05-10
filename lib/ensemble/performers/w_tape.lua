@@ -1,7 +1,7 @@
 local Performer = include('lib/ensemble/performer')
 
 local WTapePerformer = {
-  name = 'W/Tape',
+  name = WT,
   effects = nil
 }
 
@@ -58,4 +58,4 @@ function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
   crow.ii.wtape[device].seek(envelope_duration) -- Just goofin; might want to init a loop and bounce around in it
 end
 
-return WTapePerformer
+return WTapePerformer  
