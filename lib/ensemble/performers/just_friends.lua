@@ -1,4 +1,5 @@
 local Performer = include('lib/ensemble/performer')
+VELOCITY_CONSTANT = 5 / 127
 
 local JustFriendsPerformer = {
   name = 'Just Friends',
