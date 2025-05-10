@@ -97,7 +97,12 @@ function Ensemble:affect(action, index, values)
     local performer
     
     if index == 5 and params:get('marco_wrong_stop') == 1 then
-      performer = self.performers['W/Tape']
+      for name, perf in pairs(self.performers) do
+        if name == 'W/Tape' then
+          performer = perf
+          break
+        end
+      end
     else
       performer = self.performers[parameters:get_performer(index)]
     end
