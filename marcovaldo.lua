@@ -69,9 +69,11 @@ function init_clocks()
 end
 
 function update_clock_rates()
-  local bpm = 60 / params:get('clock_tempo')
-  podium_time:start(bpm / 3)
-  world_time:start(bpm / 2)
+  if podium_time ~= nil and world_time ~= nil then
+    local bpm = 60 / params:get('clock_tempo')
+    podium_time:start(bpm / 3)
+    world_time:start(bpm / 2)
+  end
 end
 
 function init_events()
