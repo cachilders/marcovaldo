@@ -51,16 +51,6 @@ function WTapePerformer:init_effects()
   }
 end
 
-function WTapePerformer:apply_effect(breed, data)
-  print('[WTapePerformer:apply_effect] Applying effect:', breed)
-  print('[WTapePerformer:apply_effect] Data:', data.x, data.y)
-  
-  if params:get('marco_wrong_stop') == 2 then
-    local device = params:get('marco_performer_w_device_1') -- Use the first sequence's device setting
-    print('[WTapePerformer:apply_effect] Ready to apply effect to W/Tape device', device)
-  end
-end
-
 function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
   -- TODO: I believe this performer will be a cat, rather than a discrete voice.
   local device = params:get('marco_performer_w_device_'..sequence)
@@ -68,4 +58,4 @@ function WTapePerformer:play_note(sequence, note, velocity, envelope_duration)
   crow.ii.wtape[device].seek(envelope_duration) -- Just goofin; might want to init a loop and bounce around in it
 end
 
-return WTapePerformer    
+return WTapePerformer
