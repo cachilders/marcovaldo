@@ -37,6 +37,8 @@ function SequenceSheet:press(x, y, z)
       step = self:coords_to_step(x, y)
     end
     
+    if step > 128 then return end
+    
     if z == 0 then
       if not halt_keys then
         if key_timer[step] then
