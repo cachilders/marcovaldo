@@ -231,9 +231,23 @@ function Parameters:_init_params()
     params:add_number('marco_sustain_'..i, 'Sustain', 0, 100, 90, function(param) return ''..param:get()..'% of strength' end)
     params:add_number('marco_release_'..i, 'Release', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
   end
+  
+  params:add_group('marco_experimental', 'EXPERIMENTAL', 1)
+  params:add_option('marco_wrong_stop', 'The Wrong Stop', ENABLED_STATES, 2)
+  params:set_action('marco_wrong_stop', function(i) 
+    if arrangement and arrangement.sequences then
+      arrangement:refresh()
+    end
+  end)
 end
 
 function Parameters:_refresh_performer_params(seq, val)
+  if norns.crow.dev then
+    params:show('marco_experimental')
+  else
+    params:hide('marco_experimental')
+  end
+  
   local active_performer = self.available_performers[val]
   for i = 1, 4 do
     params:hide('marco_performer_ansible_output_'..i)

@@ -24,9 +24,14 @@ function CatPlan:_add(x, y)
   print('[CatPlan:_add] Starting _add at', x, y)
   
   -- Determine sequence based on x position
+  local max_sequences = 4
+  if params:get('marco_wrong_stop') == 1 then
+    max_sequences = 5
+  end
+  
   local sequence = math.floor((x + self.x_offset) / 4) + 1
   if sequence < 1 then sequence = 1 end
-  if sequence > 4 then sequence = 4 end
+  if sequence > max_sequences then sequence = max_sequences end
   
   -- Select a random breed (1-4)
   local breed = math.random(1, 4)
