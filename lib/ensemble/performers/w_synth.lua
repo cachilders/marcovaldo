@@ -3,7 +3,7 @@ local VELOCITY_CONSTANT = 5/127 -- to test
 
 local WSynthPerformer = {
   clocks = nil,
-  name = 'W/Synth',
+  name = WS,
   effects = nil
 }
 

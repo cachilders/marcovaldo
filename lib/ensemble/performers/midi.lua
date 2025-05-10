@@ -3,7 +3,7 @@ local Performer = include('lib/ensemble/performer')
 local MidiPerformer = {
   clocks = nil,
   connections = nil,
-  name = 'Midi',
+  name = MIDI,
   effects = nil
 }
 

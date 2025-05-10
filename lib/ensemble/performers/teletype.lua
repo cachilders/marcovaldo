@@ -1,7 +1,7 @@
 local Performer = include('lib/ensemble/performer')
 
 local TeletypePerformer = {
-  name = 'Teletype',
+  name = TT,
   effects = nil
 }
 
@@ -37,4 +37,4 @@ end
 function TeletypePerformer:play_note(sequence, note, velocity, envelope_duration)
 end
 
-return TeletypePerformer 
+return TeletypePerformer  
