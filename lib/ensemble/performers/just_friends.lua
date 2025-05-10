@@ -18,6 +18,7 @@ end
 function JustFriendsPerformer:init()
   print('[JustFriendsPerformer:init] Starting initialization')
   self:init_effects()
+  crow.ii.jf.mode(1)
 end
 -- crow.ii.jf.trigger( channel, state )
 -- crow.ii.jf.run_mode( mode )
