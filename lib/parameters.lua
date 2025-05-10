@@ -244,7 +244,7 @@ function Parameters:_init_params()
   end
   
   params:add_group('marco_experimental', 'EXPERIMENTAL', 1)
-  params:add_option('marco_wrong_stop', 'The Wrong Stop', {'No', 'Yes'}, 1)
+  params:add_option('marco_wrong_stop', 'The Wrong Stop', ENABLED_STATES, 2)
   params:set_action('marco_wrong_stop', function(i) 
     if arrangement and arrangement.sequences then
       arrangement:refresh()

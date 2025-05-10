@@ -25,7 +25,7 @@ function CatPlan:_add(x, y)
   
   -- Determine sequence based on x position
   local max_sequences = 4
-  if params:get('marco_wrong_stop') == 2 then
+  if params:get('marco_wrong_stop') == 1 then
     max_sequences = 5
   end
   

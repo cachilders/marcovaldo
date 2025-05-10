@@ -96,7 +96,7 @@ function Ensemble:affect(action, index, values)
     print('[Ensemble:affect] Applying effect to sequence:', index)
     local performer
     
-    if index == 5 and params:get('marco_wrong_stop') == 2 then
+    if index == 5 and params:get('marco_wrong_stop') == 1 then
       performer = self.performers['W/Tape']
     else
       performer = self.performers[parameters:get_performer(index)]
