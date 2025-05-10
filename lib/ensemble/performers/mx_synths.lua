@@ -4,7 +4,7 @@ local Performer = include('lib/ensemble/performer')
 
 local MxSynthsPerformer = {
   mx = nil,
-  name = 'Mx. Synths',
+  name = MX,
   effects = nil
 }
 

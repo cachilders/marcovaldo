@@ -2,7 +2,7 @@ local Performer = include('lib/ensemble/performer')
 
 local CrowPerformer = {
   clocks = nil,
-  name = 'Crow',
+  name = CROW,
   effects = nil
 }
 

@@ -1,7 +1,7 @@
 local Performer = include('lib/ensemble/performer')
 
 local AnsiblePerformer = {
-  name = 'Ansible',
+  name = ANS,
   effects = nil
 }
 

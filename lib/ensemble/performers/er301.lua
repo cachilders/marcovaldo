@@ -2,7 +2,7 @@ local Performer = include('lib/ensemble/performer')
 
 local ER301Performer = {
   clocks = nil,
-  name = 'ER-301',
+  name = SC,
   effects = nil
 }
 

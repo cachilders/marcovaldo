@@ -9,6 +9,19 @@ PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
 STEP = 'step'
 
+-- Performer constants
+ANS = 'Ansible'
+CROW = 'Crow'
+SC = 'ER-301'
+DIST = 'Disting'
+JF = 'Just Friends'
+WD = 'W/Delay'
+WS = 'W/Synth'
+WT = 'W/Tape'
+MIDI = 'Midi'
+MX = 'Mx. Synths'
+TT = 'Teletype'
+
 -- Sheet constants
 SHEET_WIDTH = 16  -- Full width of a sheet
 SHEET_HEIGHT = 8  -- Height of a sheet (matches PANE_EDGE_LENGTH)
