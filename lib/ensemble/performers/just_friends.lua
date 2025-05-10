@@ -48,8 +48,10 @@ function JustFriendsPerformer:init_effects()
 end
 
 function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_duration)
+  local adj_note = note - params:get('marco_root')
+  local pitch = (adj_note >= 0 and adj_note or 0) / 12
   local device = params:get('marco_performer_jf_device_'..sequence)
-  crow.ii.jf[device].note(note / 12, velocity / 127)
+  crow.ii.jf[device].play_note(pitch, velocity * VELOCITY_CONSTANT)
 end
 
 return JustFriendsPerformer

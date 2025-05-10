@@ -32,7 +32,7 @@ end
 
 function MidiPerformer:_create_effect(effect_num)
   return function(data)
-    -- Effects are not implemented yet
+    print('[MidiPerformer] Effect '..effect_num..' not implemented')
   end
 end
 
