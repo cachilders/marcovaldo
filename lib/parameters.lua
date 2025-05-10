@@ -186,6 +186,14 @@ function Parameters:_init_params()
   params:add_number('marco_root', 'Root Note', 0, 127, 60, function(param) return music_util.note_num_to_name(param:get(), true) end)
   params:set_action('marco_root', function(i) self.root:set(i) end)
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
+  
+  params:add_group('marco_experimental', 'EXPERIMENTAL', 1)
+  params:add_option('marco_wrong_stop', 'The Wrong Stop', {'No', 'Yes'}, 1)
+  params:set_action('marco_wrong_stop', function(i) 
+    if arrangement and arrangement.sequences then
+      arrangement:refresh()
+    end
+  end)
 
   for i = 1, 4 do
     params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 34)
@@ -245,6 +253,12 @@ function Parameters:_init_params()
 end
 
 function Parameters:_refresh_performer_params(seq, val)
+  if not norns.crow.dev then
+    params:hide('marco_experimental')
+  else
+    params:show('marco_experimental')
+  end
+  
   local active_performer = self.available_performers[val]
   for i = 1, 4 do
     params:hide('marco_performer_ansible_output_'..i)
