@@ -18,8 +18,12 @@ end
 
 function DistingPerformer:init()
   print('[DistingPerformer:init] Starting initialization')
-  self.clocks = {}
   self:init_effects()
+  local clocks = {}
+  for i = 1, 4 do
+    clocks[i] = {}
+  end
+  self.clocks = clocks
 end
 
 function DistingPerformer:_create_effect(effect_num)
