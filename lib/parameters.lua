@@ -182,7 +182,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 34)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 35)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -195,6 +195,7 @@ function Parameters:_init_params()
     params:set_action('marco_seq_reset_'..i, function() arrangement:reset(i) end)
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
+    params:add_number('marco_pulse_relativity_'..i, 'Local Relativity', 50, 150, 100)
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
     params:set_action('marco_performer_'..i, function(val) self:_refresh_performer_params(i, val) end)
     
