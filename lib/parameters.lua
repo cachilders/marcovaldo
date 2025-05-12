@@ -293,55 +293,53 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_w_rate_'..i)
     params:hide('marco_performer_w_mod_rate_'..i)
     params:hide('marco_performer_w_mod_amount_'..i)
-    if seq == i then 
-      if active_performer == MX then
+    if active_performer == MX then
+      params:show('marco_attack_'..i)
+      params:show('marco_decay_'..i)
+      params:show('marco_sustain_'..i)
+      params:show('marco_release_'..i)
+    elseif active_performer == DIST then
+      -- noop
+    elseif active_performer == JF then
+      params:show('marco_performer_jf_device_'..i)
+    elseif active_performer == MIDI then
+      params:show('marco_performer_midi_device_'..i)
+      params:show('marco_performer_midi_channel_'..i)
+    elseif active_performer == CROW then
+      params:show('marco_performer_crow_device_'..i)
+      params:show('marco_performer_crow_outputs_'..i)
+      params:show('marco_performer_crow_gate_'..i)
+      params:show('marco_performer_slew_'..i)
+      if params:get('marco_performer_crow_gate_'..i) == 2 then
         params:show('marco_attack_'..i)
         params:show('marco_decay_'..i)
         params:show('marco_sustain_'..i)
         params:show('marco_release_'..i)
-      elseif active_performer == DIST then
-        -- noop
-      elseif active_performer == JF then
-        params:show('marco_performer_jf_device_'..i)
-      elseif active_performer == MIDI then
-        params:show('marco_performer_midi_device_'..i)
-        params:show('marco_performer_midi_channel_'..i)
-      elseif active_performer == CROW then
-        params:show('marco_performer_crow_device_'..i)
-        params:show('marco_performer_crow_outputs_'..i)
-        params:show('marco_performer_crow_gate_'..i)
-        params:show('marco_performer_slew_'..i)
-        if params:get('marco_performer_crow_gate_'..i) == 2 then
-          params:show('marco_attack_'..i)
-          params:show('marco_decay_'..i)
-          params:show('marco_sustain_'..i)
-          params:show('marco_release_'..i)
-        end
-      elseif active_performer == SC then
-        params:show('marco_performer_er301_cv_port_'..i)
-        params:show('marco_performer_er301_tr_port_'..i)
-      elseif active_performer == ANS then
-        params:show('marco_performer_ansible_output_'..i)
-        params:show('marco_performer_slew_'..i)
-      elseif active_performer == WS then
-        params:show('marco_performer_w_device_'..i)
-        params:show('marco_performer_w_curve_'..i)
-        params:show('marco_performer_w_fm_i_'..i)
-        params:show('marco_performer_w_fm_env_'..i)
-        params:show('marco_performer_w_fm_rat_n_'..i)
-        params:show('marco_performer_w_fm_rat_d_'..i)
-        params:show('marco_performer_w_ramp_'..i)
-        params:show('marco_attack_'..i)
-      elseif active_performer == WD then
-        params:show('marco_performer_w_device_'..i)
-        params:show('marco_performer_w_feedback_'..i)
-        params:show('marco_performer_w_filter_'..i)
-        params:show('marco_performer_w_rate_'..i)
-        params:show('marco_performer_w_mod_rate_'..i)
-        params:show('marco_performer_w_mod_amount_'..i)
-      else
-        params:show('marco_performer_w_device_'..i)
       end
+    elseif active_performer == SC then
+      params:show('marco_performer_er301_cv_port_'..i)
+      params:show('marco_performer_er301_tr_port_'..i)
+    elseif active_performer == ANS then
+      params:show('marco_performer_ansible_output_'..i)
+      params:show('marco_performer_slew_'..i)
+    elseif active_performer == WS then
+      params:show('marco_performer_w_device_'..i)
+      params:show('marco_performer_w_curve_'..i)
+      params:show('marco_performer_w_fm_i_'..i)
+      params:show('marco_performer_w_fm_env_'..i)
+      params:show('marco_performer_w_fm_rat_n_'..i)
+      params:show('marco_performer_w_fm_rat_d_'..i)
+      params:show('marco_performer_w_ramp_'..i)
+      params:show('marco_attack_'..i)
+    elseif active_performer == WD then
+      params:show('marco_performer_w_device_'..i)
+      params:show('marco_performer_w_feedback_'..i)
+      params:show('marco_performer_w_filter_'..i)
+      params:show('marco_performer_w_rate_'..i)
+      params:show('marco_performer_w_mod_rate_'..i)
+      params:show('marco_performer_w_mod_amount_'..i)
+    else
+      params:show('marco_performer_w_device_'..i)
     end
   end
   _menu.rebuild_params()
