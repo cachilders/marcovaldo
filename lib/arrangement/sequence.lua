@@ -255,7 +255,7 @@ function Sequence:_calculate_pulse_time(step)
   local bpm = 60 / params:get('clock_tempo')
   local cosmological_constant = params:get('marco_pulse_constant') / 100
   local local_relativity = params:get('marco_pulse_relativity_'..self.id) / 100
-  local subdivided_bpm = bpm / (self.subdivision * ((cosmological_constant + local_relativity) / 2))
+  local subdivided_bpm = bpm / (self.subdivision * cosmological_constant)
   local width_modifier = (self.pulse_widths[step] or 100) / 100
   return subdivided_bpm * width_modifier * local_relativity
 end
