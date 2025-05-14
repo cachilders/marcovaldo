@@ -66,10 +66,19 @@ function Ring:paint_value(value, range, value_type)
 end
 
 function Ring:pulse()
+  self.host:all(0)
+  
   local a, b = self._extents_in_radians(1, 1)
   self.host:segment(self.id, 0, 6.283185, self.lumen)
+  
   self.host:refresh()
+  
   self.dirty = false
+  
+  clock.run(function()
+    clock.sleep(0.05) -- Short enough to not be perceptible as a delay
+    self.dirty = true -- Mark as dirty to allow normal updates to resume
+  end)
 end
 
 function Ring:update()

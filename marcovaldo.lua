@@ -58,7 +58,7 @@ end
 
 function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
-  atomic_time = metro.init(refresh_peripherals, 1 / 60)
+  atomic_time = metro.init(refresh_peripherals, 1 / 30)
   podium_time = metro.init(step_arrangement, bpm / 3)
   screen_time = metro.init(step_console, 1 / 24)
   world_time = metro.init(step_chart, bpm / 2)
