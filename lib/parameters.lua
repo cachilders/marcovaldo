@@ -182,7 +182,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 35)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 36)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -228,6 +228,7 @@ function Parameters:_init_params()
     params:add_control('marco_performer_w_rate_'..i, 'Rate', W_RATE_SPEC)
     params:add_control('marco_performer_w_mod_rate_'..i, 'Mod Rate', W_MOD_SPEC)
     params:add_control('marco_performer_w_mod_amount_'..i, 'Mod Amount', W_AMOUNT_SPEC)
+    params:add_number('marco_performer_w_env_time_variant_'..i, 'Envelope Time Variant', 1, 2, 1)
 
     params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, 0, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
@@ -293,6 +294,7 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_w_rate_'..i)
     params:hide('marco_performer_w_mod_rate_'..i)
     params:hide('marco_performer_w_mod_amount_'..i)
+    params:hide('marco_performer_w_env_time_variant_'..i)
     if active_performer == MX then
       params:show('marco_attack_'..i)
       params:show('marco_decay_'..i)
@@ -338,6 +340,7 @@ function Parameters:_refresh_performer_params()
       params:show('marco_performer_w_rate_'..i)
       params:show('marco_performer_w_mod_rate_'..i)
       params:show('marco_performer_w_mod_amount_'..i)
+      params:show('marco_performer_w_env_time_variant_'..i)
     else
       params:show('marco_performer_w_device_'..i)
     end

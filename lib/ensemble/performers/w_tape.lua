@@ -16,6 +16,19 @@ end
 
 function WTapePerformer:init()
   self:init_effects()
+  -- this needs to happen after the tape effect is enabled or device is changed
+  -- crow.ii.wtape[device].record(0)
+  -- crow.ii.wtape[device].play(0)
+  -- crow.ii.wtape[device].echo(0)
+  -- crow.ii.wtape[device].timestamp(600)
+  -- crow.ii.wtape[device].loop_start()
+  -- crow.ii.wtape[devive].seek(1)
+  -- crow.ii.wtape[device].loop_end()
+  -- crow.ii.wtape[device].loop_active(true)
+  -- crow.ii.wtape[device].erase_strength(1)
+  -- crow.ii.wtape[device].monitor_level(1)
+  -- crow.ii.wtape[device].record_level(1)
+  -- crow.ii.wtape[device].play(1)
 end
 
 -- record(is_recording) - is_recording: bool - Set recording state
