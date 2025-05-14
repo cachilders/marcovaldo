@@ -54,13 +54,11 @@ end
 function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
   local device = params:get('marco_performer_w_device_'..sequence)
   local divided_duration = envelope_duration / self.divisions
-  local division_gap = (envelope_duration - (divided_duration * self.repeats)) / self.repeats 
-  if division_gap < 0 then
-    division_gap = 0
-  end
+  local repeats = self.repeats <= self.divisions and self.repeats or self.divisions
+  local division_gap = repeats > 1 and (envelope_duration - (divided_duration * self.repeats)) / (repeats - 1) or 0
   local time
   if params:get('marco_performer_w_env_time_variant_'..sequence) == 1 then
-    time = divided_duration / Note
+    time = divided_duration / note
   else
     time = divided_duration * (1 - (note * NOTE_CONSTANT))
   end
