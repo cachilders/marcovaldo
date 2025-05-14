@@ -2,8 +2,7 @@ local Performer = include('lib/ensemble/performer')
 VELOCITY_CONSTANT = 5 / 127
 
 local JustFriendsPerformer = {
-  name = JF,
-  effects = nil
+  name = JF
 }
 
 setmetatable(JustFriendsPerformer, { __index = Performer })
@@ -35,7 +34,16 @@ end
 -- ii.jf[2].trigger(1,1) -- device #2
 function JustFriendsPerformer:_create_effect(effect_num)
   return function(data)
-    print('[JustFriendsPerformer] Effect '..effect_num..' not implemented')
+    local beat_time = 60 / params:get('clock_tempo')
+    clock.run(
+      function()
+        self.divisions = data.x
+        self.repeats = data.y
+        clock.sleep(beat_time)
+        self.divisions = 1
+        self.repeats = 1
+      end
+    )
   end
 end
 

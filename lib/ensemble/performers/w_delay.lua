@@ -4,10 +4,6 @@ local VELOCITY_CONSTANT = 5 / 127
 local NOTE_CONSTANT = 1/127
 
 local WDelayPerformer = {
-  clocks = nil,
-  divisions = nil,
-  effects = nil,
-  repeats = nil,
   name = WD
 }
 

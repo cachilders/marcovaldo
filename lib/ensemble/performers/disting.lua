@@ -2,9 +2,7 @@ local Performer = include('lib/ensemble/performer')
 local VELOCITY_CONSTANT = 5/127
 
 local DistingPerformer = {
-  name = DIST,
-  effects = nil,
-  clocks = nil
+  name = DIST
 }
 
 setmetatable(DistingPerformer, { __index = Performer })

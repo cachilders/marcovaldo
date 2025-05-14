@@ -1,8 +1,7 @@
 local Performer = include('lib/ensemble/performer')
 
 local AnsiblePerformer = {
-  name = ANS,
-  effects = nil
+  name = ANS
 }
 
 setmetatable(AnsiblePerformer, { __index = Performer })
@@ -19,38 +18,17 @@ function AnsiblePerformer:init()
 end
 
 function AnsiblePerformer:_create_effect(effect_num)
-  if effect_num == 1 then
-    return self:_create_standard_effect(
-      'marco_performer_ansible_output_',
-      'ansible_transpose',
-      function(device, value)
-        crow.ii.ansible.cv(device, value)
+  return function(data)
+    local beat_time = 60 / params:get('clock_tempo')
+    clock.run(
+      function()
+        self.divisions = data.x
+        self.repeats = data.y
+        clock.sleep(beat_time)
+        self.divisions = 1
+        self.repeats = 1
       end
     )
-  elseif effect_num == 2 then
-    return function(data)
-      local output = params:get('marco_performer_ansible_output_'..data.sequence)
-      local mod_reset_value = params:get('ansible_repeats')
-      local beat_time = 60 / params:get('clock_tempo')
-      local mod_new_value = math.floor((1/32) * ((data.x * data.y) - 32))
-      clock.run(
-        function()
-          for i = 1, mod_new_value do
-            crow.ii.ansible.trigger_pulse(output)
-            clock.sleep(0.05)
-          end
-          clock.sleep(beat_time)
-          for i = 1, mod_reset_value do
-            crow.ii.ansible.trigger_pulse(output)
-            clock.sleep(0.05)
-          end
-        end
-      )
-    end
-  else
-    return function(data)
-      print('[AnsiblePerformer] Effect '..effect_num..' not implemented')
-    end
   end
 end
 
@@ -64,11 +42,27 @@ function AnsiblePerformer:init_effects()
 end
 
 function AnsiblePerformer:play_note(sequence, note, velocity, envelope_duration)
+  local divided_duration = envelope_duration / (self.divisions or 1)
+  local repeats = (self.repeats or 1) <= (self.divisions or 1) and (self.repeats or 1) or (self.divisions or 1)
+  local division_gap = repeats > 1 and (envelope_duration - (divided_duration * repeats)) / (repeats - 1) or 0
   local output = params:get('marco_performer_ansible_output_'..sequence)
   crow.ii.ansible.cv_slew(envelope_duration * params:get('marco_performer_slew_'..sequence) / 100)
-  crow.ii.ansible.trigger_time(output, envelope_duration)
+  crow.ii.ansible.trigger_time(output, divided_duration)
   crow.ii.ansible.cv(output, note / 12)
-  crow.ii.ansible.trigger_pulse(output)
+
+  for i = 1, repeats do
+    if self.clocks[sequence] then
+      clock.cancel(self.clocks[sequence])
+    end
+    self.clocks[sequence] = clock.run(
+      function()
+        crow.ii.ansible.trigger_pulse(output)
+        if repeats > 1 then
+          clock.sleep(division_gap)
+        end
+      end
+    )
+  end
 end
 
 return AnsiblePerformer

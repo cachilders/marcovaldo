@@ -2,9 +2,7 @@ local Performer = include('lib/ensemble/performer')
 local VELOCITY_CONSTANT = 5/127 -- to test
 
 local WSynthPerformer = {
-  clocks = nil,
-  name = WS,
-  effects = nil
+  name = WS
 }
 
 setmetatable(WSynthPerformer, { __index = Performer })
@@ -37,7 +35,16 @@ end
 
 function WSynthPerformer:_create_effect(effect_num)
   return function(data)
-    print('[WSynthPerformer] Effect '..effect_num..' not implemented')
+    local beat_time = 60 / params:get('clock_tempo')
+    clock.run(
+      function()
+        self.divisions = data.x
+        self.repeats = data.y
+        clock.sleep(beat_time)
+        self.divisions = 1
+        self.repeats = 1
+      end
+    )
   end
 end
 

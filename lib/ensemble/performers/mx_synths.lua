@@ -3,9 +3,7 @@ engine.name='MxSynths'
 local Performer = include('lib/ensemble/performer')
 
 local MxSynthsPerformer = {
-  mx = nil,
-  name = MX,
-  effects = nil
+  name = MX
 }
 
 setmetatable(MxSynthsPerformer, { __index = Performer })

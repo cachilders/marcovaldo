@@ -1,6 +1,9 @@
 local Performer = {
+  clocks = nil,
+  divisions = nil,
+  effects = nil,
   name = 'Performer',
-  effects = nil
+  repeats = nil
 }
 
 function Performer:new(options)

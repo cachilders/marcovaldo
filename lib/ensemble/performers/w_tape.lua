@@ -1,8 +1,7 @@
 local Performer = include('lib/ensemble/performer')
 
 local WTapePerformer = {
-  name = WT,
-  effects = nil
+  name = WT
 }
 
 setmetatable(WTapePerformer, { __index = Performer })

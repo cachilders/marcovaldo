@@ -1,10 +1,8 @@
 local Performer = include('lib/ensemble/performer')
 
 local MidiPerformer = {
-  clocks = nil,
   connections = nil,
-  name = MIDI,
-  effects = nil
+  name = MIDI
 }
 
 setmetatable(MidiPerformer, { __index = Performer })
@@ -31,7 +29,16 @@ end
 
 function MidiPerformer:_create_effect(effect_num)
   return function(data)
-    print('[MidiPerformer] Effect '..effect_num..' not implemented')
+    local beat_time = 60 / params:get('clock_tempo')
+    clock.run(
+      function()
+        self.divisions = data.x
+        self.repeats = data.y
+        clock.sleep(beat_time)
+        self.divisions = 1
+        self.repeats = 1
+      end
+    )
   end
 end
 

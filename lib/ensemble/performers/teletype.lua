@@ -1,8 +1,7 @@
 local Performer = include('lib/ensemble/performer')
 
 local TeletypePerformer = {
-  name = TT,
-  effects = nil
+  name = TT
 }
 
 setmetatable(TeletypePerformer, { __index = Performer })

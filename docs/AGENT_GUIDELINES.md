@@ -9,6 +9,7 @@ This document outlines the core architectural patterns, principles, and developm
 4. [Initialization Patterns](#initialization-patterns)
 5. [Development Workflow](#development-workflow)
 6. [Resources](#resources)
+7. [Collaboration and Communication Best Practices](#collaboration-and-communication-best-practices)
 
 ## Core Principles
 
@@ -138,3 +139,31 @@ This document outlines the core architectural patterns, principles, and developm
 - [Lua Programming Best Practices](https://www.lua.org/manual/)
 - [Debugging Techniques](https://example.com/debugging-guide)
 - [Modular Design Patterns](https://example.com/modular-design)
+
+## Collaboration and Communication Best Practices
+
+To avoid misunderstandings and ensure faithful execution of instructions, always follow these steps:
+
+1. **Reference the Guidelines**
+   - Review this document before making changes, especially when switching context or abstractions.
+
+2. **Confirm Understanding**
+   - For any non-trivial or pattern-sensitive change, summarize your understanding of the instructions and the relevant pattern before proceeding.
+   - Wait for user confirmation if there is any doubt or if the change is complex.
+
+3. **Show, Don't Guess**
+   - Show the relevant code or pattern you intend to follow (e.g., by quoting the source pattern) and ask for approval before applying it elsewhere.
+   - Do not invent or interpolate logic unless explicitly requested.
+
+4. **Limit Scope**
+   - Only touch the code explicitly mentioned in the request.
+   - Do not refactor, optimize, or "improve" related code unless asked.
+
+5. **Use Side-by-Side Comparisons**
+   - When porting or replicating a pattern, show a side-by-side comparison of the source and target code for confirmation.
+
+6. **Acknowledge and Correct Quickly**
+   - If a mistake is pointed out, immediately acknowledge it, revert or correct the change, and ask for review before proceeding.
+
+7. **Document Decisions**
+   - For any non-obvious or project-wide pattern, add a brief comment in the code referencing the guideline or pattern being followed.
