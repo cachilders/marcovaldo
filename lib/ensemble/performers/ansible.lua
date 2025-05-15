@@ -15,6 +15,7 @@ end
 
 function AnsiblePerformer:init()
   self:init_effects()
+  self.clocks = {}
 end
 
 function AnsiblePerformer:_create_effect(effect_num)
