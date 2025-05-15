@@ -51,6 +51,7 @@ function ER301Performer:play_note(sequence, note, velocity, envelope_duration)
   for i = 1, repeats do
     if self.clocks[sequence] then
       clock.cancel(self.clocks[sequence])
+      crow.ii.er301.tr(params:get('marco_performer_er301_tr_port_'..sequence), 0)
     end
     self.clocks[sequence] = clock.run(
       function()
