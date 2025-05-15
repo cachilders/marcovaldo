@@ -81,9 +81,9 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
       )
     elseif gate == 2 then
       if self.clocks[sequence] then
-        self.clock.cancel(clocks[sequence])
+        clock.cancel(self.clocks[sequence])
       end
-      clocks[sequence] = clock.run(
+      self.clocks[sequence] = clock.run(
         function()
           crow.ii.crow[device].slew(env_out, 0)
           crow.ii.crow[device].volts(env_out, 0)
