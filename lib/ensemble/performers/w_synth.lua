@@ -15,6 +15,7 @@ function WSynthPerformer:new(options)
 end
 
 function WSynthPerformer:init()
+  self.clocks = {}
   self:init_effects()
 end
 
@@ -71,7 +72,10 @@ function WSynthPerformer:play_note(sequence, note, velocity, envelope_duration)
   local fm_rat_n = params:get('marco_performer_w_fm_rat_n_'..sequence)
   local fm_rat_d = params:get('marco_performer_w_fm_rat_d_'..sequence)
   local adj_note = note - params:get('marco_root')
-  local pitch = (adj_note >= 0 and adj_note or 0) / 12
+  local vo = (adj_note >= 0 and adj_note or 0) / 12
+  local divided_duration = envelope_duration / (self.divisions or 1)
+  local repeats = (self.repeats or 1) <= (self.divisions or 1) and (self.repeats or 1) or (self.divisions or 1)
+  local division_gap = repeats > 1 and (envelope_duration - (divided_duration * repeats)) / (repeats - 1) or 0
   crow.ii.wsyn[device].ar_mode(1)
   crow.ii.wsyn[device].lpg_time(envelope_duration)
   crow.ii.wsyn[device].lpg_symmetry(attack)
@@ -81,7 +85,19 @@ function WSynthPerformer:play_note(sequence, note, velocity, envelope_duration)
   crow.ii.wsyn[device].fm_env(fm_env)
   crow.ii.wsyn[device].fm_ratio(fm_rat_n, fm_rat_d)
   crow.ii.wsyn[device].lpg_symmetry(attack)
-  crow.ii.wsyn[device].play_note(pitch, velocity * VELOCITY_CONSTANT)
+  for i = 1, repeats do
+    if self.clocks[sequence] then
+      clock.cancel(self.clocks[sequence])
+    end
+    self.clocks[sequence] = clock.run(
+      function()
+        crow.ii.wsyn[device].play_note(vo, velocity * VELOCITY_CONSTANT)
+        if self.repeats > 1 then
+          clock.sleep(division_gap)
+        end
+      end
+    )
+  end
 end
 
 return WSynthPerformer

@@ -39,11 +39,6 @@ function CatPlan:_add(x, y)
       y_offset = self.y_offset
     })
     self.phenomena[x][y] = phenomenon
-    print('[CatPlan:_add] Calling affect_ensemble with:')
-    print('  action:', actions.apply_effect)
-    print('  sequence:', sequence)
-    print('  breed:', breed)
-    print('  data:',x, y)
     self.affect_ensemble(actions.apply_effect, sequence, {effect = breed, data = {x = x, y = y}})
     clock.run(function()
       clock.sleep(self._get_bpm())

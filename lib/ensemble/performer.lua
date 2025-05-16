@@ -1,9 +1,9 @@
 local Performer = {
   clocks = nil,
-  divisions = nil,
+  divisions = 1,
   effects = nil,
   name = 'Performer',
-  repeats = nil
+  repeats = 1
 }
 
 function Performer:new(options)
@@ -49,9 +49,9 @@ function Performer:init_effects()
   }
 end
 
-function Performer:apply_effect(index, data)
-  if self.effects and self.effects[index] then
-    self.effects[index](data)
+function Performer:apply_effect(effect, data, sequence)
+  if self.effects and self.effects[effect] then
+    self.effects[effect](data, sequence)
   end
 end
 

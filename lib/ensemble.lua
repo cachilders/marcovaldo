@@ -70,8 +70,8 @@ function Ensemble:init_performers()
 end
 
 function Ensemble:affect(action, index, values)
+  local sequence = index
   if action == actions.play_note then
-    local sequence = index
     local note = values.note
     local velocity = values.velocity or 100
     local envelope_duration = values.envelope_duration
@@ -81,10 +81,8 @@ function Ensemble:affect(action, index, values)
   elseif action == actions.set_source_positions then
     self.source_positions = values
   elseif action == actions.apply_effect then
-    print('[Ensemble:affect] Applying effect to sequence:', index)
     local performer
-    
-    if index == WRONG_STOP_SEQ then
+    if sequence == WRONG_STOP_SEQ then
       if params:get('marco_wrong_stop') == 2 then
         for name, perf in pairs(self.performers) do
           if name == WT then
@@ -96,11 +94,11 @@ function Ensemble:affect(action, index, values)
         performer = self.performers[parameters:get_performer(math.random(1, 4))]
       end
     else
-      performer = self.performers[parameters:get_performer(index)]
+      performer = self.performers[parameters:get_performer(sequence)]
     end
     
     if performer then
-      performer:apply_effect(values.effect, values.data)
+      performer:apply_effect(values.effect, values.data, sequence)
     end
   end
 end

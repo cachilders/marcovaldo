@@ -14,8 +14,8 @@ function AnsiblePerformer:new(options)
 end
 
 function AnsiblePerformer:init()
-  self:init_effects()
   self.clocks = {}
+  self:init_effects()
 end
 
 function AnsiblePerformer:_create_effect(effect_num)
@@ -47,9 +47,11 @@ function AnsiblePerformer:play_note(sequence, note, velocity, envelope_duration)
   local repeats = (self.repeats or 1) <= (self.divisions or 1) and (self.repeats or 1) or (self.divisions or 1)
   local division_gap = repeats > 1 and (envelope_duration - (divided_duration * repeats)) / (repeats - 1) or 0
   local output = params:get('marco_performer_ansible_output_'..sequence)
+  local adj_note = note - params:get('marco_root')
+  local vo = (adj_note >= 0 and adj_note or 0) / 12
   crow.ii.ansible.cv_slew(envelope_duration * params:get('marco_performer_slew_'..sequence) / 100)
   crow.ii.ansible.trigger_time(output, divided_duration)
-  crow.ii.ansible.cv(output, note / 12)
+  crow.ii.ansible.cv(output, vo)
 
   for i = 1, repeats do
     if self.clocks[sequence] then

@@ -58,20 +58,19 @@ function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
   else
     time = divided_duration * (1 - (note * NOTE_CONSTANT))
   end
-
+  crow.ii.wdel[device].feedback(params:get('marco_performer_w_feedback_'..sequence))
+  crow.ii.wdel[device].filter(params:get('marco_performer_w_filter_'..sequence))
+  crow.ii.wdel[device].rate(params:get('marco_performer_w_rate_'..sequence))
+  crow.ii.wdel[device].mod_rate(params:get('marco_performer_w_mod_rate_'..sequence))
+  crow.ii.wdel[device].mod_amount(params:get('marco_performer_w_mod_amount_'..sequence))
+  crow.ii.wdel[device].time(time)
+  crow.ii.wdel[device].freq(music_util.note_num_to_freq(note))
   for i = 1, self.repeats do
     if self.clocks[sequence] then
       clock.cancel(self.clocks[sequence])
     end
     self.clocks[sequence] = clock.run(
       function()
-        crow.ii.wdel[device].feedback(params:get('marco_performer_w_feedback_'..sequence))
-        crow.ii.wdel[device].filter(params:get('marco_performer_w_filter_'..sequence))
-        crow.ii.wdel[device].rate(params:get('marco_performer_w_rate_'..sequence))
-        crow.ii.wdel[device].mod_rate(params:get('marco_performer_w_mod_rate_'..sequence))
-        crow.ii.wdel[device].mod_amount(params:get('marco_performer_w_mod_amount_'..sequence))
-        crow.ii.wdel[device].time(time)
-        crow.ii.wdel[device].freq(music_util.note_num_to_freq(note))
         crow.ii.wdel[device].pluck(velocity * VELOCITY_CONSTANT)
         crow.ii.wdel[device].freeze(1)
         clock.sleep(divided_duration)
