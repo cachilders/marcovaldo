@@ -28,15 +28,15 @@ function MidiPerformer:init()
 end
 
 function MidiPerformer:_create_effect(effect_num)
-  return function(data)
+  return function(data, sequence)
     local beat_time = 60 / params:get('clock_tempo')
+    local connection = self.connections[params:get('marco_performer_midi_device_'..sequence)]
+    local channel = params:get('marco_performer_midi_channel_'..sequence)
     clock.run(
       function()
-        self.divisions = data.x
-        self.repeats = data.y
+        -- do something
         clock.sleep(beat_time)
-        self.divisions = 1
-        self.repeats = 1
+        -- reset
       end
     )
   end

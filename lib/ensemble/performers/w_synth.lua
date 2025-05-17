@@ -39,11 +39,9 @@ function WSynthPerformer:_create_effect(effect_num)
     local beat_time = 60 / params:get('clock_tempo')
     clock.run(
       function()
-        self.divisions = data.x
-        self.repeats = data.y
+        -- do something
         clock.sleep(beat_time)
-        self.divisions = 1
-        self.repeats = 1
+        -- reset
       end
     )
   end
@@ -85,19 +83,7 @@ function WSynthPerformer:play_note(sequence, note, velocity, envelope_duration)
   crow.ii.wsyn[device].fm_env(fm_env)
   crow.ii.wsyn[device].fm_ratio(fm_rat_n, fm_rat_d)
   crow.ii.wsyn[device].lpg_symmetry(attack)
-  for i = 1, repeats do
-    if self.clocks[sequence] then
-      clock.cancel(self.clocks[sequence])
-    end
-    self.clocks[sequence] = clock.run(
-      function()
-        crow.ii.wsyn[device].play_note(vo, velocity * VELOCITY_CONSTANT)
-        if self.repeats > 1 then
-          clock.sleep(division_gap)
-        end
-      end
-    )
-  end
+  crow.ii.wsyn[device].play_note(vo, velocity * VELOCITY_CONSTANT)
 end
 
 return WSynthPerformer

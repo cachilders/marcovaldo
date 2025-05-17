@@ -15,19 +15,29 @@ end
 
 function WTapePerformer:init()
   self:init_effects()
-  -- this needs to happen after the tape effect is enabled or device is changed
-  -- crow.ii.wtape[device].record(0)
-  -- crow.ii.wtape[device].play(0)
-  -- crow.ii.wtape[device].echo(0)
-  -- crow.ii.wtape[device].timestamp(600)
-  -- crow.ii.wtape[device].loop_start()
-  -- crow.ii.wtape[devive].seek(1)
-  -- crow.ii.wtape[device].loop_end()
-  -- crow.ii.wtape[device].loop_active(true)
-  -- crow.ii.wtape[device].erase_strength(1)
-  -- crow.ii.wtape[device].monitor_level(1)
-  -- crow.ii.wtape[device].record_level(1)
-  -- crow.ii.wtape[device].play(1)
+end
+
+function WTapePerformer:configure(options)
+  local device = params:get('marco_performer_w_device_'..WRONG_STOP_SEQ)
+  local loop_length = params:get('marco_performer_w_loop_length_'..WRONG_STOP_SEQ)
+  if not options then
+    crow.ii.wtape[device].play(0)
+    crow.ii.wtape[device].record(0)
+    crow.ii.wtape[device].timestamp(5000)
+    crow.ii.wtape[device].loop_start()
+    crow.ii.wtape[device].seek(loop_length)
+    crow.ii.wtape[device].loop_scale(0)
+    crow.ii.wtape[device].loop_end()
+    crow.ii.wtape[device].timestamp(5000)
+    crow.ii.wtape[device].loop_active(1)
+    crow.ii.wtape[device].echo_mode(0)
+    crow.ii.wtape[device].freq(0)
+    crow.ii.wtape[device].play(1)
+  else
+    for k,v in pairs(options) do
+      crow.ii.wtape[device][k](v)
+    end
+  end
 end
 
 -- record(is_recording) - is_recording: bool - Set recording state
@@ -49,7 +59,26 @@ end
 
 function WTapePerformer:_create_effect(effect_num)
   return function(data)
-    print('[WTapePerformer] Effect '..effect_num..' not implemented')
+    local beat_time = 60 / params:get('clock_tempo')
+    local device = params:get('marco_performer_w_device_'..WRONG_STOP_SEQ)
+    local strength = params:get('marco_performer_w_erase_strength_'..WRONG_STOP_SEQ)
+    local x = data.x
+    local y = data.y
+    clock.run(
+      function()
+        if effect_num % 2 == 0 then
+          crow.ii.wtape[device].erase_strength(strength)
+          crow.ii.wtape[device].record(1)
+          clock.sleep(beat_time * 5)
+          crow.ii.wtape[device].record(0)
+        else 
+          local freq = (10 / 8 * y) - 5
+          crow.ii.wtape[device].freq(freq)
+          clock.sleep(beat_time * 5)
+          crow.ii.wtape[device].freq(0)
+        end
+      end
+    )
   end
 end
 

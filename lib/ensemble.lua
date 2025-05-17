@@ -18,7 +18,7 @@ local Ensemble = {
   affect_chart = nil,
   affect_console = nil,
   observer_position = nil,
-  performers = {},
+  performers = nil,
   source_positions = nil
 }
 
@@ -81,25 +81,35 @@ function Ensemble:affect(action, index, values)
   elseif action == actions.set_source_positions then
     self.source_positions = values
   elseif action == actions.apply_effect then
+    local effect_enabled_performers = {}
     local performer
-    if sequence == WRONG_STOP_SEQ then
-      if params:get('marco_wrong_stop') == 2 then
-        for name, perf in pairs(self.performers) do
-          if name == WT then
-            performer = perf
-            break
-          end
-        end
-      else
-        performer = self.performers[parameters:get_performer(math.random(1, 4))]
+    for i = 1, 4 do
+      if params:get('marco_performer_cats_'..i) == 2 then
+        table.insert(effect_enabled_performers, i)
       end
-    else
-      performer = self.performers[parameters:get_performer(sequence)]
     end
-    
+    if params:get('marco_wrong_stop') == 2 then
+      table.insert(effect_enabled_performers, WRONG_STOP_SEQ)
+    end
+    if sequence <= 4 and tab.contains(effect_enabled_performers, sequence) then
+      performer = self.performers[parameters:get_performer(sequence)]
+    elseif #effect_enabled_performers > 0 then
+      local replacement_performer_index = effect_enabled_performers[math.random(1, #effect_enabled_performers)]
+      if replacement_performer_index == WRONG_STOP_SEQ then
+        performer = self.performers[WT]
+      else
+        performer = self.performers[parameters:get_performer(replacement_performer_index)]
+      end
+    end
     if performer then
       performer:apply_effect(values.effect, values.data, sequence)
     end
+  end
+end
+
+function Ensemble:configure(performer, options)
+  if self.performers and self.performers[performer] then
+    self.performers[performer]:configure(options)
   end
 end
 

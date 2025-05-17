@@ -15,17 +15,20 @@ function DistingPerformer:new(options)
 end
 
 function DistingPerformer:init()
-  self:init_effects()
   local clocks = {}
   for i = 1, 4 do
     clocks[i] = {}
   end
   self.clocks = clocks
+  self:init_effects()
 end
 
 function DistingPerformer:_create_effect(effect_num)
   return function(data)
-    print('[DistingPerformer] Effect '..effect_num..' not implemented')
+    local beat_time = 60 / params:get('clock_tempo')
+    -- do something
+    clock.sleep(beat_time)
+    -- reset
   end
 end
 
@@ -39,13 +42,16 @@ function DistingPerformer:init_effects()
 end
 
 function DistingPerformer:play_note(sequence, note, velocity, envelope_duration)
+  local adj_note = note - params:get('marco_root')
+  local vo = (adj_note >= 0 and adj_note or 0) / 12
+
   if self.clocks[sequence][note] then
     clock.cancel(self.clocks[sequence][note])
   end
 
   self.clocks[sequence][note] = clock.run(
     function()
-      crow.ii.disting.note_pitch(note, (note - params:get('marco_root')) / 12)
+      crow.ii.disting.note_pitch(note, vo)
       crow.ii.disting.note_velocity(note, velocity * VELOCITY_CONSTANT)
       clock.sleep(envelope_duration)
       crow.ii.disting.note_off(note)

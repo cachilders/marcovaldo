@@ -182,7 +182,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 36)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 37)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -195,6 +195,7 @@ function Parameters:_init_params()
     params:set_action('marco_seq_reset_'..i, function() arrangement:reset(i) end)
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
+    params:add_option('marco_performer_cats_'..i, 'Cats', ENABLED_STATES, 2) 
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
     params:set_action('marco_performer_'..i, function(val) self:_refresh_performer_params() end)
     
@@ -238,18 +239,27 @@ function Parameters:_init_params()
     params:add_number('marco_pulse_relativity_'..i, 'Local Relativity', 50, 150, 100)
   end
   
-  params:add_group('marco_experimental', 'EXPERIMENTAL', 3)
+  params:add_group('marco_experimental', 'EXPERIMENTAL', 6)
   params:add_option('marco_wrong_stop', 'The W/rong Stop', ENABLED_STATES, 1)
+  params:add_separator('marco_w_tape_settings', '< !! records to w/tape !!>')
   params:set_action('marco_wrong_stop', function(i) 
     if arrangement and arrangement.sequences then
-      -- fire init_sequence method for sequence 5
-      -- add init sequence method that fires init performer method
       arrangement:refresh()
       self:_refresh_performer_params()
     end
+    if i == 2 then
+      ensemble:configure(WT)
+    else
+      ensemble:configure(WT, {play = 0})
+    end
   end)
   params:add_number('marco_performer_w_device_'..WRONG_STOP_SEQ, 'Which W/', 1, 2, 1)
-  params:add_separator('marco_w_tape_settings', '< !! records to w/tape !!>')
+  params:set_action('marco_performer_w_device_'..WRONG_STOP_SEQ, function() ensemble:configure(WT) end)
+  params:add_control('marco_performer_w_erase_strength_'..WRONG_STOP_SEQ, 'Erase Strength', AMP)
+  params:add_number('marco_performer_w_loop_length_'..WRONG_STOP_SEQ, 'Loop Length', 1, 100, 5)
+  params:set_action('marco_performer_w_loop_length_'..WRONG_STOP_SEQ, function() ensemble:configure(WT) end)
+  params:add_number('marco_performer_w_loop_scale_'..WRONG_STOP_SEQ, 'Loop Scale', 0, 10, 0)
+  params:set_action('marco_performer_w_loop_scale_'..WRONG_STOP_SEQ, function(val) ensemble:configure(WT, {loop_scale = val}) end)
 end
 
 function Parameters:_refresh_performer_params()
@@ -257,9 +267,15 @@ function Parameters:_refresh_performer_params()
     params:show('marco_experimental')
     if params:get('marco_wrong_stop') == 2 then
       params:show('marco_performer_w_device_'..WRONG_STOP_SEQ)
+      params:show('marco_performer_w_loop_length_'..WRONG_STOP_SEQ)
+      params:show('marco_performer_w_erase_strength_'..WRONG_STOP_SEQ)
+      params:show('marco_performer_w_loop_scale_'..WRONG_STOP_SEQ)
       params:show('marco_w_tape_settings')
     else
       params:hide('marco_performer_w_device_'..WRONG_STOP_SEQ)
+      params:hide('marco_performer_w_loop_length_'..WRONG_STOP_SEQ)
+      params:hide('marco_performer_w_erase_strength_'..WRONG_STOP_SEQ)
+      params:hide('marco_performer_w_loop_scale_'..WRONG_STOP_SEQ)
       params:hide('marco_w_tape_settings')
     end
   else
