@@ -12,15 +12,14 @@ STEP = 'step'
 -- Performer constants
 ANS = 'Ansible'
 CROW = 'Crow'
-SC = 'ER-301'
 DIST = 'Disting'
 JF = 'Just Friends'
+MIDI = 'Midi'
+MX = 'Mx. Synths'
+SC = 'ER-301'
 WD = 'W/Delay'
 WS = 'W/Synth'
 WT = 'W/Tape'
-MIDI = 'Midi'
-MX = 'Mx. Synths'
-TT = 'Teletype'
 
 -- Sheet constants
 SHEET_WIDTH = 16  -- Full width of a sheet

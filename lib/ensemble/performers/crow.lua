@@ -14,15 +14,14 @@ function CrowPerformer:new(options)
   return instance
 end
 
-function CrowPerformer:init()
-  self.clocks = {}
-  self:init_effects()
-end
-
 function CrowPerformer:_create_effect(effect_num)
   return function(data)
     local beat_time = 60 / params:get('clock_tempo')
-    clock.run(
+    local effect_clock = self:_get_next_clock('effect')
+    if effect_clock then
+      clock.cancel(effect_clock)
+    end
+    effect_clock = clock.run(
       function()
         self.divisions = data.x
         self.repeats = data.y
@@ -32,15 +31,6 @@ function CrowPerformer:_create_effect(effect_num)
       end
     )
   end
-end
-
-function CrowPerformer:init_effects()
-  self.effects = {
-    self:_create_effect(1),
-    self:_create_effect(2),
-    self:_create_effect(3),
-    self:_create_effect(4)
-  }
 end
 
 function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
@@ -61,11 +51,12 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
   local a, d, sus_v, r = envelope_duration * atk / 100, envelope_duration * dec / 100, sus, envelope_duration * rel / 100
   local adj_note = note - params:get('marco_root')
   local vo = (adj_note >= 0 and adj_note or 0) / 12
+  local voice_clock = self:_get_next_clock('voice')
   for i = 1, repeats do
-    if self.clocks[sequence] then
-      clock.cancel(self.clocks[sequence])
+    if voice_clock then
+      clock.cancel(voice_clock)
     end
-    self.clocks[sequence] = clock.run(
+    voice_clock = clock.run(
       function()
         if device == 1 then
           crow.output[cv_out].slew = slew

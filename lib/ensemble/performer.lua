@@ -3,6 +3,7 @@ local Performer = {
   divisions = 1,
   effects = nil,
   name = 'Performer',
+  next_clock_index = {effect = 1, voice = 1},
   repeats = 1
 }
 
@@ -14,23 +15,31 @@ function Performer:new(options)
 end
 
 function Performer:init()
-  self:init_effects()
+  self:_init_clocks()
+  self:_init_effects()
 end
 
-function Performer:_create_standard_effect(device_param, value_param, setter_func)
-  return function(data)
-    local device = params:get(device_param..data.sequence)
-    local mod_reset_value = params:get(value_param)
-    local beat_time = 60 / params:get('clock_tempo')
-    local mod_new_value = (1/32) * ((data.x * data.y) - 32)
-    clock.run(
-      function()
-        setter_func(device, mod_new_value)
-        clock.sleep(beat_time)
-        setter_func(device, mod_reset_value)
-      end
-    )
+function Performer:_init_clocks()
+  local effect_clocks = {}
+  local voice_clocks = {}
+  for i = 1, 4 do
+    effect_clocks[i] = nil
+    voice_clocks[i] = nil
   end
+  self.clocks = {
+    effect = effect_clocks,
+    voice = voice_clocks
+  }
+end
+
+function Performer:_advance_clock_index(type)
+  self.next_clock_index[type] = util.wrap(self.next_clock_index[type] + 1, 1, #self.clocks[type])
+end
+
+function Performer:_get_next_clock(type)
+  local clock = self.clocks[type][self.next_clock_index[type]]
+  self:_advance_clock_index(type)
+  return clock
 end
 
 function Performer:_create_effect(effect_num)
@@ -40,7 +49,7 @@ function Performer:_create_effect(effect_num)
   end
 end
 
-function Performer:init_effects()
+function Performer:_init_effects()
   self.effects = {
     self:_create_effect(1),
     self:_create_effect(2),

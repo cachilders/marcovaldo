@@ -18,7 +18,8 @@ end
 function MxSynthsPerformer:init()
   local mxsynths = include('mx.synths/lib/mx.synths')
   self.mx = mxsynths:new()
-  self:init_effects()
+  self:_init_clocks()
+  self:_init_effects()
 end
 
 function MxSynthsPerformer:_create_effect(effect_num)
@@ -26,7 +27,11 @@ function MxSynthsPerformer:_create_effect(effect_num)
     local mod_reset_value = params:get('mxsynths_mod'..effect_num)
     local beat_time = 60 / params:get('clock_tempo')
     local mod_new_value = (1/32) * ((data.x * data.y) - 32)
-    clock.run(
+    local effect_clock = self:_get_next_clock('effect')
+    if effect_clock then
+      clock.cancel(effect_clock)
+    end
+    effect_clock = clock.run(
       function()
         engine.mx_set('mod'..effect_num, mod_new_value)
         clock.sleep(beat_time)
@@ -34,15 +39,6 @@ function MxSynthsPerformer:_create_effect(effect_num)
       end
     )
   end
-end
-
-function MxSynthsPerformer:init_effects()
-  self.effects = {
-    self:_create_effect(1),
-    self:_create_effect(2),
-    self:_create_effect(3),
-    self:_create_effect(4)
-  }
 end
 
 function MxSynthsPerformer:play_note(sequence, note, velocity, envelope_duration)
