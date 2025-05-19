@@ -55,8 +55,8 @@ function Rings:paint_editor_state(state)
   end
 end
 
-function Rings:pulse_ring(sequencer)
-  self.rings[sequencer]:pulse()
+function Rings:pulse_ring(sequencer, velocity)
+  self.rings[sequencer]:pulse(velocity)
 end
 
 function Rings:update()

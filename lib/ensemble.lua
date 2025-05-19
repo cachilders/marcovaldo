@@ -18,7 +18,7 @@ local Ensemble = {
   affect_chart = nil,
   affect_console = nil,
   observer_position = nil,
-  performers = {},
+  performers = nil,
   source_positions = nil
 }
 
@@ -70,8 +70,8 @@ function Ensemble:init_performers()
 end
 
 function Ensemble:affect(action, index, values)
+  local sequence = index
   if action == actions.play_note then
-    local sequence = index
     local note = values.note
     local velocity = values.velocity or 100
     local envelope_duration = values.envelope_duration
@@ -81,8 +81,50 @@ function Ensemble:affect(action, index, values)
   elseif action == actions.set_source_positions then
     self.source_positions = values
   elseif action == actions.apply_effect then
-    self:_apply_effect(index, values)
+    local effect_enabled_performers = {}
+    local performer
+    for i = 1, 4 do
+      if params:get('marco_performer_cats_'..i) == 2 then
+        table.insert(effect_enabled_performers, i)
+      end
+    end
+    if params:get('marco_wrong_stop') == 2 then
+      table.insert(effect_enabled_performers, WRONG_STOP_SEQ)
+    end
+    if sequence <= 4 and tab.contains(effect_enabled_performers, sequence) then
+      performer = self.performers[parameters:get_performer(sequence)]
+    elseif #effect_enabled_performers > 0 then
+      local replacement_performer_index = effect_enabled_performers[math.random(1, #effect_enabled_performers)]
+      if replacement_performer_index == WRONG_STOP_SEQ then
+        performer = self.performers[WT]
+      else
+        performer = self.performers[parameters:get_performer(replacement_performer_index)]
+      end
+    end
+    if performer then
+      performer:apply_effect(values.effect, values.data, sequence)
+    end
   end
+end
+
+function Ensemble:configure(performer, options)
+  if self.performers and self.performers[performer] then
+    self.performers[performer]:configure(options)
+  end
+end
+
+function Ensemble:midi_transmit_cc(sequence)
+  if self.performers and self.performers[MIDI] then
+    self.performers[MIDI]:transmit_cc(sequence)
+  end
+end
+
+function Ensemble:midi_panic()
+  self.performers[MIDI]:panic()
+end
+
+function Ensemble:midi_cc_reset()
+  self.performers[MIDI]:cc_reset()
 end
 
 function Ensemble:_get_distance_operand(sequence)
@@ -99,14 +141,6 @@ function Ensemble:_get_distance_operand(sequence)
   end
 
   return operand
-end
-
-function Ensemble:_apply_effect(index, data)
-  local performer_index = params:get('marco_performer_'..index)
-  local performer = self.performers[performer_name]
-  if performer then
-    performer:apply_effect(index, data)
-  end
 end
 
 function Ensemble:_calculate_adjusted_velocity(sequence, velocity)

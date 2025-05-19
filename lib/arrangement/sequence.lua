@@ -213,7 +213,7 @@ function Sequence:transmit()
 end
 
 function Sequence:toggle_pulse_override(step)
-  local current_pulse = self.pulse_position_overrides[step]
+  local current_pulse = self.pulse_position_overrides[step] or self.pulse_positions[step]
   local next_pulse = current_pulse == 1 and 0 or 1
   self.pulse_position_overrides[step] = next_pulse
   if next_pulse == 1 then
@@ -254,9 +254,10 @@ end
 function Sequence:_calculate_pulse_time(step)
   local bpm = 60 / params:get('clock_tempo')
   local cosmological_constant = params:get('marco_pulse_constant') / 100
+  local local_relativity = params:get('marco_pulse_relativity_'..self.id) / 100
   local subdivided_bpm = bpm / (self.subdivision * cosmological_constant)
   local width_modifier = (self.pulse_widths[step] or 100) / 100
-  return subdivided_bpm * width_modifier
+  return subdivided_bpm * width_modifier * local_relativity
 end
 
 function Sequence:_distribute_pulses()
@@ -351,7 +352,7 @@ end
 function Sequence:_set_step_note(delta)
   -- TODO not possible to deselect note
   -- experimented with altering the range, but it led to weird overflow at zero
-  -- need to come back to this. Going to default to root to avvoid confusion
+  -- need to come back to this. Going to default to root to avoid confusion
   local note_index = self.notes[self.selected_step] or 1
   self.notes[self.selected_step] = util.clamp(note_index + delta, 1, #self.scale)
 end

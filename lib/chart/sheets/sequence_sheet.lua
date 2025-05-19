@@ -37,15 +37,17 @@ function SequenceSheet:press(x, y, z)
       step = self:coords_to_step(x, y)
     end
     
+    if step > 128 then return end
+    
     if z == 0 then
       if not halt_keys then
         if key_timer[step] then
           clock.cancel(key_timer[step])
         end
-        if shift_depressed or step > step_count then
+        if shift_depressed then
           local new_length = step
           self.affect_arrangement(actions.set_sequence_length, self.source, {length = new_length})
-        else
+        elseif step <= step_count then
           self.affect_arrangement(actions.toggle_pulse_override, self.source, {step = step})
         end
       else

@@ -145,24 +145,23 @@ function Arrangement:_encoder_input_to_sequence(e, delta)
 end
 
 function Arrangement:_emit_note(sequence, note, velocity, envelope_duration)
-  local velocity = 100
-  self.affect_chart(actions.emit_pulse, sequence, {
-    velocity = velocity,
-    envelope_duration = envelope_duration
-  })
   self.affect_ensemble(actions.play_note, sequence, {
     note = note,
     velocity = velocity,
     envelope_duration = envelope_duration
   })
   if get_current_mode() == DEFAULT then
-    self.rings:pulse_ring(sequence)
+    self.rings:pulse_ring(sequence, velocity)
     self.affect_console(actions.display_note, sequence, {
       note = music_util.note_num_to_name(note),
       velocity = velocity,
       envelope_duration = envelope_duration
     })
   end
+  self.affect_chart(actions.emit_pulse, sequence, {
+    velocity = velocity,
+    envelope_duration = envelope_duration
+  })
 end
 
 function Arrangement:_init_observers()

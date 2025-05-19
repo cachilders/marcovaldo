@@ -9,12 +9,25 @@ PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
 STEP = 'step'
 
+-- Performer constants
+ANS = 'Ansible'
+CROW = 'Crow'
+DIST = 'Disting'
+JF = 'Just Friends'
+MIDI = 'Midi'
+MX = 'Mx. Synths'
+SC = 'ER-301'
+WD = 'W/Delay'
+WS = 'W/Synth'
+WT = 'W/Tape'
+
 -- Sheet constants
 SHEET_WIDTH = 16  -- Full width of a sheet
 SHEET_HEIGHT = 8  -- Height of a sheet (matches PANE_EDGE_LENGTH)
 SHEET_STEPS = SHEET_WIDTH * SHEET_HEIGHT  -- Total steps in a sheet (128)
 
 MODES = {DEFAULT, ERROR, SEQUENCE, STEP}
+WRONG_STOP_SEQ = 5
 
 shift_depressed = false
 current_mode = nil
@@ -38,9 +51,9 @@ include('lib/utils')
 function init()
   math.randomseed(os.time())
   run_tests()
-  init_params()
-  init_observables()
   create_metaphors()
+  init_observables()
+  init_params()
   init_events()
   init_metaphors()
   init_clocks()
@@ -58,7 +71,7 @@ end
 
 function init_clocks()
   local bpm = 60 / params:get('clock_tempo')
-  atomic_time = metro.init(refresh_peripherals, 1 / 60)
+  atomic_time = metro.init(refresh_peripherals, 1 / 30)
   podium_time = metro.init(step_arrangement, bpm / 3)
   screen_time = metro.init(step_console, 1 / 24)
   world_time = metro.init(step_chart, bpm / 2)
@@ -107,8 +120,8 @@ end
 function init_metaphors()
   arrangement:init()
   console:init()
-  chart:init()
   ensemble:init()
+  chart:init()
 end
 
 function init_observables()
@@ -117,7 +130,6 @@ function init_observables()
   for i = 1, 4 do
     default_steps[i] = {1}
   end
-
   current_mode = observable.new(default_mode)
   current_steps = observable.new(default_steps)
 end

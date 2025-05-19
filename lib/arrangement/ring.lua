@@ -65,9 +65,9 @@ function Ring:paint_value(value, range, value_type)
   self.host:refresh()
 end
 
-function Ring:pulse()
+function Ring:pulse(velocity)
   local a, b = self._extents_in_radians(1, 1)
-  self.host:segment(self.id, 0, 6.283185, self.lumen)
+  self.host:segment(self.id, 0, 6.283185, math.floor(15 / 127 * velocity))
   self.host:refresh()
   self.dirty = false
 end

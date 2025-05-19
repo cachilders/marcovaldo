@@ -1,10 +1,10 @@
 local music_util = require('musicutil')
 local Performer = include('lib/ensemble/performer')
-local VELOCITY_CONSTANT = 10 / 127
+local VELOCITY_CONSTANT = 5 / 127
+local NOTE_CONSTANT = 1/127
 
 local WDelayPerformer = {
-  clocks = nil,
-  name = 'W/Delay'
+  name = WD
 }
 
 setmetatable(WDelayPerformer, { __index = Performer })
@@ -16,44 +16,60 @@ function WDelayPerformer:new(options)
   return instance
 end
 
-function WDelayPerformer:init()
-  self.clocks = {}
+function WDelayPerformer:_create_effect(effect_num)
+  return function(data)
+    local beat_time = 60 / params:get('clock_tempo')
+    local effect_clock = self:_get_next_clock('effect')
+    if effect_clock then
+      clock.cancel(effect_clock)
+    end
+    effect_clock = clock.run(
+      function()
+        self.divisions = data.x
+        self.repeats = data.y
+        clock.sleep(beat_time)
+        self.divisions = 1
+        self.repeats = 1
+      end
+    )
+  end
 end
 
 function WDelayPerformer:play_note(sequence, note, velocity, envelope_duration)
   local device = params:get('marco_performer_w_device_'..sequence)
-  if self.clocks[sequence] then
-    clock.cancel(self.clocks[sequence])
+  local divided_duration = envelope_duration / self.divisions
+  local repeats = self.repeats <= self.divisions and self.repeats or self.divisions
+  local division_gap = repeats > 1 and (envelope_duration - (divided_duration * self.repeats)) / (repeats - 1) or 0
+  local voice_clock = self:_get_next_clock('voice')
+  local time
+  if params:get('marco_performer_w_env_time_variant_'..sequence) == 1 then
+    time = divided_duration / note
+  else
+    time = divided_duration * (1 - (note * NOTE_CONSTANT))
   end
-  self.clocks[sequence] = clock.run(
-    -- TODO: Parameterize all additional available settings once defaults and ranges are identified
-    function()
-      crow.ii.wdel[device].time(envelope_duration / note)
-      crow.ii.wdel[device].freq(music_util.note_num_to_freq(note))
-      crow.ii.wdel[device].pluck(velocity * VELOCITY_CONSTANT)
-      crow.ii.wdel[device].freeze(1)
-      clock.sleep(envelope_duration)
-      crow.ii.wdel[device].freeze(0)
+  crow.ii.wdel[device].feedback(params:get('marco_performer_w_feedback_'..sequence))
+  crow.ii.wdel[device].filter(params:get('marco_performer_w_filter_'..sequence))
+  crow.ii.wdel[device].rate(params:get('marco_performer_w_rate_'..sequence))
+  crow.ii.wdel[device].mod_rate(params:get('marco_performer_w_mod_rate_'..sequence))
+  crow.ii.wdel[device].mod_amount(params:get('marco_performer_w_mod_amount_'..sequence))
+  crow.ii.wdel[device].time(time)
+  crow.ii.wdel[device].freq(music_util.note_num_to_freq(note))
+  for i = 1, self.repeats do
+    if voice_clock then
+      clock.cancel(voice_clock)
     end
-  )
+    voice_clock = clock.run(
+      function()
+        crow.ii.wdel[device].pluck(velocity * VELOCITY_CONSTANT)
+        crow.ii.wdel[device].freeze(1)
+        clock.sleep(divided_duration)
+        crow.ii.wdel[device].freeze(0)
+        if self.repeats > 1 then
+          clock.sleep(division_gap)
+        end
+      end
+    )
+  end
 end
 
-function WDelayPerformer:apply_effect(index, data)
-  -- feedback( level ) -- amount of feedback from read head to write head (s16V)
-  -- mix( fade ) -- fade from dry to delayed signal (s16V)
-  -- filter( cutoff ) -- centre frequency of filter in feedback loop (s16V)
-  -- freeze( is_active ) -- deactivate record head to freeze the current buffer (s8)
-  -- time( seconds ) -- set delay buffer length in seconds, when rate == 1 (s16V)
-  -- length( count, divisions ) -- set buffer loop size as a fraction of buffer time (u8)
-  -- position( count, divisions ) -- set loop location as a fraction of buffer time (u8)
-  -- cut( count, divisions ) -- jump to loop location as a fraction of buffer time (u8)
-  -- rate( multiplier ) -- direct multiplier of tape speed (s16V)
-  -- freq( volts ) -- manipulate tape speed with musical values (s16V)
-  -- clock() -- receive clock pulse for synchronization
-  -- clock_ratio( mul, div ) -- set clock pulses per buffer time, with clock mul/div (s8)
-  -- pluck( volume ) -- pluck the delay line with noise at volume (s16V)
-  -- mod_rate ( rate ) -- set the multiplier for the modulation rate (s16V)
-  -- mod_amount( amount ) -- set the amount of delay line modulation to be applied (s16V)
-end
-
-return WDelayPerformer 
+return WDelayPerformer

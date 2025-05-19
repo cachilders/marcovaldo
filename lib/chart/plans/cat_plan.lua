@@ -3,7 +3,14 @@ local CatSymbol = include('lib/chart/symbols/cat_symbol')
 local EphemeralSymbol = include('lib/chart/symbols/ephemeral_symbol')
 local Plan = include('lib/chart/plan')
 
-local CatPlan = {}
+local CatPlan = {
+  breeds = {
+    { name = "pounce", effect = 1 },
+    { name = "scratch", effect = 2 },
+    { name = "purr", effect = 3 },
+    { name = "meow", effect = 4 }
+  }
+}
 
 function CatPlan:new(options)
   local instance = Plan:new(options or {})
@@ -14,7 +21,15 @@ function CatPlan:new(options)
 end
 
 function CatPlan:_add(x, y)
-  local act = function(x, y, flavor)
+  local max_sequences = 4
+  if params:get('marco_wrong_stop') == 2 then
+    max_sequences = 5
+  end
+  
+  local sequence = math.random(1, max_sequences)
+  local breed = math.random(1, 4)
+  
+  local act = function(x, y)
     local phenomenon = EphemeralSymbol:new({
       led = self.led,
       source_type = 'cat',
@@ -23,18 +38,16 @@ function CatPlan:_add(x, y)
       y = y,
       y_offset = self.y_offset
     })
-
     self.phenomena[x][y] = phenomenon
-    self.affect_ensemble(actions.apply_effect, flavor, {x, y})
-
+    self.affect_ensemble(actions.apply_effect, sequence, {effect = breed, data = {x = x, y = y}})
     clock.run(function()
       clock.sleep(self._get_bpm())
       self:_nullify_phenomenon(phenomenon)
     end)
   end
-
   local symbol = {
     act = act,
+    breed = breed,
     led = self.led,
     lumen = 5,
     x = x,

@@ -2,20 +2,16 @@ include('lib/utils')
 local textentry = require('textentry')
 local fileselect = require('fileselect')
 
-local ANS = 'Ansible'
-local CROW = 'Crow'
-local SC = 'ER-301'
-local DIST = 'Disting'
-local JF = 'Just Friends'
-local WD = 'W/Delay'
-local WS = 'W/Synth'
-local WT = 'W/Tape'
-local MIDI = 'Midi'
-local MX = 'Mx. Synths'
-
-local ENABLED_STATES = {'Enabled', 'Disabled'}
+local CC_DEFAULTS = {
+  {1, 0}, -- Mod Wheel
+  {2, 0}, -- Breath Controller
+  {12, 0}, -- Effects Control 1
+  {13, 0} -- Effects Control 2
+}
+local ENABLED_STATES = {'Disabled', 'Enabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
-local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS} -- Removing WT while we figure out what to do with it
+local JF_MODES = {'Synthesis', 'Geode'}
+local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS}
 local CROW_DEVICES = {'Host', '1', '2', '3', '4'}
 local CROW_OUTPUTS = {'1/2', '3/4'}
 local CROW_GATES = {'Gate', 'Envelope'}
@@ -35,6 +31,51 @@ local W_RAT_SPEC = controlspec.def{
   warp = 'lin',
   step = 0.01,
   default = 10,
+  quantum = 0.01,
+  wrap = false
+}
+local W_FEEDBACK_SPEC = controlspec.def{
+  min = 0,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 5,
+  quantum = 0.01,
+  wrap = false
+}
+local W_FILTER_SPEC = controlspec.def{
+  min = 0,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 4,
+  quantum = 0.01,
+  wrap = false
+}
+local W_RATE_SPEC = controlspec.def{
+  min = 0.125,
+  max = 2,
+  warp = 'lin',
+  step = 0.01,
+  default = 0.2,
+  quantum = 0.01,
+  wrap = false
+}
+local W_MOD_SPEC = controlspec.def{
+  min = -5,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 1,
+  quantum = 0.01,
+  wrap = false
+}
+local W_AMOUNT_SPEC = controlspec.def{
+  min = 0,
+  max = 5,
+  warp = 'lin',
+  step = 0.01,
+  default = 0,
   quantum = 0.01,
   wrap = false
 }
@@ -94,8 +135,6 @@ function Parameters:_init_observables()
   self.scale = observable.new('')
 end
 
-
-
 function Parameters:_init_performers()
   local available_performers = {MX, MIDI}
   if norns.crow.dev then
@@ -119,7 +158,7 @@ function Parameters:_init_midi_devices()
 end
 
 function Parameters:_init_params()
-  params:add_group('marcovaldo', 'MARCOVALDO', 13)
+  params:add_group('marcovaldo', 'MARCOVALDO', 15)
   
   params:set_action('clock_tempo', function()
     update_clock_rates()
@@ -139,10 +178,14 @@ function Parameters:_init_params()
   params:set_action('marco_random', function() arrangement:randomize() end)
   params:add_trigger('marco_reset', 'Clear All Sequences')
   params:set_action('marco_reset', function() arrangement:reset() end)
+  params:add_trigger('marco_panic', 'Midi Panic')
+  params:set_action('marco_panic', function() ensemble:midi_panic() end)
+  params:add_trigger('marco_cc_reset', 'Reset All Midi CC')
+  params:set_action('marco_cc_reset', function() ensemble:midi_cc_reset() end)
   params:add_separator('marco_global_actions_foot', '')
   params:add_separator('marco_global_settings', 'GLOBAL SETTINGS')
-  params:add_option('marco_animations', 'Animations', ENABLED_STATES, 1)
-  params:set_action('marco_animations', function(i) self.animations_enabled:set(i == 1) end)
+  params:add_option('marco_animations', 'Animations', ENABLED_STATES, 2)
+  params:set_action('marco_animations', function(i) self.animations_enabled:set(i == 2) end)
   params:add_option('marco_scale', 'Scale Type', self.scale_names, 1)
   params:set_action('marco_scale', function(i) self.scale:set(self.scale_names[i]) end)
   params:add_number('marco_root', 'Root Note', 0, 127, 60, function(param) return music_util.note_num_to_name(param:get(), true) end)
@@ -150,7 +193,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 29)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 46)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -164,25 +207,24 @@ function Parameters:_init_params()
     params:add_separator('marco_seq_actions_foot_'..i, '')
     params:add_separator('marco_seq_settings_'..i, 'SEQUENCE '..i..' SETTINGS')
     params:add_option('marco_performer_'..i, 'Performer', self.available_performers, 1)
-    params:set_action('marco_performer_'..i, function() self:_refresh_performer_params() end)
-    
-    -- Disting EX options: TBD
+    params:set_action('marco_performer_'..i, function(val) self:_refresh_performer_params() end)
     
     params:add_number('marco_performer_jf_device_'..i, 'Which JF', 1, 2, 1)
-
+    params:add_option('marco_performer_jf_mode_'..i, 'Mode', JF_MODES, 1)
+    
     params:add_option('marco_performer_midi_device_'..i, 'Midi Device', self.midi_device_identifiers, 1)
     params:add_number('marco_performer_midi_channel_'..i, 'Midi Channel', 1, 16, 1)
-
+    
     params:add_option('marco_performer_crow_device_'..i, 'Which Crow', CROW_DEVICES, 1)
     params:add_option('marco_performer_crow_outputs_'..i, 'Which Outputs', CROW_OUTPUTS, 1)
     params:add_option('marco_performer_crow_gate_'..i, 'Gate Type', CROW_GATES, 1)
     params:set_action('marco_performer_crow_gate_'..i, function() self:_refresh_performer_params() end)
-
+    
     params:add_number('marco_performer_er301_cv_port_'..i, 'CV Port', 1, 100, 1)
     params:add_number('marco_performer_er301_tr_port_'..i, 'TR Port', 1, 100, 1)
-
+    
     params:add_number('marco_performer_ansible_output_'..i, 'Output Channel', 1, 4, 1)
-
+    
     params:add_number('marco_performer_w_device_'..i, 'Which W/', 1, 2, 1)
     params:add_control('marco_performer_w_fm_i_'..i, 'FM Index', W_V_SPEC)
     params:add_control('marco_performer_w_fm_env_'..i, 'FM Envelope', W_V_SPEC)
@@ -190,16 +232,72 @@ function Parameters:_init_params()
     params:add_control('marco_performer_w_fm_rat_d_'..i, 'FM Rat. Den.', W_RAT_SPEC)
     params:add_control('marco_performer_w_ramp_'..i, 'Ramp', W_V_SPEC)
     params:add_control('marco_performer_w_curve_'..i, 'Curve', W_V_SPEC)
-
-    params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, 0, function(param) return ''..param:get()..'% of pulse' end)
-    params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
-    params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of width' end)
+    
+    params:add_control('marco_performer_w_feedback_'..i, 'Feedback', W_FEEDBACK_SPEC)
+    params:add_control('marco_performer_w_filter_'..i, 'Filter', W_FILTER_SPEC)
+    params:add_control('marco_performer_w_rate_'..i, 'Rate', W_RATE_SPEC)
+    params:add_control('marco_performer_w_mod_rate_'..i, 'Mod Rate', W_MOD_SPEC)
+    params:add_control('marco_performer_w_mod_amount_'..i, 'Mod Amount', W_AMOUNT_SPEC)
+    params:add_number('marco_performer_w_env_time_variant_'..i, 'Envelope Time Variant', 1, 2, 1)
+    
+    params:add_number('marco_attack_'..i, 'Attack', 0, 100, 20, function(param) return ''..param:get()..'% of pulse' end)
+    params:add_number('marco_decay_'..i, 'Decay', 0, 100, 25, function(param) return ''..param:get()..'% of pulse' end)
     params:add_number('marco_sustain_'..i, 'Sustain', 0, 100, 90, function(param) return ''..param:get()..'% of strength' end)
-    params:add_number('marco_release_'..i, 'Release', 0, 100, 20, function(param) return ''..param:get()..'% of width' end)
+    params:add_number('marco_release_'..i, 'Release', 0, 100, 20, function(param) return ''..param:get()..'% of pulse' end)
+    params:add_number('marco_performer_slew_'..i, 'CV Slew', 0, 100, 0, function(param) return ''..param:get()..'% of pulse' end)
+    params:add_number('marco_pulse_relativity_'..i, 'Local Relativity', 50, 150, 100)
+    params:add_option('marco_performer_cats_'..i, 'Cats', ENABLED_STATES, 2) 
+    params:set_action('marco_performer_cats_'..i, function(i) self:_refresh_performer_params() end)
+    for j = 1, 4 do
+      params:add_number('marco_performer_midi_cc_'..j..'_id_'..i, 'Cat CC #'..j..' ID', 0, 127, CC_DEFAULTS[j][1])
+      params:add_number('marco_performer_midi_cc_'..j..'_value_'..i, 'CC #'..j..' Value', 0, 127, CC_DEFAULTS[j][2])
+      params:set_action('marco_performer_midi_cc_'..j..'_value_'..i, function() ensemble:midi_transmit_cc(i) end)
+    end
   end
+  
+  params:add_group('marco_experimental', 'EXPERIMENTAL', 6)
+  params:add_option('marco_wrong_stop', 'The W/rong Stop', ENABLED_STATES, 1)
+  params:add_separator('marco_w_tape_settings', '< !! records to w/tape !!>')
+  params:set_action('marco_wrong_stop', function(i) 
+    if arrangement and arrangement.sequences then
+      arrangement:refresh()
+      self:_refresh_performer_params()
+    end
+    if i == 2 then
+      ensemble:configure(WT)
+    else
+      ensemble:configure(WT, {play = 0})
+    end
+  end)
+  params:add_number('marco_performer_w_device_'..WRONG_STOP_SEQ, 'Which W/', 1, 2, 1)
+  params:set_action('marco_performer_w_device_'..WRONG_STOP_SEQ, function() ensemble:configure(WT) end)
+  params:add_control('marco_performer_w_erase_strength_'..WRONG_STOP_SEQ, 'Erase Strength', AMP)
+  params:add_number('marco_performer_w_loop_length_'..WRONG_STOP_SEQ, 'Loop Length', 1, 100, 5)
+  params:set_action('marco_performer_w_loop_length_'..WRONG_STOP_SEQ, function() ensemble:configure(WT) end)
+  params:add_number('marco_performer_w_loop_scale_'..WRONG_STOP_SEQ, 'Loop Scale', 0, 10, 0)
+  params:set_action('marco_performer_w_loop_scale_'..WRONG_STOP_SEQ, function(val) ensemble:configure(WT, {loop_scale = val}) end)
 end
 
 function Parameters:_refresh_performer_params()
+  if norns.crow.dev then
+    params:show('marco_experimental')
+    if params:get('marco_wrong_stop') == 2 then
+      params:show('marco_performer_w_device_'..WRONG_STOP_SEQ)
+      params:show('marco_performer_w_loop_length_'..WRONG_STOP_SEQ)
+      params:show('marco_performer_w_erase_strength_'..WRONG_STOP_SEQ)
+      params:show('marco_performer_w_loop_scale_'..WRONG_STOP_SEQ)
+      params:show('marco_w_tape_settings')
+    else
+      params:hide('marco_performer_w_device_'..WRONG_STOP_SEQ)
+      params:hide('marco_performer_w_loop_length_'..WRONG_STOP_SEQ)
+      params:hide('marco_performer_w_erase_strength_'..WRONG_STOP_SEQ)
+      params:hide('marco_performer_w_loop_scale_'..WRONG_STOP_SEQ)
+      params:hide('marco_w_tape_settings')
+    end
+  else
+    params:hide('marco_experimental')
+  end
+  
   for i = 1, 4 do
     local active_performer = self.available_performers[params:get('marco_performer_'..i)]
     params:hide('marco_performer_ansible_output_'..i)
@@ -210,6 +308,7 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_er301_cv_port_'..i)
     params:hide('marco_performer_er301_tr_port_'..i)
     params:hide('marco_performer_jf_device_'..i)
+    params:hide('marco_performer_jf_mode_'..i)
     params:hide('marco_performer_midi_device_'..i)
     params:hide('marco_performer_midi_channel_'..i)
     params:hide('marco_performer_w_device_'..i)
@@ -223,6 +322,16 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_decay_'..i)
     params:hide('marco_sustain_'..i)
     params:hide('marco_release_'..i)
+    params:hide('marco_performer_w_feedback_'..i)
+    params:hide('marco_performer_w_filter_'..i)
+    params:hide('marco_performer_w_rate_'..i)
+    params:hide('marco_performer_w_mod_rate_'..i)
+    params:hide('marco_performer_w_mod_amount_'..i)
+    params:hide('marco_performer_w_env_time_variant_'..i)
+    for j = 1, 4 do
+      params:hide('marco_performer_midi_cc_'..j..'_id_'..i)
+      params:hide('marco_performer_midi_cc_'..j..'_value_'..i)
+    end
     if active_performer == MX then
       params:show('marco_attack_'..i)
       params:show('marco_decay_'..i)
@@ -232,9 +341,16 @@ function Parameters:_refresh_performer_params()
       -- noop
     elseif active_performer == JF then
       params:show('marco_performer_jf_device_'..i)
+      -- params:show('marco_performer_jf_mode_'..i)
     elseif active_performer == MIDI then
       params:show('marco_performer_midi_device_'..i)
       params:show('marco_performer_midi_channel_'..i)
+      if params:get('marco_performer_cats_'..i) == 2 then
+        for j = 1, 4 do
+          params:show('marco_performer_midi_cc_'..j..'_id_'..i)
+          params:show('marco_performer_midi_cc_'..j..'_value_'..i)
+        end
+      end
     elseif active_performer == CROW then
       params:show('marco_performer_crow_device_'..i)
       params:show('marco_performer_crow_outputs_'..i)
@@ -247,8 +363,9 @@ function Parameters:_refresh_performer_params()
         params:show('marco_release_'..i)
       end
     elseif active_performer == SC then
-      params:show('marco_performer_er301_cv_port_'..i)
       params:show('marco_performer_er301_tr_port_'..i)
+      params:show('marco_performer_er301_cv_port_'..i)
+      params:show('marco_performer_slew_'..i)
     elseif active_performer == ANS then
       params:show('marco_performer_ansible_output_'..i)
       params:show('marco_performer_slew_'..i)
@@ -261,11 +378,26 @@ function Parameters:_refresh_performer_params()
       params:show('marco_performer_w_fm_rat_d_'..i)
       params:show('marco_performer_w_ramp_'..i)
       params:show('marco_attack_'..i)
+    elseif active_performer == WD then
+      params:show('marco_performer_w_device_'..i)
+      params:show('marco_performer_w_feedback_'..i)
+      params:show('marco_performer_w_filter_'..i)
+      params:show('marco_performer_w_rate_'..i)
+      params:show('marco_performer_w_mod_rate_'..i)
+      params:show('marco_performer_w_mod_amount_'..i)
+      params:show('marco_performer_w_env_time_variant_'..i)
     else
       params:show('marco_performer_w_device_'..i)
     end
   end
   _menu.rebuild_params()
+end
+
+function Parameters:_get_performer_instance(name)
+  if ensemble and ensemble.performers then
+    return ensemble.performers[name]
+  end
+  return nil
 end
 
 function Parameters:get(k)
