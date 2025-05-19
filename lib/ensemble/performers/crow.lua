@@ -85,7 +85,7 @@ function CrowPerformer:play_note(sequence, note, velocity, envelope_duration)
           crow.ii.crow[device].volts(cv_out, vo)
           if gate == 1 then
             crow.ii.crow[device].volts(env_out, GATE)
-            clock.sleep(envelope_duration)
+            clock.sleep(divided_duration)
             crow.ii.crow[device].volts(env_out, 0)
           elseif gate == 2 then
             crow.ii.crow[device].slew(env_out, 0)

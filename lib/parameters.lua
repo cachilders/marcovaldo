@@ -2,8 +2,15 @@ include('lib/utils')
 local textentry = require('textentry')
 local fileselect = require('fileselect')
 
+local CC_DEFAULTS = {
+  {1, 0}, -- Mod Wheel
+  {2, 0}, -- Breath Controller
+  {12, 0}, -- Effects Control 1
+  {13, 0} -- Effects Control 2
+}
 local ENABLED_STATES = {'Disabled', 'Enabled'}
 local ERROR_BAD_FILE = 'ERROR: Bad state file'
+local JF_MODES = {'Synthesis', 'Geode'}
 local I2C_PERFORMERS = {ANS, CROW, SC, DIST, JF, WD, WS}
 local CROW_DEVICES = {'Host', '1', '2', '3', '4'}
 local CROW_OUTPUTS = {'1/2', '3/4'}
@@ -151,7 +158,7 @@ function Parameters:_init_midi_devices()
 end
 
 function Parameters:_init_params()
-  params:add_group('marcovaldo', 'MARCOVALDO', 13)
+  params:add_group('marcovaldo', 'MARCOVALDO', 15)
   
   params:set_action('clock_tempo', function()
     update_clock_rates()
@@ -171,6 +178,10 @@ function Parameters:_init_params()
   params:set_action('marco_random', function() arrangement:randomize() end)
   params:add_trigger('marco_reset', 'Clear All Sequences')
   params:set_action('marco_reset', function() arrangement:reset() end)
+  params:add_trigger('marco_panic', 'Midi Panic')
+  params:set_action('marco_panic', function() ensemble:midi_panic() end)
+  params:add_trigger('marco_cc_reset', 'Reset All Midi CC')
+  params:set_action('marco_cc_reset', function() ensemble:midi_cc_reset() end)
   params:add_separator('marco_global_actions_foot', '')
   params:add_separator('marco_global_settings', 'GLOBAL SETTINGS')
   params:add_option('marco_animations', 'Animations', ENABLED_STATES, 2)
@@ -182,7 +193,7 @@ function Parameters:_init_params()
   params:add_number('marco_pulse_constant', 'Cosmological Constant', 50, 150, 75)
 
   for i = 1, 4 do
-    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 45)
+    params:add_group('marco_seq_'..i, 'MARCOVALDO > SEQ '..i, 46)
     params:add_trigger('marco_seq_start'..i, 'Start Sequence '..i)
     params:set_action('marco_seq_start'..i, function() arrangement:start(i) end)
     params:add_trigger('marco_seq_pause'..i, 'Pause Sequence '..i)
@@ -199,17 +210,10 @@ function Parameters:_init_params()
     params:set_action('marco_performer_'..i, function(val) self:_refresh_performer_params() end)
     
     params:add_number('marco_performer_jf_device_'..i, 'Which JF', 1, 2, 1)
+    params:add_option('marco_performer_jf_mode_'..i, 'Mode', JF_MODES, 1)
     
     params:add_option('marco_performer_midi_device_'..i, 'Midi Device', self.midi_device_identifiers, 1)
     params:add_number('marco_performer_midi_channel_'..i, 'Midi Channel', 1, 16, 1)
-    params:add_number('marco_performer_midi_cc_1_id_'..i, 'Cat CC #1 ID', 0, 127, 1) -- Mod Wheel
-    params:add_number('marco_performer_midi_cc_1_value_'..i, 'Cat CC #1 Base', 0, 127, 0)
-    params:add_number('marco_performer_midi_cc_2_id_'..i, 'Cat CC #2 ID', 0, 127, 2) -- Breath Controller
-    params:add_number('marco_performer_midi_cc_2_value_'..i, 'Cat CC #1 Base', 0, 127, 0)
-    params:add_number('marco_performer_midi_cc_3_id_'..i, 'Cat CC #3 ID', 0, 127, 12) -- Effects Control 1
-    params:add_number('marco_performer_midi_cc_3_value_'..i, 'Cat CC #1 Base', 0, 127, 0)
-    params:add_number('marco_performer_midi_cc_4_id_'..i, 'Cat CC #4 ID', 0, 127, 13) -- Effects Control 2
-    params:add_number('marco_performer_midi_cc_4_value_'..i, 'Cat CC #1 Base', 0, 127, 0)
     
     params:add_option('marco_performer_crow_device_'..i, 'Which Crow', CROW_DEVICES, 1)
     params:add_option('marco_performer_crow_outputs_'..i, 'Which Outputs', CROW_OUTPUTS, 1)
@@ -244,6 +248,11 @@ function Parameters:_init_params()
     params:add_number('marco_pulse_relativity_'..i, 'Local Relativity', 50, 150, 100)
     params:add_option('marco_performer_cats_'..i, 'Cats', ENABLED_STATES, 2) 
     params:set_action('marco_performer_cats_'..i, function(i) self:_refresh_performer_params() end)
+    for j = 1, 4 do
+      params:add_number('marco_performer_midi_cc_'..j..'_id_'..i, 'Cat CC #'..j..' ID', 0, 127, CC_DEFAULTS[j][1])
+      params:add_number('marco_performer_midi_cc_'..j..'_value_'..i, 'CC #'..j..' Value', 0, 127, CC_DEFAULTS[j][2])
+      params:set_action('marco_performer_midi_cc_'..j..'_value_'..i, function() ensemble:midi_transmit_cc(i) end)
+    end
   end
   
   params:add_group('marco_experimental', 'EXPERIMENTAL', 6)
@@ -299,16 +308,9 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_er301_cv_port_'..i)
     params:hide('marco_performer_er301_tr_port_'..i)
     params:hide('marco_performer_jf_device_'..i)
+    params:hide('marco_performer_jf_mode_'..i)
     params:hide('marco_performer_midi_device_'..i)
     params:hide('marco_performer_midi_channel_'..i)
-    params:hide('marco_performer_midi_cc_1_id_'..i)
-    params:hide('marco_performer_midi_cc_1_value_'..i)
-    params:hide('marco_performer_midi_cc_2_id_'..i)
-    params:hide('marco_performer_midi_cc_2_value_'..i)
-    params:hide('marco_performer_midi_cc_3_id_'..i)
-    params:hide('marco_performer_midi_cc_3_value_'..i)
-    params:hide('marco_performer_midi_cc_4_id_'..i)
-    params:hide('marco_performer_midi_cc_4_value_'..i)
     params:hide('marco_performer_w_device_'..i)
     params:hide('marco_performer_w_curve_'..i)
     params:hide('marco_performer_w_fm_i_'..i)
@@ -326,6 +328,10 @@ function Parameters:_refresh_performer_params()
     params:hide('marco_performer_w_mod_rate_'..i)
     params:hide('marco_performer_w_mod_amount_'..i)
     params:hide('marco_performer_w_env_time_variant_'..i)
+    for j = 1, 4 do
+      params:hide('marco_performer_midi_cc_'..j..'_id_'..i)
+      params:hide('marco_performer_midi_cc_'..j..'_value_'..i)
+    end
     if active_performer == MX then
       params:show('marco_attack_'..i)
       params:show('marco_decay_'..i)
@@ -335,18 +341,15 @@ function Parameters:_refresh_performer_params()
       -- noop
     elseif active_performer == JF then
       params:show('marco_performer_jf_device_'..i)
+      params:show('marco_performer_jf_mode_'..i)
     elseif active_performer == MIDI then
       params:show('marco_performer_midi_device_'..i)
       params:show('marco_performer_midi_channel_'..i)
       if params:get('marco_performer_cats_'..i) == 2 then
-        params:show('marco_performer_midi_cc_1_id_'..i)
-        params:show('marco_performer_midi_cc_1_value_'..i)
-        params:show('marco_performer_midi_cc_2_id_'..i)
-        params:show('marco_performer_midi_cc_2_value_'..i)
-        params:show('marco_performer_midi_cc_3_id_'..i)
-        params:show('marco_performer_midi_cc_3_value_'..i)
-        params:show('marco_performer_midi_cc_4_id_'..i)
-        params:show('marco_performer_midi_cc_4_value_'..i)
+        for j = 1, 4 do
+          params:show('marco_performer_midi_cc_'..j..'_id_'..i)
+          params:show('marco_performer_midi_cc_'..j..'_value_'..i)
+        end
       end
     elseif active_performer == CROW then
       params:show('marco_performer_crow_device_'..i)

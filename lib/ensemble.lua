@@ -113,6 +113,20 @@ function Ensemble:configure(performer, options)
   end
 end
 
+function Ensemble:midi_transmit_cc(sequence)
+  if self.performers and self.performers[MIDI] then
+    self.performers[MIDI]:transmit_cc(sequence)
+  end
+end
+
+function Ensemble:midi_panic()
+  self.performers[MIDI]:panic()
+end
+
+function Ensemble:midi_cc_reset()
+  self.performers[MIDI]:cc_reset()
+end
+
 function Ensemble:_get_distance_operand(sequence)
   local operand = 1
   local x = self.observer_position[1]

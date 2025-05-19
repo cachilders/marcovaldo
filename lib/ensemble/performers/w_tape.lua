@@ -38,7 +38,7 @@ end
 
 function WTapePerformer:_create_effect(effect_num)
   return function(data)
-    local beat_time = 60 / params:get('clock_tempo')
+    local beat_time = 60 / params:get('clock_tempo') * 5
     local device = params:get('marco_performer_w_device_'..WRONG_STOP_SEQ)
     local strength = params:get('marco_performer_w_erase_strength_'..WRONG_STOP_SEQ)
     local x = data.x
@@ -52,12 +52,12 @@ function WTapePerformer:_create_effect(effect_num)
         if effect_num % 2 == 0 then
           crow.ii.wtape[device].erase_strength(strength)
           crow.ii.wtape[device].record(1)
-          clock.sleep(beat_time * 5)
+          clock.sleep(beat_time)
           crow.ii.wtape[device].record(0)
         else 
           local freq = (10 / 8 * y) - 5
           crow.ii.wtape[device].freq(freq)
-          clock.sleep(beat_time * 5)
+          clock.sleep(beat_time)
           crow.ii.wtape[device].freq(0)
         end
       end

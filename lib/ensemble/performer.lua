@@ -2,6 +2,7 @@ local Performer = {
   clocks = nil,
   divisions = 1,
   effects = nil,
+  max_clock_indices = {effect = 4, voice = 4},
   name = 'Performer',
   next_clock_index = {effect = 1, voice = 1},
   repeats = 1
@@ -20,20 +21,14 @@ function Performer:init()
 end
 
 function Performer:_init_clocks()
-  local effect_clocks = {}
-  local voice_clocks = {}
-  for i = 1, 4 do
-    effect_clocks[i] = nil
-    voice_clocks[i] = nil
-  end
   self.clocks = {
-    effect = effect_clocks,
-    voice = voice_clocks
+    effect = {},
+    voice = {}
   }
 end
 
 function Performer:_advance_clock_index(type)
-  self.next_clock_index[type] = util.wrap(self.next_clock_index[type] + 1, 1, #self.clocks[type])
+  self.next_clock_index[type] = util.wrap(self.next_clock_index[type] + 1, 1, self.max_clock_indices[type])
 end
 
 function Performer:_get_next_clock(type)
