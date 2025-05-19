@@ -50,10 +50,10 @@ function JustFriendsPerformer:play_note(sequence, note, velocity, envelope_durat
         local pitch = (adj_note >= 0 and adj_note or 0) / 12
         local device = params:get('marco_performer_jf_device_'..sequence)
         crow.ii.jf[device].mode(params:get('marco_performer_jf_mode_'..sequence) == 1 and 1 or 0)
-        crow.ii.jf[device].pitch(pitch)
-        crow.ii.jf[device].vtrigger(voice_index, velocity * VELOCITY_CONSTANT)
-        clock.sleep(divided_duration)
-        crow.ii.jf[device].vtrigger(voice_index, 0)
+        -- crow.ii.jf[device].pitch(pitch)
+        -- crow.ii.jf[device].vtrigger(voice_index, velocity * VELOCITY_CONSTANT)
+        -- clock.sleep(divided_duration)
+        -- crow.ii.jf[device].vtrigger(voice_index, 0)
         crow.ii.jf[device].play_note(pitch, velocity * VELOCITY_CONSTANT)
         if self.repeats > 1 then
           clock.sleep(division_gap)

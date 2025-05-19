@@ -341,7 +341,7 @@ function Parameters:_refresh_performer_params()
       -- noop
     elseif active_performer == JF then
       params:show('marco_performer_jf_device_'..i)
-      params:show('marco_performer_jf_mode_'..i)
+      -- params:show('marco_performer_jf_mode_'..i)
     elseif active_performer == MIDI then
       params:show('marco_performer_midi_device_'..i)
       params:show('marco_performer_midi_channel_'..i)
