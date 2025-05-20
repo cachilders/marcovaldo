@@ -184,7 +184,7 @@ function Sequence:step_state()
   }
   local ranges = {
     self.scale, -- TODO this is a cheat
-    PULSE_PROBABILITY_MAX + 1, -- 0 - 10
+    PULSE_PROBABILITY_MAX,
     MIDI_MAX - DEFAULT_MIN,
     PULSE_WIDTH_MAX
   }

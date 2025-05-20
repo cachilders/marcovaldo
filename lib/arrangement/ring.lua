@@ -18,8 +18,7 @@ function Ring._extents_in_radians(i, range)
 end
 
 function Ring._percent_in_radians(i, range)
-  i = i or 0
-  i = i == 1 and 0 or i - 1
+  i = i or 0 -- test this but zero should be zero lights and 1 should be some
   return util.clamp((MAX_RADIANS / range) * i, 0, MAX_RADIANS)
 end
 
