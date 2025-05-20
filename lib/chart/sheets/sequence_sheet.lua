@@ -84,7 +84,7 @@ function SequenceSheet:refresh()
           local step_value = pulse_positions[step]
           if step == current_step then
             self.led(c, r, 15)
-          elseif step_value == 1 then
+          elseif step_value > 0 then
             self.led(c, r, 12)
           else
             self.led(c, r, 4)
