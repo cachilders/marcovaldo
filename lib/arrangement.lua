@@ -197,7 +197,7 @@ function Arrangement:_init_sequences()
 end
 
 function Arrangement:_ring_input_to_sequence(n, delta)
-  if get_current_mode() == DEFAULT then
+  if get_current_mode() == DEFAULT and shift_depressed then
     set_current_mode(SEQUENCE)
     self.sequences:transmit(n)
     self.selected_sequence = n

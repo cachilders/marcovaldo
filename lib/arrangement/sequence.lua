@@ -10,6 +10,7 @@ local STEP_COUNT_MIN = 8
 local STEP_COUNT_MAX = 128
 local STEP_COUNT_RANGE = STEP_COUNT_MAX - STEP_COUNT_MIN
 local SUBDIVISIONS = 4
+local PULSE_PROBABILITY_MAX = 10
 
 local Sequence = {
   active = true,
@@ -113,7 +114,7 @@ function Sequence:change(n, delta)
       if n == 1 then
         self:_set_step_note(delta)
       elseif n == 2 then
-        self:_set_step_pulse_active(delta)
+        self:_set_step_pulse_probability(delta)
       elseif n == 3 then
         self:_set_step_pulse_strength(delta)
       elseif n == 4 then
@@ -177,19 +178,19 @@ function Sequence:step_state()
   local step = self.selected_step
   local values = {
     self.notes[step],
-    self:_determine_pulse_bool(step),
+    self:_determine_pulse_probability(step),
     self.pulse_strengths[step],
     self.pulse_widths[step],
   }
   local ranges = {
     self.scale, -- TODO this is a cheat
-    2, -- TODO standin
+    PULSE_PROBABILITY_MAX,
     MIDI_MAX - DEFAULT_MIN,
     PULSE_WIDTH_MAX
   }
   local types = {
     constants.ARRANGEMENT.TYPES.POSITION,
-    constants.ARRANGEMENT.TYPES.BOOL,
+    constants.ARRANGEMENT.TYPES.PORTION,
     constants.ARRANGEMENT.TYPES.PORTION,
     constants.ARRANGEMENT.TYPES.PORTION
   }
@@ -212,11 +213,12 @@ function Sequence:transmit()
   end
 end
 
+-- This is what the sequence sheet uses on keypress
 function Sequence:toggle_pulse_override(step)
-  local current_pulse = self.pulse_position_overrides[step] or self.pulse_positions[step]
-  local next_pulse = current_pulse == 1 and 0 or 1
+  local current_pulse_probability = self:_determine_pulse_probability(step)
+  local next_pulse = current_pulse_probability > 0 and 0 or PULSE_PROBABILITY_MAX
   self.pulse_position_overrides[step] = next_pulse
-  if next_pulse == 1 then
+  if next_pulse > 0 then
     self.selected_step = step
     if self.notes[step] == nil then
       self:_set_step_note(0)
@@ -264,7 +266,7 @@ function Sequence:_distribute_pulses()
   local pulse_positions = er.gen(self.pulse_count, self.step_count)
   local pulses = {}
   for i = 1, #pulse_positions do
-    pulses[i] = pulse_positions[i] and 1 or 0
+    pulses[i] = pulse_positions[i] and 10 or 0
   end
   self.pulse_positions = pulses
 end
@@ -297,13 +299,17 @@ function Sequence:_determine_modified_pulse_positions()
 end
 
 function Sequence:_determine_pulse_bool(step)
-  -- First check for user override
-  local user_pulse = self.pulse_position_overrides[step]
-  if user_pulse ~= nil then
-    return user_pulse == 1
+  local pulse = self:_determine_pulse_probability(step)
+  if pulse == 0 then
+    return false
+  else
+    local chance = math.random(1, PULSE_PROBABILITY_MAX)
+    return pulse <= chance
   end
-  -- If no override, use natural pulse position
-  return self.pulse_positions[step] == 1
+end
+
+function Sequence:_determine_pulse_probability(step)
+  return self.pulse_position_overrides[step] or self.pulse_positions[step]
 end
 
 function Sequence:_init_notes()
@@ -357,13 +363,13 @@ function Sequence:_set_step_note(delta)
   self.notes[self.selected_step] = util.clamp(note_index + delta, 1, #self.scale)
 end
 
-function Sequence:_set_step_pulse_active(delta)
+function Sequence:_set_step_pulse_probability(delta)
   local step = self.selected_step
   local current_pulse = self.pulse_position_overrides[step]
   if current_pulse == nil then
     current_pulse = self.pulse_positions[step]
   end
-  self.pulse_position_overrides[step] = util.clamp(current_pulse + delta, 0, 1)
+  self.pulse_position_overrides[step] = util.clamp(current_pulse + delta, 0, PULSE_PROBABILITY_MAX)
 end
 
 function Sequence:_set_step_pulse_strength(delta)

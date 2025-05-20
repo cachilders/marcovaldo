@@ -5,6 +5,7 @@ local CONSTANTS = {
   PULSE_COLUMN_START = 65,
   SCREEN_HEIGHT = 64,
   SCREEN_WIDTH = 128,
+  PROBABILITY_MAX_LABEL = ' of 10',
   FONTS = {
     BASIC = {
       FACE = 1,
