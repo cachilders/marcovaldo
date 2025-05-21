@@ -219,6 +219,7 @@ function Sequence:toggle_pulse_override(step)
   -- - Step toggle no longer illuminates grid or updates console
   -- - Ring only paints to 90%
   local current_pulse_probability = self:_determine_pulse_probability(step)
+  print(current_pulse_probability, step)
   local next_pulse = current_pulse_probability > 0 and 0 or PULSE_PROBABILITY_MAX
   self.pulse_position_overrides[step] = next_pulse
   if next_pulse > 0 then
