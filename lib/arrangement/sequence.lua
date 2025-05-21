@@ -213,7 +213,6 @@ function Sequence:transmit()
   end
 end
 
--- This is what the sequence sheet uses on keypress
 function Sequence:toggle_pulse_override(step)
   local current_pulse_probability = self:_determine_pulse_probability(step)
   local next_pulse = current_pulse_probability > 0 and 0 or PULSE_PROBABILITY_MAX
@@ -286,12 +285,10 @@ end
 function Sequence:_determine_modified_pulse_positions()
   local pulse_positions = {}
   for i = 1, self.step_count do
-    -- First check for user override
     local user_pulse = self.pulse_position_overrides[i]
     if user_pulse ~= nil then
       pulse_positions[i] = user_pulse
     else
-      -- If no override, use natural pulse position
       pulse_positions[i] = self.pulse_positions[i]
     end
   end

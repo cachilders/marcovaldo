@@ -226,7 +226,7 @@ function Arrangement:_transmit_editor_state(editor, i, state)
   self.rings:paint_editor_state(state[editor])
   self.affect_console('edit_'..STEP, i[STEP], state[STEP])
   self.affect_console('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE])
-  self.affect_chart('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE]) -- Validate behavior
+  self.affect_chart('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE])
 end
 
 return Arrangement

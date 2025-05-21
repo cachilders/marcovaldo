@@ -9,7 +9,6 @@ PANE_EDGE_LENGTH = 8
 SEQUENCE = 'sequence'
 STEP = 'step'
 
--- Performer constants
 ANS = 'Ansible'
 CROW = 'Crow'
 DIST = 'Disting'
@@ -20,11 +19,6 @@ SC = 'ER-301'
 WD = 'W/Delay'
 WS = 'W/Synth'
 WT = 'W/Tape'
-
--- Sheet constants
-SHEET_WIDTH = 16  -- Full width of a sheet
-SHEET_HEIGHT = 8  -- Height of a sheet (matches PANE_EDGE_LENGTH)
-SHEET_STEPS = SHEET_WIDTH * SHEET_HEIGHT  -- Total steps in a sheet (128)
 
 MODES = {DEFAULT, ERROR, SEQUENCE, STEP}
 WRONG_STOP_SEQ = 5

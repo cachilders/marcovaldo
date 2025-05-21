@@ -3,8 +3,6 @@ local Sheet = {
   led = nil,
   source = nil,
   values = nil,
-  height = SHEET_HEIGHT,
-  width = SHEET_WIDTH,
   y_offset = 0
 }
 
@@ -23,15 +21,13 @@ function Sheet:set(k, v)
   self[k] = v
 end
 
--- Convert coordinates to step number
 function Sheet:coords_to_step(x, y)
-  return (y - 1) * self.width + x
+  return (y - 1) * PANE_EDGE_LENGTH + x
 end
 
--- Convert step number to coordinates
 function Sheet:step_to_coords(step)
-  local y = math.floor((step - 1) / self.width) + 1
-  local x = ((step - 1) % self.width) + 1
+  local y = math.floor((step - 1) / PANE_EDGE_LENGTH) + 1
+  local x = ((step - 1) % PANE_EDGE_LENGTH) + 1
   return x, y
 end
 

@@ -74,10 +74,8 @@ end
 
 function Chart:press(x, y, z)
   if self.sheet then
-    -- Get the page containing our sheet
     local page = self.sheets[self.sheet]
     
-    -- Pass the press through the appropriate pane for sequence editing
     for _, pane in ipairs(page:get('panes')) do
       pane:pass(x, y, z)
       break
@@ -110,10 +108,8 @@ function Chart:affect(action, index, values)
     local velocity = values.velocity
     local envelope_duration = values.envelope_duration
     self.plans[1]:emit_pulse(sequence, velocity, envelope_duration)
-  elseif action == actions.edit_sequence or action == actions.edit_step then -- Validate
-    -- Get the page containing our sequence sheet
+  elseif action == actions.edit_sequence or action == actions.edit_step then
     local page = self.sheets[SEQUENCE]
-    -- Update the sheet through its pane
     for _, pane in ipairs(page:get('panes')) do
       pane.sheet:update(index, values)
     end
@@ -210,7 +206,6 @@ function Chart:_init_sheets()
     self.host:led(x, y, l)
   end
   
-  -- Create sequence sheet
   local sequence_sheet = SequenceSheet:new({
     affect_arrangement = self.affect_arrangement,
     led = led,
@@ -218,7 +213,6 @@ function Chart:_init_sheets()
   })
   
   if self.host.cols == 16 then
-    -- 256-key grid: Show full sheet
     local pane = SheetPane:new({sheet = sequence_sheet, page = 1, is_64_key = false})
     local page = Page:new({
       id = 1,
@@ -227,7 +221,6 @@ function Chart:_init_sheets()
     page:set('panes', {pane})
     sheets[SEQUENCE] = page
   else
-    -- 64-key grid: Show half at a time
     local panes = {
       SheetPane:new({sheet = sequence_sheet, page = 1, is_64_key = true}),
       SheetPane:new({sheet = sequence_sheet, page = 2, is_64_key = true})
