@@ -41,7 +41,7 @@ end
 
 function Sequence:hydrate(sequence)
   for k, v in pairs(sequence) do
-    if k ~= 'emit_note' and k ~= transmit_editor_state then
+    if k ~= 'emit_note' and k ~= 'transmit_editor_state' then
       self[k] = sequence[k]
     end
   end
