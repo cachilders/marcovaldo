@@ -1,9 +1,28 @@
 # marcovaldo
 a spatial sequencer with cats
 
-## [ALERT: DOCS OUT OF SYNC WITH MAIN]
+## v2
+While version 2 introduces a number of expansions of scope, it introduces very few breaking changes (alongside a handful of bug fixes). If you encounter unexpected behavior, please pass it along either here or in an issue in the repository.
 
-## Useage
+Changes are reflected in the documentation below, but can be summarized as:
+- Introduction of proper grid step editor
+- Introduction of step probability
+- Midi and i2c support in addition to mx.synths
+  - Ansible
+  - Crow (theoretically up to 5, though there are only four sequences)
+  - Disting
+  - ER-301
+  - Just Friends (up to 2)
+  - W/Delay (up to 2)
+  - W/Synth (up to 2)
+- New cats for the new devices (these are sparse at the moment)
+- An additional experimental cat (cats are random actors that introduce effects if you're new to this script) that controls W/tape
+- More granular per-sequence params (in addition to performer selection), including envelope width modifier, cats enabled or disabled, and performer-specific params
+
+In short, v1 was reflective of a number of choices that made modification for the user more limited. V2 is a major expansion of individual capacity for change and a more powerful mode of sequence construction with expanded voicing options.  
+
+## Usage
+
 Marcovaldo is a sequencer for monome norns. It works best with a varibright monome grid, but it isn't required for basic use. Grids of any size will do. It's also built with the monome arc in mind, but this is not a requirement to enjoy the script.
 
 ### The Arrangement
@@ -32,19 +51,25 @@ SEQUENCE allows for the editing of STEP COUNT (ARC 1 / ENC 2), PULSE COUNT (ARC 
 
 Pulses derived by PULSE COUNT and STEP COUNT are distributed by euclidean distance automatically when these attributes are changed.
 
-From the DEFAULT mode, adjusting an arc or norns encoder will enter its associated sequence. Alternately, from DEFAULT you may enter edit mode on the last edited sequence by pressing K3. K2 will return to the DEFAULT mode.
+From the DEFAULT mode, enter the SEQUENCE edit mode by pressing K3. The selected sequence can be changed using ENC1. Alternately, from DEFAULT mode you can press K1 and twist any of the four arc knobs to enter edit mode on the respective sequence. K2 will return to the DEFAULT mode. K3 will drop you from SEQUENCE edit mode to STEP edit mode.
 
-The selected sequence can be changed using ENC 1.
+Within SEQUENCE mode, the grid will reflect pulse rates above a probability of zero. 64 key grids will represent 128 steps across two pages, using the same three finger paging gesture to flip. The first page represents the first 64 steps, the second, the remainder.
+
+While the length of the sequence can be adjusted by ARC 1 or ENC 1, it can also be adjusted by pressing K1 and a key on the grid. This will either expand or contract the length within the 128 step limit.
+
+Tapping any key within the sequence range while in SEQUENCE will toggle the pulse for that step. nb: Toggling off a pulse in this way will not preserve the probability should you toggle the pulse back on. The toggle deals in absolutes.
 
 ![step mode](./assets/images/documentation/step.png)
 
-STEP allows for the editing of NOTE (ARC 1 / ENC 2), PULSE ACTIVE (ARC 2 / ENC 3), PULSE STRENGTH (ARC 3 / K1 + ENC 2), and PULSE WIDTH (ARC 4 / K1 + ENC 3).
+In addition to pressing K3 from SEQUENCE mode to enter STEP mode, you can long-press any grid key within the sequence range to enable momentary editing of the respective step.
 
-PULSE ACTIVE is an override. Adjustments persist when recalculating euclidean beats. PULSE WIDTH is a multiplier applied to the clock/subdivision calculated duration of the sequence's pulse. The range is between 50% anf 150% of the original pulse duration.
+STEP allows for the editing of NOTE (ARC 1 / ENC 2), PULSE PROBABILITY (ARC 2 / ENC 3), PULSE STRENGTH (ARC 3 / K1 + ENC 2), and PULSE WIDTH (ARC 4 / K1 + ENC 3).
 
-From the SEQUENCE mode, pressing K3 will take you to STEP mode. Pressing K2 in STEP mode will return you to the parent sequence.
+PULSE PROBABILITY is an override. Additive and subtractive adjustments persist when recalculating euclidean beats. PULSE WIDTH is a multiplier applied to the clock/subdivision calculated duration of the sequence's pulse. The range is between 50% anf 150% of the original pulse duration.
 
-The selected step can be changed with ENC 1.
+Pressing K2 in STEP mode will return you to the parent SEQUENCE. Another K2 press will exit SEQUENCE.
+
+The selected step can be changed with ENC 1, or by long-pressing another step in the grid.
 
 ### The Chart
 
@@ -84,9 +109,15 @@ The CATS plan ("The Garden of Stubborn Cats") introduces minor chaos to the orde
 
 When they walk off the Chart, they're gone for good. When they do move, they modify the characteristics of the sound in that instance. On some occasions these changes will stick. Different voices will reflect these changes differently.
 
+Cats do not care if any sequences are playing. Cats continue to move in silence and are happy being cats.
+
 ![relief plan](./assets//images/documentation/relief.png)
 
 The final plan is the RELIEF ("Smoke, wind, and Soap Bubbles"). It is a collection of all the Chart phenomena layered atop one another. A visualization of how all the pieces fit together with no interactive characteristics.
+
+![sequence sheet](./assets/images/documentation/sheet.png)
+
+The SEQUENCE SHEET is an overlay that will cover the chart plans while in SEQUENCE or STEP. K2 will return you to the standard chart view from SEQUENCE. Likewise, the SHEET will time out eventually and restore the DEFAULT mode.
 
 ### Params
 SAVING and LOADING from Marcovaldo's global parameter group will save and load not only the feature placements on the chart but also the current state of all params.
@@ -97,11 +128,22 @@ If you do not use a grid, the global and sequence parameters are how you must ma
 
 The ADSR params of each sequence are applied as percentage multipliers to the calculated pulse duration of their respective sequence.
 
+![performer params](./assets/images/documentation/performer.png)
+
+Each sequence has a selectable PERFORMER in params. If you are not using Crow, you will be limited to mx.synths and Midi. If the crow is unavailable when loading a saved state, all i2c performers will default to Midi.
+
+Individual performers have their own params. Some devices allow for addressing. Addressing is not covered by this readme at this time. One note, you could theoretically have six W/ devices accessible on your bus from this script, such that two flavors of W/Synth, W/Delay, and W/Tape are available. At most Five of these would be usable in the script (two synths, two delays, and a tape). Likewise up to five crows might be accessible on your bus, with host being the device connected via USB and 1-4 being attached by i2c.
+
+### Experimental
+
+The W/rong Stop is an additional cat available to enable via params if an i2c bus is present. It makes use of W/Tape, and it is caustic. It creates a loop at timestamp 5000 seconds.
+
+![wrong stop params](./assets/images/documentation/experimental.png)
+
+While you can adust the length and scale of the loop, it exists as a chaotic actor. The only way to know a cat you have created will make it act is to disable the cats associated with any of the four primary sequences. Otherwise, it is a matter of chance whether any given cat will have an affinity for w/tape and cause it to perform.
+
 ### Acknowledgements 
 This sequencer gets its voice from [mx.synths](https://github.com/schollz/mx.synths) and would do very little without it.
 
 Grid diagrams care of [Tyler Etters](https://nor.the-rn.info/about)'s excellent [GridStation](https://tyleretters.github.io/GridStation/)
 
-## Documentation
-- [Agent Guidelines](docs/AGENT_GUIDELINES.md) - Core patterns, principles, and development guidelines
-- [Norns API Reference](https://monome.org/docs/norns/reference/)
