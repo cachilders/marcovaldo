@@ -19,7 +19,6 @@ end
 
 function Ring._percent_in_radians(i, range)
   i = i or 0
-  i = i == 1 and 0 or i - 1
   return util.clamp((MAX_RADIANS / range) * i, 0, MAX_RADIANS)
 end
 
@@ -88,7 +87,7 @@ end
 function Ring:_paint_binary_list_as_portion(list, range)
   local count = 0
   for i = 1, range do
-    if list[i] == 1 then
+    if list[i] > 0 then
       count = count + 1
     end
   end
@@ -106,7 +105,6 @@ end
 
 function Ring:_paint_portion(x, range)
   local extent = self._percent_in_radians(x, range)
-  print(extent, x, range)
   self.host:segment(self.id, 0, extent, self.lumen)
 end
 

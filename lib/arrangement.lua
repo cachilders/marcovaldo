@@ -201,8 +201,9 @@ function Arrangement:_ring_input_to_sequence(n, delta)
     set_current_mode(SEQUENCE)
     self.sequences:transmit(n)
     self.selected_sequence = n
+  else
+    self.sequences:pass_change(self.selected_sequence, n, delta)
   end
-  self.sequences:pass_change(self.selected_sequence, n, delta)
 end
 
 function Arrangement:_select_sequence(delta)

@@ -160,8 +160,8 @@ function Sequence:state()
     self.subdivision
   }
   local ranges = {
-    STEP_COUNT_MAX - STEP_COUNT_MIN,
-    self.step_count - DEFAULT_MIN,
+    STEP_COUNT_MAX,
+    self.step_count,
     OCTAVES_MAX - DEFAULT_MIN,
     SUBDIVISIONS
   }
@@ -215,11 +215,7 @@ end
 
 -- This is what the sequence sheet uses on keypress
 function Sequence:toggle_pulse_override(step)
-  -- STUFF THAT IS BROKEN
-  -- - Step toggle no longer illuminates grid or updates console
-  -- - Ring only paints to 90%
   local current_pulse_probability = self:_determine_pulse_probability(step)
-  print(current_pulse_probability, step)
   local next_pulse = current_pulse_probability > 0 and 0 or PULSE_PROBABILITY_MAX
   self.pulse_position_overrides[step] = next_pulse
   if next_pulse > 0 then
