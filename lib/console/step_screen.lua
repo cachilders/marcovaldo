@@ -1,7 +1,7 @@
 local console_constants = include('lib/console/constants')
 local Screen = include('lib/console/screen')
 
-local FIELD_LABELS = {'Note', 'Active', 'Strength', 'Width'}
+local FIELD_LABELS = {'Note', 'Probability', 'Strength', 'Width'}
 local PULSE = 'Pulse'
 
 local StepScreen = {
@@ -27,11 +27,11 @@ function StepScreen:_draw_fields()
   screen.font_face(console_constants.FONTS.BASIC.FACE)
   screen.font_size(console_constants.FONTS.BASIC.SIZE)
   local values = self.values[1]
-  local active = values[2]
+  local probability = values[2]
   local strength = values[3]
   local width = values[4]
   screen.move(console_constants.FIELD_START_X, console_constants.FIELD_START_Y)
-  screen.text(self._enclose_field(active and 'Yes' or 'No'))
+  screen.text(self._enclose_field(probability..console_constants.PROBABILITY_MAX_LABEL))
   screen.move(console_constants.FIELD_START_X, console_constants.FIELD_START_Y * 2)
   screen.text(self._enclose_field(strength))
   screen.move(console_constants.FIELD_START_X, console_constants.FIELD_START_Y * 3)

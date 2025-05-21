@@ -29,7 +29,6 @@ function SequenceSheet:press(x, y, z)
     local step_count = self.values[1][1]
     local step_offset = self:get('step_offset') or 0
     
-    -- For 64-key grid, map coordinates to steps
     local step
     if self.is_64_key then
       step = (y - 1) * PANE_EDGE_LENGTH + x + step_offset
@@ -84,7 +83,7 @@ function SequenceSheet:refresh()
           local step_value = pulse_positions[step]
           if step == current_step then
             self.led(c, r, 15)
-          elseif step_value == 1 then
+          elseif step_value > 0 then
             self.led(c, r, 12)
           else
             self.led(c, r, 4)
@@ -104,7 +103,7 @@ function SequenceSheet:refresh()
           local step_value = pulse_positions[step]
           if step == current_step then
             self.led(c, r, 15)
-          elseif step_value == 1 then
+          elseif step_value > 0 then
             self.led(c, r, 12)
           else
             self.led(c, r, 4)
@@ -124,14 +123,12 @@ function SequenceSheet:update(index, values)
 end
 
 function SequenceSheet:on_gesture_complete()
-  -- Cancel all running timers
   for step, timer in pairs(key_timer) do
     if timer then
       clock.cancel(timer)
       key_timer[step] = nil
     end
   end
-  -- Set halt_keys to true to prevent new timers
   halt_keys = true
 end
 

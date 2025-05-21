@@ -197,12 +197,13 @@ function Arrangement:_init_sequences()
 end
 
 function Arrangement:_ring_input_to_sequence(n, delta)
-  if get_current_mode() == DEFAULT then
+  if get_current_mode() == DEFAULT and shift_depressed then
     set_current_mode(SEQUENCE)
     self.sequences:transmit(n)
     self.selected_sequence = n
+  else
+    self.sequences:pass_change(self.selected_sequence, n, delta)
   end
-  self.sequences:pass_change(self.selected_sequence, n, delta)
 end
 
 function Arrangement:_select_sequence(delta)
@@ -225,7 +226,7 @@ function Arrangement:_transmit_editor_state(editor, i, state)
   self.rings:paint_editor_state(state[editor])
   self.affect_console('edit_'..STEP, i[STEP], state[STEP])
   self.affect_console('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE])
-  self.affect_chart('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE]) -- Validate behavior
+  self.affect_chart('edit_'..SEQUENCE, i[SEQUENCE], state[SEQUENCE])
 end
 
 return Arrangement

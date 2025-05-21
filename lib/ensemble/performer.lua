@@ -38,7 +38,6 @@ function Performer:_get_next_clock(type)
 end
 
 function Performer:_create_effect(effect_num)
-  -- Base class has no effects
   return function(data)
     -- No-op
   end
@@ -60,7 +59,6 @@ function Performer:apply_effect(effect, data, sequence)
 end
 
 function Performer:play_note(sequence, note, velocity, envelope_duration)
-  -- Base class has no play_note implementation
 end
 
 function Performer:get(k)
