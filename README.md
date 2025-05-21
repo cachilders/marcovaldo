@@ -1,6 +1,8 @@
 # marcovaldo
 a spatial sequencer with cats
 
+## [ALERT: DOCS OUT OF SYNC WITH MAIN]
+
 ## Useage
 Marcovaldo is a sequencer for monome norns. It works best with a varibright monome grid, but it isn't required for basic use. Grids of any size will do. It's also built with the monome arc in mind, but this is not a requirement to enjoy the script.
 
