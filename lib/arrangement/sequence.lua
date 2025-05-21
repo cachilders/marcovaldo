@@ -296,12 +296,12 @@ function Sequence:_determine_modified_pulse_positions()
 end
 
 function Sequence:_determine_pulse_bool(step)
-  local pulse = self:_determine_pulse_probability(step)
-  if pulse == 0 then
+  local pulse_probability = self:_determine_pulse_probability(step)
+  if pulse_probability == 0 then
     return false
   else
     local chance = math.random(1, PULSE_PROBABILITY_MAX)
-    return pulse <= chance
+    return chance >= PULSE_PROBABILITY_MAX - pulse_probability
   end
 end
 
