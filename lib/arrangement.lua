@@ -199,8 +199,8 @@ end
 function Arrangement:_ring_input_to_sequence(n, delta)
   if get_current_mode() == DEFAULT and shift_depressed then
     set_current_mode(SEQUENCE)
-    self.sequences:transmit(n)
     self.selected_sequence = n
+    self.sequences:transmit(n)
   else
     self.sequences:pass_change(self.selected_sequence, n, delta)
   end
@@ -219,6 +219,9 @@ function Arrangement:_switch_mode()
 end
 
 function Arrangement:_transmit_editor_state(editor, i, state)
+  if not state or not state[editor] then
+    return
+  end
   local editor_mode_index = get_mode_index(editor)
   if current_mode() ~= editor_mode_index then
     set_current_mode(editor)
