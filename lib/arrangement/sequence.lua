@@ -5,10 +5,8 @@ local MIDI_MAX = 127
 local OCTAVES_MAX = 10
 local PULSE_WIDTH_MIN = 50
 local PULSE_WIDTH_MAX = 150
-local PULSE_WIDTH_RANGE = PULSE_WIDTH_MAX - PULSE_WIDTH_MIN
 local STEP_COUNT_MIN = 8
 local STEP_COUNT_MAX = 128
-local STEP_COUNT_RANGE = STEP_COUNT_MAX - STEP_COUNT_MIN
 local SUBDIVISIONS = 4
 local PULSE_PROBABILITY_MAX = 10
 
@@ -228,6 +226,9 @@ end
 
 function Sequence:set_sequence_length(length)
   self.step_count = length
+  if self.current_step > self.step_count then
+    self.current_step = 1
+  end
   self:_adjust_pulse_count(0)
   self:_distribute_pulses()
   self:transmit()
